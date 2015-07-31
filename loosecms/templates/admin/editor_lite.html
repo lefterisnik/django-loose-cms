@@ -28,8 +28,8 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="list-group">
-                            <a class="add-page list-group-item" href="{% url 'admin:tscms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}" data-template="checked">{% trans "Create new template page" %}</a>
-                            <a class="add-page list-group-item" href="{% url 'admin:tscms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}">{% trans "Create new page" %}</a>
+                            <a class="add-page list-group-item" href="{% url 'admin:loosecms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}" data-template="checked">{% trans "Create new template page" %}</a>
+                            <a class="add-page list-group-item" href="{% url 'admin:loosecms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}">{% trans "Create new page" %}</a>
                         </div>
                     </div>
                 </div>
@@ -50,8 +50,8 @@
                     <li class="active">
                         <a href="#">{% trans "Actions" %}<span class="glyphicon arrow"></span></a>
                         <ul>
-                            <li><a class="add-page" href="{% url 'admin:tscms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}" data-template="checked">{% trans "Create new template page" %}</a></li>
-                            <li><a class="add-page" href="{% url 'admin:tscms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}">{% trans "Create new page" %}</a></li>
+                            <li><a class="add-page" href="{% url 'admin:loosecms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}" data-template="checked">{% trans "Create new template page" %}</a></li>
+                            <li><a class="add-page" href="{% url 'admin:loosecms_htmlpage_add' %}" data-type="0" data-slug="{{ page_slug }}">{% trans "Create new page" %}</a></li>
                         </ul>
                     </li>
                     <li>
@@ -63,7 +63,7 @@
                                     {% for page in pages %}
                                     <li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a></li>
                                     {% endfor %}
-                                    <li><a target="_blank" href="{% url 'admin:tscms_htmlpage_changelist' %}?is_template__exact=0">{% trans "List all" %}</a></li>
+                                    <li><a target="_blank" href="{% url 'admin:loosecms_htmlpage_changelist' %}?is_template__exact=0">{% trans "List all" %}</a></li>
                                 </ul>
                             </li>
                             <li>
@@ -72,7 +72,7 @@
                                     {% for page in template_pages %}
                                     <li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a></li>
                                     {% endfor %}
-                                    <li><a target="_blank" href="{% url 'admin:tscms_htmlpage_changelist' %}?is_template__exact=1">{% trans "List all" %}</a></li>
+                                    <li><a target="_blank" href="{% url 'admin:loosecms_htmlpage_changelist' %}?is_template__exact=1">{% trans "List all" %}</a></li>
                                 </ul>
                             </li>
                         </ul>

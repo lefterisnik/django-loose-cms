@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
-from tscms.plugin_pool import plugin_pool
 from django.core import urlresolvers
+from ..plugin_pool import plugin_pool
 
 register = template.Library()
 
