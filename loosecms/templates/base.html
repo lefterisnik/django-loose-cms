@@ -1,0 +1,43 @@
+{% load staticfiles tscms_tags %}
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/html">
+	<head>
+		<title>{{ page.title }} - {{ config.SITE_TITLE }}</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+
+        <!--TODO: FILL LATER />		
+        <meta name="description" content="" />
+		<meta name="keywords" content="" /-->
+
+        <link rel="shortcut icon" href="{% static config.FAVICON %}" />
+        <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-datepicker/css/bootstrap-datetimepicker.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'jspanel/jspanel/jquery.jspanel.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" />
+        {% block extra_css %}{% endblock %}
+        <link rel="stylesheet" type="text/css" href="{% static 'tsschgr/css/style.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'tsschgr/css/cms-style.css' %}" />
+
+    </head>
+	<body>
+        {% block admin_header %}{% endblock %}
+        {% block plugins %}{% endblock %}
+        {% block admin_footer %}{% endblock %}
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'bootstrap-datepicker/js/moment.js' %}"></script>
+		<script src="{% static 'bootstrap-datepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+        <script src="{% static 'jspanel/jspanel/jquery.jspanel.min.js' %}"></script>
+        <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+        <script src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+        <script src="{% static 'tsschgr/js/javascript.js' %}"></script>
+        {% block extra_js %}{% endblock %}
+	</body>
+</html>

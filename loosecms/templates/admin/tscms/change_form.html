@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static %}
+
+{% block object-tools-items %}
+<li class="btn-group">
+  {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+  <a href="{% add_preserved_filters history_url %}" class="btn btn-default historylink" title="{% trans "History" %}">
+    <span class="glyphicon glyphicon-list-alt"></span>
+    <span class="text">{% trans "History" %}</span>
+  </a>
+</li>
+{% if has_absolute_url %}
+  <li class="btn-group">
+    <a href="{% url 'admin:admin_edit_page' original.pk %}" class="btn btn-default" title="{% trans "Edit page" %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+      <span class="text">{% trans "Edit page" %}</span>
+    </a>
+  </li>
+  <li class="btn-group">
+    <a href="{{ absolute_url }}" class="btn btn-default viewsitelink" title="{% trans "View on site" %}">
+      <span class="glyphicon glyphicon-new-window"></span>
+      <span class="text">{% trans "View on site" %}</span>
+    </a>
+  </li>
+{% endif %}
+{% endblock %}

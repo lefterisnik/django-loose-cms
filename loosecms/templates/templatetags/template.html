@@ -1,0 +1,19 @@
+{% load tscms_tags %}
+
+{% for row in processing_rows|get_dict_value:process_column %}
+    <div class="row" id="cms_plugin_{{ row.pk }}">
+        {% for column in processing_columns|get_dict_value:row%}
+            <div class="col-lg-{{ column.width }}" id="cms_plugin_{{ column.pk }}">
+                {% if column in processing_rows %}
+                    {% render_template column %}
+                {% elif column in processing_plugins %}
+                    {% with plugin=processing_plugins|get_dict_value:column %}
+                        <div id="cms_plugin_{{plugin.pk}}">
+                        {% render_plugin plugin %}
+                        </div>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}

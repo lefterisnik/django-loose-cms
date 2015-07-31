@@ -1,0 +1,94 @@
+{% load i18n tscms_tags admin_urls %}
+
+{% for row in processing_rows|get_dict_value:process_column %}
+    {% if row.placeholder %}
+        <ul class="list-group">
+    {% else %}
+        <br/>
+    {% endif %}
+            <li class="list-group-item list-group-item-success">
+                <div class="clearfix" style="padding:10px;">
+                    <div class="pull-left">
+                        <h5><strong>Row:</strong> {{ row.title }}</h5>
+                    </div>
+                    <div class="dropdown btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            Action <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk row.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk row.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                            <li><a href="{% url 'admin:admin_move_plugin' page.pk row.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation" class="dropdown-header">CSS</li>
+                            <li><a href="{% url 'admin:admin_edit_style' page.pk row.pk %}" class="edit-style">{% trans 'Edit style' %}</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation" class="dropdown-header">{% trans 'Add extensions' %}</li>
+                            <li><a href="{% url 'admin:admin_add_plugin' page.pk %}" class="add-plugin" data-placeholder="{{ row.pk }}" data-type="ColumnPlugin">{% trans 'Create column' %}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <ul class="list-group">
+                    {% for column in processing_columns|get_dict_value:row %}
+                        <div class="col-lg-{{column.width}}">
+                            <li class="list-group-item list-group-item-danger" >
+                                <div class="clearfix" style="padding:10px;">
+                                    <div class="pull-left">
+                                        <h5><strong>Column:</strong> {{ column.title }}</h5>
+                                    </div>
+                                    <div class="dropdown btn-group pull-right">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            Action <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk column.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk column.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                                            {% if column not in processing_plugins %}
+                                            <li class="divider"></li>
+                                            <li><a href="{% url 'admin:admin_add_plugin' page.pk %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="RowPlugin">Δημιουργία εμφωλευμένης γραμμής</a></li>
+                                            <li class="divider"></li>
+                                            <li class="dropdown-header">Δημιουργία προσθέτων</li>
+                                            {% get_available_plugin_links column %}
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% if column in processing_plugins %}
+                                    {% with plugin=processing_plugins|get_dict_value:column %}
+                                        <ul class="list-group">
+                                            <li class="list-group-item">
+                                                <div class="clearfix" style="padding:10px;">
+                                                    <div class="pull-left">
+                                                        <h5><strong>Plugin:</strong> {{ plugin|get_plugin }}</h5>
+                                                    </div>
+                                                    <div class="dropdown btn-group pull-right">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                            Action <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu" role="menu">
+                                                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk plugin.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                                                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk plugin.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li role="presentation" class="dropdown-header">CSS</li>
+                                                            <li><a href="{% url 'admin:admin_edit_style' page.pk plugin.pk %}" class="edit-style">{% trans 'Edit style '%}</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    {% endwith %}
+                                {% endif %}
+                                {% if column in processing_rows %}
+                                    {% render_template_admin column %}
+                                {% endif %}
+                            </li>
+                        </div>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </li>
+        {% if row.column %}
+            </ul>
+        {% endif %}
+{% endfor %}

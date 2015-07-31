@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls admin_static admin_modify tscms_tags %}
+
+{% block extrastyle %}
+{% if not is_ajax %}
+    {{ block.super }}
+{% else %}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/overrides.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{% if not is_ajax %}
+    {{ block.super }}
+{% else %}
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+    {{ media }}
+{% endif %}
+{% endblock %}
+
+
+{% block coltype %}colM{% endblock %}
+
+{% block content %}
+
+<div class="row">
+<div class="col-lg-12">
+<textarea readonly="True" style="width: 100%; min-height: 200px; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">
+    {{ template }}
+</textarea>
+</div>
+</div>
+
+<form method="post" action="{{ form_url }}" class="form-horizontal edit-style-form">{% csrf_token %}
+    {{ formset.management_form }}
+    <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist" id="myTab">
+            {% for form in formset %}
+            <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
+                <a href="#{{ form.position.value|slugify }}" aria-controls="{{ form.position.value|slugify }}" role="tab" data-toggle="tab">
+                    {{ form.position.value }}
+                    <button type="button" class="close closeTab" style="margin: -2px 0 0 10px; font-size: 18px;">×</button>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            {% for form in formset %}
+            <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ form.position.value|slugify }}">
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}" class="col-sm-3 control-label">{{ field.label }}</label>
+                        <div class="col-sm-9">
+                            {{ field.errors }}
+                            {{field}}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary pull-right">{% trans "Save all" %}</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load tscms_tags staticfiles %}
+
+{% block plugins %}
+            <div class="container" id="content">
+                {% render_template %}
+            </div>
+{% endblock %}
+
+
+{% block extra_js %}
+        <script>
+            (function($) {
+                $(document).ready(function() {
+                {% for style in styles %}
+                    {% with classes=style.styleclasses.all %}
+                        {% if style.css %}
+                            $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("style", "{{ style.css }}");
+                        {% endif %}
+                        $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("class", "{{ classes|join:' ' }}");
+                    {% endwith %}
+                {% endfor %}
+                });
+            }) (jQuery);
+        </script>
+{% endblock %}

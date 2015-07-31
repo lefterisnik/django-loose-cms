@@ -1,0 +1,46 @@
+{% extends "template.html" %}
+{% load i18n tscms_tags staticfiles %}
+
+{% block extra_css %}
+        <link href="{% static 'slidebars/slidebars.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'metismenu/metisMenu.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'tsschgr/css/metismenu-demo.css' %}" rel="stylesheet" />
+{% endblock %}
+
+
+{% block admin_header %}
+        <div id="sb-site">
+            <span class="glyphicon glyphicon-menu-right sb-toggle-left" aria-hidden="true"></span>
+{% endblock %}
+
+{% block admin_footer %}
+        </div>
+        <div class="sb-slidebar sb-left">
+            <nav class="sidebar-nav">
+                <ul id="menu">
+                    <li class="active">
+                        <a href="#">{% trans 'Options' %}<span class="glyphicon arrow"></span></a>
+                        <ul>
+                            <li><a href="{% url 'admin:admin_edit_page' page.pk %}">{% trans 'Edit' %}</a></li>
+                            {% if page.slug %}
+                            <li><a href="{% url 'pages-info' page.slug %}">{% trans 'Preview' %}</a></li>
+                            {% else %}
+                            <li><a href="{% url 'pages-home' %}">{% trans 'Preview' %}</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+{% endblock %}
+
+
+{% block extra_js %}
+        <script src="{% static 'slidebars/slidebars.min.js' %}"></script>
+        <script src="{% static 'metismenu/metisMenu.min.js' %}"></script>
+        <script>
+            var django = django || {};
+            django.jQuery = jQuery.noConflict(true);
+        </script>
+        <script src="{% static 'tsschgr/js/admin/javascript.js' %}"></script>
+{% endblock %}

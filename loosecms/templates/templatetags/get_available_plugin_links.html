@@ -1,0 +1,4 @@
+{% load tscms_tags %}
+{% for plugin in plugins %}
+    <li><a href="{% url 'admin:admin_add_plugin' page.pk %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="{{ plugins|get_dict_value:plugin }}">{{ plugin }}</a></li>
+{% endfor %}
