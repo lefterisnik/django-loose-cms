@@ -1,0 +1,133 @@
+/*============================================================================*/
+/*                              General css                                   */
+/*============================================================================*/
+
+body {
+    /*padding-top: 50px;
+    padding-bottom: 70px;*/
+}
+
+#content {
+    padding-top: 50px;
+    padding-bottom: 70px;
+}
+
+.links{
+    padding-top: 40px;
+    padding-bottom: 40px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    background: #e0e4f0;
+}
+
+/*============================================================================*/
+/*       Customize tab-content to add scroll attribute                        */
+/*============================================================================*/
+
+.tab-pane{
+    max-height: 400px;
+    overflow: auto;
+}
+
+
+/*============================================================================*/
+/*       Customize bg-info to present bigger                                  */
+/*============================================================================*/
+
+.bg-info{
+    padding: 15px;
+}
+
+
+/*============================================================================*/
+/*       Customize 404 image to be in center                                  */
+/*============================================================================*/
+
+.img-responsive{
+    margin: 0 auto;
+}
+
+
+/*============================================================================*/
+/*       Customize modal dialog                                               */
+/*============================================================================*/
+
+.modal-header{
+    border-bottom: 0px;
+    padding: 10px 15px;
+}
+
+.modal-body{
+    padding: 0;
+}
+
+.modal-footer{
+    border-top: 0px;
+    padding: 10px 15px;
+}
+
+
+/*============================================================================*/
+/*       Customize iframe height                                              */
+/*============================================================================*/
+
+#iframe{
+    max-height: 400px;
+}
+
+/*============================================================================*/
+/*       Customize related results in search                                  */
+/*============================================================================*/
+
+#related_search{
+    font-size: 11px;
+}
+
+
+/*============================================================================*/
+/*       Customize link panel                                                 */
+/*============================================================================*/
+
+#link-panel{
+    border-color: transparent;
+    box-shadow: none;
+}
+
+#link-heading{
+    background-image: none;
+    background-color: transparent;
+}
+
+/*============================================================================*/
+/*          Change background image from control of carousels                 */
+/*============================================================================*/
+
+.carousel-control.left, .carousel-control.right{
+    background-image: none;
+}
+
+.carousel-control{
+    width: 4%;
+}
+
+
+/*============================================================================*/
+/*          Control position and color for the admin button in templates      */
+/*============================================================================*/
+
+.sb-toggle-left{
+    color: gray;
+    top: 15px;
+    z-index: 1031;
+}
+
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .masthead,
+  .marketing,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+}
