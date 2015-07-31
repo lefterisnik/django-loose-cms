@@ -3,4 +3,4 @@ include README.rst
 recursive-include loosecms/static *
 recursive-include loosecms/locale *
 recursive-include loosecms/templates *
-recursive-include loosecms/tempaltetags *
+recursive-include loosecms/templatetags *

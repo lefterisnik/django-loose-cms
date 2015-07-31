@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
-from tscms.plugin_pool import plugin_pool
+from .plugin_pool import plugin_pool
 from .models import ColumnManager, RowManager
 from .forms import ColumnManagerForm, RowManagerForm
 

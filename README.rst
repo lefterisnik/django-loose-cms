@@ -26,3 +26,25 @@ Quick start
    to create a poll (you'll need the Admin app enabled).
 
 5. Visit http://127.0.0.1:8000/ to participate in the poll.
+
+CONSTANCE_CONFIG = {
+    'SITE_TITLE': ('Site', _('Give the name of the site.')),
+    'FAVICON': ('images/favicon.ico', _('Give the path of the site favicon.'))
+}
+
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Standard',
+        'height': 'auto',
+        'width': 'auto',
+    }
+}
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+
+
+python manage.py createsuperuser

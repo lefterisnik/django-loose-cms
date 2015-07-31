@@ -309,7 +309,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             is_popup=is_popup,
         )
 
-        form_url = urlresolvers.reverse('admin:tscms_htmlpage_add')
+        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_add')
 
         return super(HtmlPageAdmin, self).add_view(request, form_url, extra_context)
 
@@ -338,7 +338,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             is_popup=is_popup,
         )
 
-        form_url = urlresolvers.reverse('admin:tscms_htmlpage_change', args=(object_id, ))
+        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_change', args=(object_id, ))
 
         return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
 
