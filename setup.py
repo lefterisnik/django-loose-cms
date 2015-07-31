@@ -29,4 +29,11 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    install_requires=[
+        'Django>=1.7,<1.9',
+        'tinycss',
+        'django-constance',
+        'django-ckeditor',
+        'bootstrap-admin',
+    ],
 )
