@@ -16,7 +16,7 @@ Features
 Requirements
 ------------
 
-Loose CMS requires::
+Loose CMS requires:
 
 * Django version 1.8
 * Python 2.6 or 2.7
@@ -27,31 +27,31 @@ Loose CMS requires::
 Quick Start
 -----------
 
-1. Instalation via pip::
+1. Instalation via pip:
 
     pip install git+http://ts-devs.cti.gr/technical-support/django-loose-cms.git
 
-2. Create your django project::
+2. Create your django project:
 
     django-admin createproject myproject
     cd myproject
     python manage.py createsuperuser
 
-3. Add "loosecms" to your INSTALLED_APPS setting like this::
+3. Add "loosecms" to your INSTALLED_APPS setting like this:
 
     INSTALLED_APPS = (
         ...
         'loosecms',
     )
 
-4. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin'::
+4. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin':
 
     INSTALLED_APPS = (
         'bootstrap_admin',
         'django.contrib.admin',
     )
 
-5. Add "constance" to your INSTALLED_APPS setting like this::
+5. Add "constance" to your INSTALLED_APPS setting like this:
 
     INSTALLED_APPS = (
         ...
@@ -59,7 +59,7 @@ Quick Start
         'constance.backends.database',
     )
 
-6. Include the loosecms URLconf in your project urls.py like this::
+6. Include the loosecms URLconf in your project urls.py like this:
 
     url(r'^', include('loosecms.urls')),
 
