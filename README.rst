@@ -16,7 +16,7 @@ Features
 Requirements
 ------------
 
-Loose CMS requires:
+Loose CMS requires::
 * Django version 1.7 or 1.8
 * Python 2.6 or 2.7
 * tinycss
@@ -43,15 +43,30 @@ Quick Start
         'loosecms',
     )
 
-4. Include the loosecms URLconf in your project urls.py like this::
+4. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin'::
+
+    INSTALLED_APPS = (
+        'bootstrap_admin',
+        'django.contrib.admin',
+    )
+
+5. Add "constance" to your INSTALLED_APPS setting like this::
+
+    INSTALLED_APPS = (
+        ...
+        'constance',
+        'constance.backends.database',
+    )
+
+6. Include the loosecms URLconf in your project urls.py like this::
 
     url(r'^', include('loosecms.urls')),
 
  Loose CMS handles all urls.
 
-5. Run `python manage.py migrate` to create the polls models.
+7. Run `python manage.py migrate` to create the polls models.
 
-6. Start the development server and visit http://127.0.0.1:8000/admin/
+8. Start the development server and visit http://127.0.0.1:8000/admin/
    to create a poll (you'll need the Admin app enabled).
 
-7. Visit http://127.0.0.1:8000/ to participate in the poll.
+9. Visit http://127.0.0.1:8000/ to participate in the poll.
