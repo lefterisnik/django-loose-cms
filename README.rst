@@ -4,13 +4,11 @@ Django Loose CMS
 
 Django Loose CMS is a simple cms based on django framework.
 
-Detailed documentation is in the "docs" directory.
-
 Features
 --------
 
 * Build bootstrap grid
-* Edit stylesheet of the plugis
+* Edit stylesheet of the plugins
 * Template pages
 
 Requirements
@@ -63,11 +61,9 @@ Quick Start
 
     url(r'^', include('loosecms.urls')),
 
- Loose CMS handles all urls.
+   Loose CMS handles all urls.
 
-7. Run `python manage.py migrate` to create the polls models.
+7. Run `python manage.py migrate` to create the loosecms models.
 
-8. Start the development server and visit http://127.0.0.1:8000/admin/
-   to create a poll (you'll need the Admin app enabled).
-
-9. Visit http://127.0.0.1:8000/ to participate in the poll.
+9. Run development server `python manage.py runserver` and visit http://127.0.0.1:8000/ to start
+   playing with the cms.
