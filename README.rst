@@ -1,50 +1,57 @@
-=====
+================
 Django Loose CMS
-=====
+================
 
 Django Loose CMS is a simple cms based on django framework.
 
 Detailed documentation is in the "docs" directory.
 
-Quick start
+Features
+--------
+
+* Build bootstrap grid
+* Edit stylesheet of the plugis
+* Template pages
+
+Requirements
+------------
+
+Loose CMS requires:
+* Django version 1.7 or 1.8
+* Python 2.6 or 2.7
+* tinycss
+* django-constance
+* bootstrap-admin
+
+Quick Start
 -----------
 
-1. Add "loosecms" to your INSTALLED_APPS setting like this::
+1. Instalation via pip::
+
+    pip install git+http://ts-devs.cti.gr/technical-support/django-loose-cms.git
+
+2. Create your django project::
+
+    django-admin createproject myproject
+    cd myproject
+    python manage.py createsuperuser
+
+3. Add "loosecms" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = (
         ...
         'loosecms',
     )
 
-2. Include the polls URLconf in your project urls.py like this::
+4. Include the loosecms URLconf in your project urls.py like this::
 
     url(r'^', include('loosecms.urls')),
 
-3. Run `python manage.py migrate` to create the polls models.
+ Loose CMS handles all urls.
 
-4. Start the development server and visit http://127.0.0.1:8000/admin/
+5. Run `python manage.py migrate` to create the polls models.
+
+6. Start the development server and visit http://127.0.0.1:8000/admin/
    to create a poll (you'll need the Admin app enabled).
 
-5. Visit http://127.0.0.1:8000/ to participate in the poll.
-
-CONSTANCE_CONFIG = {
-    'SITE_TITLE': ('Site', _('Give the name of the site.')),
-    'FAVICON': ('images/favicon.ico', _('Give the path of the site favicon.'))
-}
-
-CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
-
-CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'Standard',
-        'height': 'auto',
-        'width': 'auto',
-    }
-}
-
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-
-CKEDITOR_IMAGE_BACKEND = 'pillow'
-
-
-python manage.py createsuperuser
+7. Visit http://127.0.0.1:8000/ to participate in the poll.

@@ -33,7 +33,6 @@ setup(
         'Django>=1.7,<1.9',
         'tinycss',
         'django-constance',
-        'django-ckeditor',
         'bootstrap-admin',
     ],
 )
