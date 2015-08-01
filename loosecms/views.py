@@ -9,17 +9,17 @@ from .utils import *
 
 
 def detail(request, page_slug, *args,  **kwargs):
-    # Get all pages and if is the first time go to /?edit to edit cms
+    # Get all pages
     pages = Page.objects.select_related('htmlpage', 'syndicationpage').all()
 
     context = {}
     context['page_slug'] = page_slug
+
     # If this function called form another urlconf, send kwargs so pass it to context
     if kwargs:
         context['kwargs'] = kwargs
 
-
-    # If there are not pages, redirect to login page to login
+    # If there are not pages, redirect to login admin page to login
     if not pages:
         if not request.user.is_authenticated():
             return redirect(urlresolvers.reverse('admin:index'))

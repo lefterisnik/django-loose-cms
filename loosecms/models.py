@@ -114,6 +114,15 @@ class HtmlPage(Page):
         response = render(request, template, context)
         return response
 
+    def clean(self):
+        """
+        Don't allow null slug and home flag False. If null slug the home flag must be True.
+        :return: cleaned_data and errors
+        """
+        if not self.slug and not self.home:
+            msg = _('With null slug must check the home flag.')
+            raise ValidationError({'home': msg})
+
     def __unicode__(self):
         return self.title
 
