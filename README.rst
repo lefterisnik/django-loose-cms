@@ -17,7 +17,8 @@ Requirements
 ------------
 
 Loose CMS requires::
-* Django version 1.7 or 1.8
+
+* Django version 1.8
 * Python 2.6 or 2.7
 * tinycss
 * django-constance
