@@ -51,6 +51,6 @@ if settings.INSTALLED_APPS.index('bootstrap_admin') > settings.INSTALLED_APPS.in
                                "'INTALLED_APPS'.")
 
 if settings.INSTALLED_APPS.index('loosecms') > settings.INSTALLED_APPS.index('constance'):
-    raise ImproperlyConfigured("Django Loose CMS requires 'loosecms' to be before 'constance' in ""
+    raise ImproperlyConfigured("Django Loose CMS requires 'loosecms' to be before 'constance' in "
                                "'INTALLED_APPS'.")
 
