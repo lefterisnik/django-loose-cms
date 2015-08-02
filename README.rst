@@ -63,7 +63,20 @@ Quick Start
 
    Loose CMS handles all urls.
 
-7. Run `python manage.py migrate` to create the loosecms models.
+7. Run ``python manage.py migrate`` to create the loosecms models.
 
-9. Run development server `python manage.py runserver` and visit http://127.0.0.1:8000/ to start
+9. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
    playing with the cms.
+
+
+Plugins
+-------
+
+Some plugins::
+
+* `django-loosecms-text`_.
+* `django-loosecms-article`_.
+
+
+.. _django-loosecms-text: https://github.com/lefterisnik/django-loosecms-text
+.. _django-loosecms-article: https://github.com/lefterisnik/django-loosecms-article
