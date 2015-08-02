@@ -4,17 +4,17 @@
 {% block title %}{% trans "Edit page" %}{% endblock %}
 
 {% block bootstrap_admin_css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/bootstrap/css/bootstrap.min.css' %}" />
 {% endblock %}
 
 {% block extrastyle %}
   <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"  />
   <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
-  <link rel="stylesheet" type="text/css" href="{% static 'jspanel/jspanel/jquery.jspanel.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'slidebars/slidebars.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'metismenu/metisMenu.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/css/metismenu-demo.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/css/admin/style.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/jspanel/jspanel/jquery.jspanel.min.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/slidebars/slidebars.min.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/metismenu/metisMenu.min.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/metismenu-demo.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/style.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -103,12 +103,12 @@
 {% block js %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-<script src="{% static 'jspanel/jspanel/jquery.jspanel.min.js' %}"></script>
-<script src="{% static 'slidebars/slidebars.min.js' %}"></script>
-<script src="{% static 'metismenu/metisMenu.min.js' %}"></script>
+<script src="{% static 'loosecms/jspanel/jspanel/jquery.jspanel.min.js' %}"></script>
+<script src="{% static 'loosecms/slidebars/slidebars.min.js' %}"></script>
+<script src="{% static 'loosecms/metismenu/metisMenu.min.js' %}"></script>
 <script>
     var django = django || {};
     django.jQuery = jQuery.noConflict(true);
 </script>
-<script src="{% static 'loosecms/js/admin/javascript.js' %}"></script>
+<script src="{% static 'loosecms/loosecms/js/admin/javascript.js' %}"></script>
 {% endblock %}

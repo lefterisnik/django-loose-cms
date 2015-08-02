@@ -15,7 +15,6 @@ setup(
     license='BSD License',
     description='A loose Django cms to create a site.',
     long_description=README,
-    url='http://www.example.com/',
     author='Lefteris Nikoltsios',
     author_email='lefteris.nikoltsios@gmail.com',
     classifiers=[

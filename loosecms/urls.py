@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.conf.urls.static import static
 from django.conf.urls import include, url
+from django.conf import settings
+
 from .views import *
 
 extra_urlpatterns = []
@@ -10,7 +13,7 @@ app_urlpatterns = []
 modname = 'urls'
 for app in settings.INSTALLED_APPS:
     try:
-        if 'tscms_' in app:
+        if 'loosecms_' in app:
             module_name = '%s.%s' %(app, modname)
             module = import_module(module_name)
             extra_urlpatterns += module.urlpatterns
@@ -19,6 +22,10 @@ for app in settings.INSTALLED_APPS:
         continue
 
 urlpatterns = app_urlpatterns
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 # Initialization of the urlpatterns. First append all extra urlconfs of plugins, then add only the view for page index
 # and finally append the home page pattern

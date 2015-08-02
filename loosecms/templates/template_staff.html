@@ -2,9 +2,9 @@
 {% load i18n cms_tags staticfiles %}
 
 {% block extra_css %}
-        <link href="{% static 'slidebars/slidebars.min.css' %}" rel="stylesheet" />
-        <link href="{% static 'metismenu/metisMenu.min.css' %}" rel="stylesheet" />
-        <link href="{% static 'loosecms/css/metismenu-demo.css' %}" rel="stylesheet" />
+        <link href="{% static 'loosecms/slidebars/slidebars.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'loosecms/metismenu/metisMenu.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'loosecms/loosecms/css/metismenu-demo.css' %}" rel="stylesheet" />
 {% endblock %}
 
 
@@ -36,11 +36,11 @@
 
 
 {% block extra_js %}
-        <script src="{% static 'slidebars/slidebars.min.js' %}"></script>
-        <script src="{% static 'metismenu/metisMenu.min.js' %}"></script>
+        <script src="{% static 'loosecms/slidebars/slidebars.min.js' %}"></script>
+        <script src="{% static 'loosecms/metismenu/metisMenu.min.js' %}"></script>
         <script>
             var django = django || {};
             django.jQuery = jQuery.noConflict(true);
         </script>
-        <script src="{% static 'loosecms/js/admin/javascript.js' %}"></script>
+        <script src="{% static 'loosecms/loosecms/js/admin/javascript.js' %}"></script>
 {% endblock %}
