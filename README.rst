@@ -72,7 +72,7 @@ Quick Start
 Plugins
 -------
 
-Some plugins::
+Some plugins:
 
 * `django-loosecms-text`_.
 * `django-loosecms-article`_.
