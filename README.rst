@@ -31,7 +31,7 @@ Quick Start
 
 2. Create your django project::
 
-    django-admin createproject myproject
+    django-admin startproject myproject
     cd myproject
     python manage.py createsuperuser
 
