@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from django.utils.translation import ugettext_lazy as _
 
 from django.db import models
@@ -9,7 +10,6 @@ from django.utils.importlib import import_module
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 
-import os
 
 def update_css_file(sender, instance, created, **kwargs):
     styleclasses = StyleClass.objects.filter(from_source=False)

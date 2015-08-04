@@ -1,8 +1,12 @@
-#Some files
+# Some files
 *~
 *.pyc
 *.idea
 *.egg-info
 
-#Some dirs
+# Unit test / coverage reports
+.coverage
+
+# Some dirs
 dist
+env

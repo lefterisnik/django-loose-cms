@@ -2,6 +2,7 @@
 from django.conf.urls.static import static
 from django.conf.urls import include, url
 from django.conf import settings
+from django.contrib import admin
 
 from .views import *
 
@@ -30,6 +31,7 @@ if settings.DEBUG:
 # Initialization of the urlpatterns. First append all extra urlconfs of plugins, then add only the view for page index
 # and finally append the home page pattern
 urlpatterns += [
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/', include(extra_urlpatterns)),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/$', detail, name='category-info'),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/(?P<slug>[0-9A-Za-z-_.]+)/$', detail, name='info'),

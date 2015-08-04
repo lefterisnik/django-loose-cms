@@ -1,10 +1,12 @@
 import sys
+import os
 
 try:
     from django.conf import settings
     from django.test.utils import get_runner
 
     settings.configure(
+        BASE_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         DEBUG=True,
         USE_TZ=True,
         DATABASES={
@@ -14,13 +16,38 @@ try:
         },
         ROOT_URLCONF="loosecms.urls",
         INSTALLED_APPS=[
+            "bootstrap_admin",
+            "django.contrib.admin",
             "django.contrib.auth",
             "django.contrib.contenttypes",
-            "django.contrib.sites",
+            "dynamic_preferences",
             "loosecms",
         ],
         SITE_ID=1,
-        MIDDLEWARE_CLASSES=(),
+        MIDDLEWARE_CLASSES=(
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+        ),
+        TEMPLATES = [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS': True,
+                'OPTIONS': {
+                    'context_processors': [
+                        'django.contrib.auth.context_processors.auth',
+                        'django.template.context_processors.debug',
+                        'django.template.context_processors.i18n',
+                        'django.template.context_processors.media',
+                        'django.template.context_processors.static',
+                        'django.template.context_processors.tz',
+                        'django.template.context_processors.request',
+                        'django.contrib.messages.context_processors.messages',
+                    ],
+                },
+            },
+        ],
+
     )
 
     try:
