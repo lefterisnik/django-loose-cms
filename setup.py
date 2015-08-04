@@ -13,7 +13,7 @@ setup(
     packages=['loosecms'],
     include_package_data=True,
     license='BSD License',
-    description='A loose Django cms to create a site.',
+    description='Open source CMS based on the django framework.',
     long_description=README,
     author='Lefteris Nikoltsios',
     author_email='lefteris.nikoltsios@gmail.com',

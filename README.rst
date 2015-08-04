@@ -2,6 +2,9 @@
 Django Loose CMS
 ================
 
+.. image:: https://travis-ci.org/lefterisnik/django-loose-cms.png?branch=master
+    :target: https://travis-ci.org/lefterisnik/django-loose-cms
+
 Django Loose CMS is a simple cms based on django framework.
 
 Features
@@ -76,7 +79,9 @@ Some plugins:
 
 * `django-loosecms-text`_.
 * `django-loosecms-article`_.
+* `django-loosecms-doc`_.
 
 
 .. _django-loosecms-text: https://github.com/lefterisnik/django-loosecms-text
 .. _django-loosecms-article: https://github.com/lefterisnik/django-loosecms-article
+.. _django-loosecms-doc: https://github.com/lefterisnik/django-loosecms-doc
