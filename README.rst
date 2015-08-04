@@ -25,7 +25,7 @@ Loose CMS requires:
 * Django version 1.8
 * Python 2.6 or 2.7
 * tinycss
-* django-constance
+* django-dynamic-preferences
 * bootstrap-admin
 
 Quick Start
@@ -55,12 +55,11 @@ Quick Start
         'django.contrib.admin',
     )
 
-5. Add "constance" to your INSTALLED_APPS setting like this::
+5. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
 
     INSTALLED_APPS = (
         ...
-        'constance',
-        'constance.backends.database',
+        'dynamic_preferences',
     )
 
 6. Include the loosecms URLconf in your project urls.py like this::
@@ -69,7 +68,7 @@ Quick Start
 
    Loose CMS handles all urls.
 
-7. Run ``python manage.py migrate`` to create the loosecms models.
+7. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
 
 9. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
    playing with the cms.
