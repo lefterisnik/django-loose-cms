@@ -4,6 +4,9 @@ Django Loose CMS
 
 .. image:: https://travis-ci.org/lefterisnik/django-loose-cms.png?branch=master
     :target: https://travis-ci.org/lefterisnik/django-loose-cms
+.. image:: https://codeclimate.com/github/lefterisnik/django-loose-cms/badges/gpa.svg
+   :target: https://codeclimate.com/github/lefterisnik/django-loose-cms
+   :alt: Code Climate
 
 Django Loose CMS is a simple cms based on django framework.
 
