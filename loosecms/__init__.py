@@ -16,7 +16,7 @@ if ('django.core.context_processors.request' not in context_processors and
                                "'django.template.backends.django.DjangoTemplates' context processors.")
 
 if 'dynamic_preferences.processors.global_preferences' not in context_processors:
-    context_processors.append('constance.context_processors.config')
+    context_processors.append('dynamic_preferences.processors.global_preferences')
 
 if 'bootstrap_admin' not in settings.INSTALLED_APPS:
     raise ImproperlyConfigured("Django Loose CMS requires 'bootstrap_admin' in 'INSTALLED_APPS'.")

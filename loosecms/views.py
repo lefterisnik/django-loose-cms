@@ -30,6 +30,9 @@ def detail(request, page_slug, *args,  **kwargs):
             page = pages.get(published=True, htmlpage__home=True)
         else:
             page = pages.get(published=True, slug=page_slug)
+
+        if page.htmlpage.is_template and request.user.is_anonymous():
+            raise Http404
     except Page.DoesNotExist:
         if request.user.is_authenticated() and request.user.is_staff:
             template_pages = pages.filter(htmlpage__is_template=True)
@@ -42,7 +45,6 @@ def detail(request, page_slug, *args,  **kwargs):
             context = update_context(context)
             return render(request, 'admin/editor_lite.html', context)
         else:
-            # TODO: Exam if custom 404 exist
             raise Http404
 
     # TODO: add control to exam what type is

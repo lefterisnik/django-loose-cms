@@ -19,7 +19,9 @@ try:
             "bootstrap_admin",
             "django.contrib.admin",
             "django.contrib.auth",
+            "django.contrib.sessions",
             "django.contrib.contenttypes",
+            "django.contrib.staticfiles",
             "dynamic_preferences",
             "loosecms",
         ],
@@ -29,7 +31,8 @@ try:
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
         ),
-        TEMPLATES = [
+        STATIC_URL='/static/',
+        TEMPLATES=[
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'APP_DIRS': True,
