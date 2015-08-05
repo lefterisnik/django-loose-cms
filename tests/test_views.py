@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.test import Client, TestCase
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from loosecms.models import HtmlPage, RowManager, ColumnManager
+from loosecms.models import HtmlPage, RowManager
 
 
 class TestNoPageViews(TestCase):
