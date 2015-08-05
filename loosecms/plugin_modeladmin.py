@@ -10,18 +10,21 @@ class PluginModelAdmin(admin.ModelAdmin):
     object_successfully_changed = False
     object_successfully_deleted = False
 
+    def make_message(self, request, obj, action):
+        if '_to_field' not in request.POST and '_popup' in request.POST:
+            opts = self.model._meta
+            msg_dict = {'name': force_text(opts.verbose_name),
+                        'obj': force_text(obj),
+                        'action': force_text(action)}
+            msg = _('The %(name)s "%(obj)s" was (action) successfully.') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS)
+
     def response_add(self, request, obj, post_url_continue=None):
         """
         Just set a flag, so we know something was changedand set the message because super sees
         _popup and dont make message. We want to make message.
         """
-        if '_to_field' not in request.POST and '_popup' in request.POST:
-
-            opts = self.model._meta
-
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-            msg = _('The %(name)s "%(obj)s" was added successfully.') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
+        self.make_message(request, obj, 'added')
 
         self.object_successfully_added = True
 
@@ -32,13 +35,7 @@ class PluginModelAdmin(admin.ModelAdmin):
         Just set a flag, so we know something was changed and set the message because super sees
         _popup and dont make message. We want to make message.
         """
-        if '_to_field' not in request.POST and '_popup' in request.POST:
-
-            opts = self.model._meta
-
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-            msg = _('The %(name)s "%(obj)s" was changed successfully.') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
+        self.make_message(request, obj, 'changed')
 
         self.object_successfully_changed = True
 
