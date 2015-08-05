@@ -1,2 +1,2 @@
 exclude_paths:
-- loosecms/static/external/*
+- loosecms/static/loosecms/external/*
