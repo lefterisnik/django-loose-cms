@@ -10,3 +10,4 @@
 # Some dirs
 dist
 env
+htmlcov
