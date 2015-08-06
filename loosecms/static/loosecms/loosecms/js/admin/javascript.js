@@ -163,6 +163,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
@@ -202,6 +203,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
@@ -252,6 +254,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
@@ -284,6 +287,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
@@ -316,6 +320,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
@@ -349,6 +354,7 @@
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
                         $(e.target).fadeIn(2000);
+                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
