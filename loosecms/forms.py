@@ -54,6 +54,7 @@ class StyleForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'vLargeTextField form-control'}),
             'title': forms.TextInput(attrs={'class': 'vTextField form-control'}),
             'styleid': forms.TextInput(attrs={'class': 'vTextField form-control', 'readonly': True}),
+            'styleclasses': FilteredSelectMultiple('StyleClass', False),
         }
 
     #def __init__(self, *args, **kwargs):

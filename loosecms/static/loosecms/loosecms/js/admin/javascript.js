@@ -4,13 +4,6 @@
         var slidebar = new $.slidebars();
         $("#menu").metisMenu();
 
-        var add_page;
-        var edit_page;
-        var add_panel;
-        var edit_panel;
-        var delete_panel;
-        var edit_style;
-
         function getCookie(name) {
             var cookieValue = null;
             if (document.cookie && document.cookie != '') {
@@ -50,6 +43,36 @@
             }
         }
 
+        function make_jspanel(url) {
+
+            $.jsPanel({
+                size: {
+                    width: function(){ return $(window).width()*(2/3) },
+                    height: 'auto'
+                },
+                controls: { minimize: 'disable', iconfont: "bootstrap" },
+                position: "top center",
+                bootstrap: 'primary',
+                addClass:{
+                    content: "custom-content",
+                },
+                iframe: {
+                    src:    url,
+                    style:  {"border": "solid transparent"},
+                    width:  '100%',
+                    height: '100%'
+                },
+                callback: function (panel) {
+                    $("iframe", panel).load(function (e) {
+                        $(e.target).fadeIn(2000);
+                        panel.resize(null, caclulate_height(this));
+                        $(this).height('100%');
+                        panel.title(this.contentWindow.document.title);
+                    });
+                }
+            });
+        }
+
         /**************************************Edit style**********************************************/
 
         $('body').on('click', '.edit-style', function( e ) {
@@ -61,60 +84,7 @@
 
             var url = $(this).attr('href');
 
-            edit_style = $.jsPanel({
-                position: "top center",
-                bootstrap: 'primary',
-                addClass:{
-                    content: "custom-content edit-style-form",
-                },
-                ajax: {
-                    url: url,
-                    done: function ( data, textStatus, jqXHR, jsPanel ){
-                        jsPanel.content.css({"width": "auto",
-                                            "min-height": "500px",
-                                            "padding": "10px 15px"});
-                        jsPanel.resize("auto", "auto");
-                        jsPanel.reposition("top center");
-                        jsPanel.title($(data).find('span.navbar-brand').html());
-                    },
-                    fail:   function( jqXHR, textStatus, errorThrown, jsPanel ){
-                        jsPanel.content.append(jqXHR.responseText);
-                    },
-                },
-            });
-        });
-
-        $('body').on('submit', '.edit-style-form form', function(e){
-            e.preventDefault();
-
-            var formData = new FormData($(this)[0]);
-
-            $.ajax({
-                method: "POST",
-                url: $(this).attr('action'),
-                data: formData,
-                processData: false, // Don't process the files
-                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-                success: function( data, textStatus, jqXHR) {
-                    if(data && typeof data.redirect_url != 'undefined'){
-                        location.reload();
-                    } else {
-                        edit_style.content.html(data);
-                    }
-                },
-                error: function( jqXHR, textStatus, errorThrown) {
-                    alert(errorThrown + jqXHR.responseText);
-                },
-            });
-
-        });
-
-        $('body').on('click', '.closeTab', function(e){
-            //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
-            var tabContentId = $(this).parent().attr("href");
-            $(this).parent().parent().remove(); //remove li of tab
-            $('#myTab a:last').tab('show'); // Select first tab
-            $(tabContentId).remove(); //remove respective tab content
+            make_jspanel(url);
         });
 
         /**************************************Add page***********************************************/
@@ -143,33 +113,7 @@
                 url = url + '?type=' + type + '&slug=' + slug + '&is_template=' + template;
             }
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                addClass:{
-                    content: "custom-content",
-                },
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
         });
 
         /**************************************Edit page***********************************************/
@@ -183,33 +127,7 @@
 
             var url = $(this).attr('href');
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                addClass:{
-                    content: "custom-content",
-                },
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
 
         });
 
@@ -234,33 +152,8 @@
                 url = url + '?type=' + type + '&placeholder=' + placeholder;
             }
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                addClass:{
-                    content: "custom-content",
-                },
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
+
         });
 
         /**************************************Edit plugin***********************************************/
@@ -270,30 +163,7 @@
 
             var url = $(this).attr('href');
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
         });
 
         /**************************************Delete plugin***********************************************/
@@ -303,30 +173,7 @@
 
             var url = $(this).attr('href');
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
         });
 
 
@@ -337,30 +184,7 @@
 
             var url = $(this).attr('href');
 
-            $.jsPanel({
-                size: {
-                    width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
-                },
-                controls: { iconfont: "bootstrap" },
-                position: "top center",
-                bootstrap: 'primary',
-                iframe: {
-                    src:    url,
-                    style:  {"border": "solid transparent"},
-                    width:  '100%',
-                    height: '100%'
-                },
-                callback: function (panel) {
-                    $("iframe", panel).load(function (e) {
-                        $(e.target).fadeIn(2000);
-                        this.style.height = this.contentWindow.document.body.offsetHeight + 35 + 'px';
-                        panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
-                        panel.title(this.contentWindow.document.title);
-                    });
-                }
-            });
+            make_jspanel(url);
         });
     });
 

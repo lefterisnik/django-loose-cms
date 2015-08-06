@@ -458,6 +458,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             self.admin_site.each_context(request),
             form=form,
             is_popup=True,
+            title=_('Move plugin'),
             form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(page_pk, pk))
         )
         return render(request, 'admin/move_form.html', context)

@@ -1,74 +1,141 @@
-{% extends "admin/base_site.html" %}
-{% load i18n admin_urls admin_static admin_modify cms_tags %}
+{% extends "admin/change_form.html" %}
+{% load i18n staticfiles cms_tags admin_urls admin_static admin_modify %}
 
-{% block extrastyle %}
-{% if not is_ajax %}
-    {{ block.super }}
-{% else %}
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/overrides.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
-{% endif %}
-{% endblock %}
-
-{% block extrahead %}
-{% if not is_ajax %}
-    {{ block.super }}
-{% else %}
-    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-    {{ media }}
-{% endif %}
-{% endblock %}
-
-
-{% block coltype %}colM{% endblock %}
+{% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-
-<div class="row">
-<div class="col-lg-12">
-<textarea readonly="True" style="width: 100%; min-height: 200px; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">
-    {{ template }}
-</textarea>
-</div>
-</div>
-
-<form method="post" action="{{ form_url }}" class="form-horizontal edit-style-form">{% csrf_token %}
-    {{ formset.management_form }}
-    <div>
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs" role="tablist" id="myTab">
-            {% for form in formset %}
-            <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
-                <a href="#{{ form.position.value|slugify }}" aria-controls="{{ form.position.value|slugify }}" role="tab" data-toggle="tab">
-                    {{ form.position.value }}
-                    <button type="button" class="close closeTab" style="margin: -2px 0 0 10px; font-size: 18px;">×</button>
+<div id="content-main">
+    <form method="post" action="{{ form_url }}" role="form" novalidate>{% csrf_token %}
+        {{ formset.management_form }}
+        {{ formset.media }}
+        <div class="col-sm-9 form-fields">
+            <div class="panel panel-default form-panel">
+                <a href="#" class="form-expand">
+                    <span class="glyphicon glyphicon-resize-horizontal"></span>
                 </a>
-            </li>
-            {% endfor %}
-        </ul>
-
-
-        <!-- Tab panes -->
-        <div class="tab-content">
-            {% for form in formset %}
-            <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ form.position.value|slugify }}">
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
-                {% for field in form.visible_fields %}
-                    <div class="form-group">
-                        <label for="{{ field.id_for_label }}" class="col-sm-3 control-label">{{ field.label }}</label>
-                        <div class="col-sm-9">
-                            {{ field.errors }}
-                            {{field}}
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea readonly="True" style="width: 100%; min-height: 200px; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">
+                            {{ template }}
+                            </textarea>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
 
-        <button type="submit" class="btn btn-primary pull-right">{% trans "Save all" %}</button>
-    </div>
-</form>
+                    {% if form.errors %}
+                        <p class="errornote">
+                        {% if form.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                        </p>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist" id="myTab">
+                                {% for form in formset %}
+                                <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
+                                    <a href="#{{ form.position.value|slugify }}" aria-controls="{{ form.position.value|slugify }}" role="tab" data-toggle="tab">
+                                        {{ form.position.value }}
+                                        <button type="button" class="close closeTab" style="margin: -2px 0 0 10px; font-size: 18px;">×</button>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                {% for form in formset %}
+                                <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ form.position.value|slugify }}">
+                                    {% for field in form %}
+                                    <div class="form-row form-group{% if field.errors %} has-error{% endif %}{% if field.is_hidden %} hidden{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
+                                        {% with field|widget_type as widget_type %}
+                                            <div class="widget_type__{{ widget_type }}">
+                                              {% if widget_type == 'adminsplitdatetime' %}
+                                                {% if not is_tabular %}
+                                                  {{ field.label_tag }}
+                                                {% endif %}
+                                                {% if field.is_readonly %}
+                                                  <p>{{ field.contents|linebreaksbr }}</p>
+                                                {% else %}
+                                                  {{ field.field }}
+                                                {% endif %}
+
+                                                {% for error in field.errors %}
+                                                  <p class="help-block error">{{ error }}</p>
+                                                {% endfor %}
+
+                                                {% if field.field.help_text %}
+                                                  <p class="help-block">
+                                                    {{ field.field.help_text|safe }}
+                                                  </p>
+                                                {% endif %}
+                                              {% else %}
+                                                {# only show the label for visible fields #}
+                                                {% if not field.field.is_hidden %}
+                                                  {% if not is_tabular %}
+                                                    {{ field.label_tag }}
+                                                  {% endif %}
+                                                {% endif %}
+                                                  {% if field.is_readonly %}
+                                                    <p>{{ field.contents|linebreaksbr }}</p>
+                                                  {% else %}
+                                                    {% if widget_type == 'adminradioselect' or widget_type == 'checkboxselectmultiple' or widget_type == 'readonlypasswordhashwidget' or widget_type == 'adminfilewidget' %}
+                                                      {{ field.field }}
+                                                    {% else %}
+                                                      {{ field|add_class:"form-control" }}
+                                                    {% endif %}
+                                                  {% endif %}
+
+                                                  {% for error in field.errors %}
+                                                    <p class="help-block error">{{ error }}</p>
+                                                  {% endfor %}
+
+                                                  {% if field.field.help_text %}
+                                                    <p class="help-block">
+                                                      {{ field.field.help_text|safe }}
+                                                    </p>
+                                                  {% endif %}
+                                              {% endif %}
+                                            </div>
+                                        {% endwith %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 form-buttons">
+            <div data-spy="affix" data-offset-top="125">
+                <div class="submit-row list-group">
+                    <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <span class="text">{% trans 'Save' %}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block js %}{{ block.super }}
+<script>
+(function ($) {
+    $(document).ready(function(){
+        $('body').on('click', '.closeTab', function(e){
+            //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
+            var tabContentId = $(this).parent().attr("href");
+            $(this).parent().parent().remove(); //remove li of tab
+            $('#myTab a:last').tab('show'); // Select first tab
+            $(tabContentId).remove(); //remove respective tab content
+        });
+    });
+})(django.jQuery);
+</script>
 {% endblock %}
