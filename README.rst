@@ -31,47 +31,157 @@ Loose CMS requires:
 Quick Start
 -----------
 
-1. Instalation via pip::
+Installation via startproject template (quick way)
+``````````````````````````````````````````````````
+
+1. Make the project folder::
+
+    mkdir project_name
+    cd project_name
+
+2. Create the virtualenv of python::
+
+    virtualenv env
+    source env/bin/activate
+
+3. Install django package (version 1.8)::
+
+    pip install django
+
+
+4. Create the django project with custom template::
+
+    django-admin.py startproject <project_name> --template=https://github.com/lefterisnik/django-template/archive/master.zip
+
+5. Install the requirements::
+
+    pip install -r requirements.txt
+
+6. Sync database::
+
+    python manage.py migrate
+
+6. Create one superuser account::
+
+    python manage.py createsuperuser
+
+7. Visit http://127.0.0.1:8000/ to start playing with the cms
+
+Normal installation (slow way)
+``````````````````````````````
+
+Following this way you must edit settings.py file to provide some settings.
+
+Using virtualenv
+''''''''''''''''
+
+1. Make the project folder::
+
+    mkdir project_name
+    cd project_name
+
+2. Create the virtualenv of python::
+
+    virtualenv env
+    source env/bin/activate
+
+3. Installation via pip::
 
     pip install https://github.com/lefterisnik/django-loose-cms/archive/master.zip
 
-2. Create your django project::
+   The above command will download and setup all the requirements including the django.
+
+4. Create your django project::
 
     django-admin startproject myproject
     cd myproject
-    python manage.py createsuperuser
 
-3. Add "loosecms" to your INSTALLED_APPS setting like this::
+5. Add "loosecms" to your INSTALLED_APPS setting at settings.py file like this::
 
     INSTALLED_APPS = (
         ...
         'loosecms',
     )
 
-4. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin'::
+6. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin'::
 
     INSTALLED_APPS = (
         'bootstrap_admin',
         'django.contrib.admin',
     )
 
-5. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
+7. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
 
     INSTALLED_APPS = (
         ...
         'dynamic_preferences',
     )
 
-6. Include the loosecms URLconf in your project urls.py like this::
+8. Include the loosecms URLconf in your project urls.py like this::
 
     url(r'^', include('loosecms.urls')),
 
    Loose CMS handles all urls.
 
-7. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+9. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
 
-9. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
-   playing with the cms.
+10. Run ``python manage.py createsuperuser`` to create a superuser account.
+
+11. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
+    playing with the cms.
+
+Using system python
+'''''''''''''''''''
+
+1. Make the project folder::
+
+    mkdir project_name
+    cd project_name
+
+3. Installation via pip::
+
+    sudo pip install https://github.com/lefterisnik/django-loose-cms/archive/master.zip
+
+   The above command will download and setup all the requirements including the django.
+
+4. Create your django project::
+
+    django-admin startproject myproject
+    cd myproject
+
+5. Add "loosecms" to your INSTALLED_APPS setting at settings.py file like this::
+
+    INSTALLED_APPS = (
+        ...
+        'loosecms',
+    )
+
+6. Add "bootstrap_admin" to your INSTALLED_APPS setting like this before 'django.contrib.admin'::
+
+    INSTALLED_APPS = (
+        'bootstrap_admin',
+        'django.contrib.admin',
+    )
+
+7. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
+
+    INSTALLED_APPS = (
+        ...
+        'dynamic_preferences',
+    )
+
+8. Include the loosecms URLconf in your project urls.py like this::
+
+    url(r'^', include('loosecms.urls')),
+
+   Loose CMS handles all urls.
+
+9. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+
+10. Run ``python manage.py createsuperuser`` to create a superuser account.
+
+11. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
+    playing with the cms.
 
 
 Plugins
