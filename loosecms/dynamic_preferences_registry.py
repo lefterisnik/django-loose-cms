@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from django import forms
-from dynamic_preferences.types import BooleanPreference, StringPreference
+import os
+from dynamic_preferences.types import StringPreference, ChoicePreference
 from dynamic_preferences import user_preferences_registry, global_preferences_registry
+from django.conf import settings
 
 # We start with a global preference
 @global_preferences_registry.register
@@ -10,7 +11,13 @@ class SiteTitle(StringPreference):
     default = 'My site'
 
 @global_preferences_registry.register
-class Favicon(BooleanPreference):
+class Favicon(ChoicePreference):
     name = 'favicon'
-    default = False
-    widget = forms.FilePathField(path='media', match="\.ico$")
+
+    if settings.MEDIA_ROOT:
+        try:
+            choices = (('images/%s' %i, 'images/%s' %i) for i in os.listdir(os.path.join(settings.MEDIA_ROOT, 'images')))
+        except OSError:
+            choices = (('images/favicon.ico', 'images/favicon.ico'),)
+
+    default = 'images/favicon.ico'
