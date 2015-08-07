@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from django.test import Client, TestCase
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from loosecms.models import HtmlPage, RowManager
+from loosecms.views import error404
 
 
 def create_page(is_template):
     htmlpage = HtmlPage.objects.create(title='page1',
-                                            slug='page1',
-                                            type='0',
-                                            is_template=is_template)
+                                       slug='page1',
+                                       type='0',
+                                       is_template=is_template)
     return htmlpage
 
 
@@ -20,6 +22,15 @@ def create_row_plugin(htmlpage):
                                     page=htmlpage,
                                     order=0)
     return row
+
+
+def create_404_page():
+    htmlpage = HtmlPage.objects.create(title='page404',
+                                       slug='page404',
+                                       type='0',
+                                       is_error=True)
+    return htmlpage
+
 
 class AnonymousViews(TestCase):
 
@@ -82,6 +93,16 @@ class AnonymousViews(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 302)
+
+    def test_custom_error_page(self):
+        """
+        Test case of an anonymous user with pages in database to get a non existing page
+        Redirect to custom 404 if exists
+        :return:
+        """
+        self.custom_error_page = create_404_page()
+        response = self.client.get('/page1/')
+        self.assertEqual(response.context['page'].title, 'page404')
 
 
 
@@ -166,12 +187,17 @@ class StaffViews(TestCase):
         self.htmlpage = create_page(is_template=True)
         self.client.login(username='admin', password='admin')
         url = reverse('admin:admin_add_plugin', args=(self.htmlpage.pk, ))
-        response = self.client.get(url+'?type=RowPlugin')
 
+        # Testing add row plugin
+        response = self.client.get(url+'?type=RowPlugin')
+        self.assertEqual(response.status_code, 200)
+
+        # Testing add column plugin
+        response = self.client.get(url+'?type=ColumnPlugin')
         self.assertEqual(response.status_code, 200)
 
     # TODO: Add test at edit style of plugin
-    def test_edit_template_page_edit_plugin(self):
+    def test_edit_template_page_edit_delete_move_plugin(self):
         """
         Test case of a staff user with template pages in database to edit plugin
         Allow access to edit plugin
@@ -180,38 +206,33 @@ class StaffViews(TestCase):
         self.htmlpage = create_page(is_template=True)
         self.row = create_row_plugin(self.htmlpage)
         self.client.login(username='admin', password='admin')
+
+        # Test edit row plugin
         url = reverse('admin:admin_edit_plugin', args=(self.htmlpage.pk, self.row.pk))
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
 
-    def test_edit_template_page_delete_plugin(self):
-        """
-        Test case of a staff user with pages in database to delete plugin
-        Allow access to delete plugin
-        :return: 200
-        """
-        self.htmlpage = create_page(is_template=True)
-        self.row = create_row_plugin(self.htmlpage)
-        self.client.login(username='admin', password='admin')
+        # Testing delete row plugin
         url = reverse('admin:admin_delete_plugin', args=(self.htmlpage.pk, self.row.pk))
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
-    def test_edit_template_page_move_plugin(self):
-        """
-        Test case of a staff user with pages in database to move plugin
-        Allow access to move plugin
-        :return: 200
-        """
-        self.htmlpage = create_page(is_template=True)
-        self.row = create_row_plugin(self.htmlpage)
-        self.client.login(username='admin', password='admin')
+        # Testing move row plugin
         url = reverse('admin:admin_move_plugin', args=(self.htmlpage.pk, self.row.pk))
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
+
+    def test_custom_error_page(self):
+        """
+        Test case of an anonymous user with pages in database to get a non existing page
+        Redirect to custom 404 if exists
+        :return:
+        """
+        self.client.login(username='admin', password='admin')
+        self.custom_error_page = create_404_page()
+        response = self.client.get('/page1/')
+        self.assertTemplateUsed(response, 'admin/editor_lite.html')
 
 
 

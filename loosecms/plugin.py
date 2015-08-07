@@ -37,6 +37,7 @@ class ColumnPlugin(PluginModelAdmin):
         else:
             return {'type': 'ColumnPlugin'}
 
+
 class RowPlugin(PluginModelAdmin):
     model = RowManager
     name = _('Row')

@@ -116,7 +116,7 @@ Using virtualenv
 
    Loose CMS handles all urls.
 
-8. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+8. Run ``python manage.py migrate`` to create the loosecms models.
 
 9. Run ``python manage.py createsuperuser`` to create a superuser account.
 
@@ -162,7 +162,7 @@ Using system python
 
    Loose CMS handles all urls.
 
-8. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+8. Run ``python manage.py migrate`` to create the loosecms models.
 
 9. Run ``python manage.py createsuperuser`` to create a superuser account.
 

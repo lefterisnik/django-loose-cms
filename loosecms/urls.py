@@ -6,6 +6,8 @@ from django.contrib import admin
 
 from .views import *
 
+handler404 = error404
+
 extra_urlpatterns = []
 
 app_urlpatterns = []
