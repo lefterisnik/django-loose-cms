@@ -191,8 +191,12 @@ Some plugins:
 * `django-loosecms-text`_.
 * `django-loosecms-article`_.
 * `django-loosecms-doc`_.
+* `django-loosecms-cas`_.
+* `django-loosecms-menu`_.
 
 
 .. _django-loosecms-text: https://github.com/lefterisnik/django-loosecms-text
 .. _django-loosecms-article: https://github.com/lefterisnik/django-loosecms-article
 .. _django-loosecms-doc: https://github.com/lefterisnik/django-loosecms-doc
+.. _django-loosecms-cas: https://github.com/lefterisnik/django-loosecms-cas
+.. _django-loosecms-menu: https://github.com/lefterisnik/django-loosecms-menu
