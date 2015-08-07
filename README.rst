@@ -51,6 +51,7 @@ Installation via startproject template (quick way)
 4. Create the django project with custom template::
 
     django-admin.py startproject <project_name> --template=https://github.com/lefterisnik/django-template/archive/master.zip
+    cd <project_name>
 
 5. Install the requirements::
 
@@ -109,24 +110,17 @@ Using virtualenv
         'django.contrib.admin',
     )
 
-7. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
-
-    INSTALLED_APPS = (
-        ...
-        'dynamic_preferences',
-    )
-
-8. Include the loosecms URLconf in your project urls.py like this::
+7. Include the loosecms URLconf in your project urls.py like this::
 
     url(r'^', include('loosecms.urls')),
 
    Loose CMS handles all urls.
 
-9. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+8. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
 
-10. Run ``python manage.py createsuperuser`` to create a superuser account.
+9. Run ``python manage.py createsuperuser`` to create a superuser account.
 
-11. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
+10. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
     playing with the cms.
 
 Using system python
@@ -162,24 +156,17 @@ Using system python
         'django.contrib.admin',
     )
 
-7. Add "dynamic_preferences" to your INSTALLED_APPS setting like this before 'loosecms'::
-
-    INSTALLED_APPS = (
-        ...
-        'dynamic_preferences',
-    )
-
-8. Include the loosecms URLconf in your project urls.py like this::
+7. Include the loosecms URLconf in your project urls.py like this::
 
     url(r'^', include('loosecms.urls')),
 
    Loose CMS handles all urls.
 
-9. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
+8. Run ``python manage.py migrate`` to create the loosecms and dynamic_preferences models.
 
-10. Run ``python manage.py createsuperuser`` to create a superuser account.
+9. Run ``python manage.py createsuperuser`` to create a superuser account.
 
-11. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
+10. Run development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
     playing with the cms.
 
 
