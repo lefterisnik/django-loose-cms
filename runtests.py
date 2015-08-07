@@ -22,7 +22,6 @@ try:
             "django.contrib.sessions",
             "django.contrib.contenttypes",
             "django.contrib.staticfiles",
-            "dynamic_preferences",
             "loosecms",
         ],
         SITE_ID=1,
@@ -46,11 +45,13 @@ try:
                         'django.template.context_processors.tz',
                         'django.template.context_processors.request',
                         'django.contrib.messages.context_processors.messages',
+                        'loosecms.context_processors.global_settings',
                     ],
                 },
             },
         ],
-
+        LOOSECMS_SITE_NAME='My site',
+        LOOSECMS_SITE_FAVICON='images/favicon.ico',
     )
 
     try:

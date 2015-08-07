@@ -7,5 +7,4 @@ tox>=1.7.0
 
 # Additional test requirements go here
 bootstrap_admin
-django-dynamic-preferences
 tinycss

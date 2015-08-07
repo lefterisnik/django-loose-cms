@@ -13,10 +13,11 @@ class PluginModelAdmin(admin.ModelAdmin):
     def make_message(self, request, obj, action):
         if '_to_field' not in request.POST and '_popup' in request.POST:
             opts = self.model._meta
-            msg_dict = {'name': force_text(opts.verbose_name),
-                        'obj': force_text(obj),
-                        'action': force_text(action)}
-            msg = _('The %(name)s "%(obj)s" was (action) successfully.') % msg_dict
+            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
+            if action == 'added':
+                msg = _('The %(name)s "%(obj)s" was added successfully.') % msg_dict
+            elif action == 'changed':
+                msg = _('The %(name)s "%(obj)s" was changed successfully.') % msg_dict
             self.message_user(request, msg, messages.SUCCESS)
 
     def response_add(self, request, obj, post_url_continue=None):

@@ -30,7 +30,6 @@ setup(
     install_requires=[
         'Django>=1.8,<1.9',
         'tinycss',
-        'django-dynamic-preferences',
         'bootstrap-admin',
     ],
 )

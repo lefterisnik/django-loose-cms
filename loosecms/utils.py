@@ -21,7 +21,6 @@ def update_context(context, page=None):
         columns = list(query_columns)
         plugins = list(query_plugins)
 
-
         processing_rows = {}
         for column in columns:
             tmp_rows = []
@@ -45,8 +44,6 @@ def update_context(context, page=None):
             tmp_plugin = [plugin for plugin in plugins if plugin.placeholder.pk == column.pk]
             if len(tmp_plugin) > 0:
                 processing_plugins[column] = tmp_plugin[0]
-
-
 
         processing_rows['root'] = [row for row in rows if not row.placeholder]
         processing_rows['root'] = get_sort_list(processing_rows['root'], 'order')
