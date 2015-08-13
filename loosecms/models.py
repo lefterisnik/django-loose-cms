@@ -28,6 +28,8 @@ class Plugin(models.Model):
 
     placeholder = models.ForeignKey('self', blank=True, null=True)
 
+    published = models.BooleanField(_('publish'), default=True)
+
     def __unicode__(self):
         return "%s" % self.pk
 
@@ -191,8 +193,6 @@ class RowManager(Plugin):
             help_text=_('Select the page or the template to add this row.'))
     order = models.IntegerField(_('order'), default=0)
 
-    published = models.BooleanField(_('published'), default=True)
-
     def __unicode__(self):
         return "%s (%s)" %(self.title, self.type)
 
@@ -221,8 +221,6 @@ class ColumnManager(Plugin):
     width = models.IntegerField(_('width'),
                                 help_text=_('Give the width of the column.'))
     order = models.IntegerField(_('order'), default=0)
-
-    published = models.BooleanField(_('published'), default=True)
 
     def __unicode__(self):
         return "%s (%s)" %(self.title, self.type)

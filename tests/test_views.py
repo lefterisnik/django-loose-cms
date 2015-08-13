@@ -232,7 +232,7 @@ class StaffViews(TestCase):
         self.client.login(username='admin', password='admin')
         self.custom_error_page = create_404_page()
         response = self.client.get('/page1/')
-        self.assertTemplateUsed(response, 'admin/editor_lite.html')
+        self.assertTemplateUsed(response, 'admin/editor_form.html')
 
 
 

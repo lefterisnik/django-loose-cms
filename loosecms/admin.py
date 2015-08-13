@@ -71,8 +71,8 @@ class MyHtmlParser(HTMLParser):
 
 class HtmlPageAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title', )}
-    list_filter = ('is_template', )
-    list_display = ('title', 'is_template', 'type', 'published')
+    list_filter = ('is_template', 'published', 'is_error', 'home')
+    list_display = ('title', 'type', 'is_template', 'home', 'published')
     list_editable = ('published', )
     fieldsets = (
         (None, {
@@ -393,6 +393,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             if 'placeholder' in request.POST:
                 placeholder = request.POST['placeholder']
 
+        print request.POST, request.GET
         plugin_pool.discover_plugins()
         #TODO: avoid for loop, because we arleady have type plugin
         for plugin in plugin_pool.plugins:

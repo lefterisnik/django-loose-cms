@@ -11,11 +11,15 @@ def get_sort_list(list, item):
 def update_context(context, page=None):
     if page:
         # Get all row (otherwise placeholder) from the current page and template
-        query_rows = RowManager.objects.select_related('placeholder').filter(Q(page=page) | Q(page=page.template), published=True)
+        query_rows = RowManager.objects.select_related('placeholder').filter(Q(page=page) | Q(page=page.template),
+                                                                             published=True)
         # Get all columns tha have as parent placeholder the rows that appear to this page
-        query_columns = ColumnManager.objects.select_related('placeholder').filter(Q(placeholder__rowmanager__page=page) | Q(placeholder__rowmanager__page=page.template), published=True)
+        query_columns = ColumnManager.objects.select_related('placeholder').filter(Q(placeholder__rowmanager__page=page) | Q(placeholder__rowmanager__page=page.template),
+                                                                                   published=True)
         # Get all plugins except RowPlugin and ColumnPlugin
-        query_plugins = Plugin.objects.select_related('placeholder').filter(~Q(type='RowPlugin'),~Q(type='ColumnPlugin'))
+        query_plugins = Plugin.objects.select_related('placeholder').filter(~Q(type='RowPlugin'),
+                                                                            ~Q(type='ColumnPlugin'),
+                                                                            published=True)
 
         rows = list(query_rows)
         columns = list(query_columns)
