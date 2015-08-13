@@ -15,19 +15,26 @@
 
 {% block admin_footer %}
         </div>
-        <div class="sb-slidebar sb-left">
+        <div class="sb-slidebar sb-left sb-style-overlay">
             <nav class="sidebar-nav">
                 <ul id="menu">
                     <li class="active">
-                        <a href="#">{% trans 'Options' %}<span class="glyphicon arrow"></span></a>
-                        <ul>
-                            <li><a href="{% url 'admin:admin_edit_page' page.pk %}">{% trans 'Edit' %}</a></li>
-                            {% if page.slug %}
-                            <li><a href="{% url 'pages-info' page.slug %}">{% trans 'Preview' %}</a></li>
-                            {% else %}
-                            <li><a href="{% url 'pages-home' %}">{% trans 'Preview' %}</a></li>
-                            {% endif %}
-                        </ul>
+                        <a href="{% url 'admin:admin_edit_page' page.pk %}">
+                            <span class="sidebar-nav-item-icon glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            {% trans 'Edit' %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:index' %}">
+                        <span class="sidebar-nav-item-icon glyphicon glyphicon-home" aria-hidden="true"></span>
+                        {% trans 'Admin index' %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:logout' %}">
+                            <span class="sidebar-nav-item-icon glyphicon glyphicon-off" aria-hidden="true"></span>
+                            {% trans 'Logout' %}
+                        </a>
                     </li>
                 </ul>
             </nav>

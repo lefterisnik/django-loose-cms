@@ -117,11 +117,36 @@ class HtmlPage(Page):
     def clean(self):
         """
         Don't allow null slug and home flag False. If null slug the home flag must be True.
+        Don't allow two of home, is_template and is_error to be selected
+        Don't allow two or more home pages published
+        Don't allow two or more error pages published
         :return: cleaned_data and errors
         """
+        htmlpages = HtmlPage.objects.all()
+
         if not self.slug and not self.home:
             msg = _('With null slug must check the home flag.')
             raise ValidationError({'home': msg})
+
+        if (self.is_error and (self.home or self.is_template)) or \
+                (self.is_template and (self.home or self.is_error)) or \
+                (self.home and (self.is_error or self.is_template)):
+            msg = _('Only one checkbox must be checked.')
+            raise ValidationError({'home': msg, 'is_error': msg, 'is_template': msg})
+
+        if self.home and self.published:
+            for htmlpage in htmlpages:
+                if htmlpage.home and htmlpage.published:
+                    msg = _('There is already a published home page. Only one page can be the home page and published')
+                    raise ValidationError({'home': msg})
+
+        if self.is_error and self.published:
+            for htmlpage in htmlpages:
+                if htmlpage.is_error and htmlpage.published:
+                    msg = _('There is already a published error page. Only one page can be the error page and published')
+                    raise ValidationError({'is_error': msg})
+
+
 
     def __unicode__(self):
         return self.title

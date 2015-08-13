@@ -74,10 +74,19 @@ class HtmlPageAdmin(admin.ModelAdmin):
     list_filter = ('is_template', )
     list_display = ('title', 'is_template', 'type', 'published')
     list_editable = ('published', )
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'type', 'template', 'published')
+        }),
+        ('Advanced options',{
+            'fields': ('home', 'is_template', 'is_error')
+        }),
+    )
+    search_fields = ['title', 'slug']
 
     def response_add(self, request, obj, post_url_continue=None):
         """
-        Return message and redirec to the appropiate page
+        Return message and redirect to the appropiate edit page
         :param request:
         :param obj:
         :param post_url_continue:
@@ -90,7 +99,9 @@ class HtmlPageAdmin(admin.ModelAdmin):
             msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
             msg = _('The %(name)s "%(obj)s" was added successfully.') % msg_dict
             self.message_user(request, msg, messages.SUCCESS)
-            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+            return HttpResponse('<script>window.parent.location.replace("'
+                                + urlresolvers.reverse('admin:admin_edit_page', args=(obj.pk,))
+                                + '");self.close();</script>')
 
         return super(HtmlPageAdmin, self).response_add(request, obj, post_url_continue)
 
@@ -119,11 +130,16 @@ class HtmlPageAdmin(admin.ModelAdmin):
         """
         urls = super(HtmlPageAdmin, self).get_urls()
         my_urls = patterns('',
-            url(r'^(?P<page_pk>\d+)/add_plugin/$', self.admin_site.admin_view(self.add_plugin), name='admin_add_plugin'),
-            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_plugin), name='admin_edit_plugin'),
-            url(r'^(?P<page_pk>\d+)/delete_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.delete_plugin), name='admin_delete_plugin'),
-            url(r'^(?P<page_pk>\d+)/move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin), name='admin_move_plugin'),
-            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/edit_style/$', self.admin_site.admin_view(self.edit_style), name='admin_edit_style'),
+            url(r'^(?P<page_pk>\d+)/add_plugin/$', self.admin_site.admin_view(self.add_plugin),
+                name='admin_add_plugin'),
+            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_plugin),
+                name='admin_edit_plugin'),
+            url(r'^(?P<page_pk>\d+)/delete_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.delete_plugin),
+                name='admin_delete_plugin'),
+            url(r'^(?P<page_pk>\d+)/move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin),
+                name='admin_move_plugin'),
+            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/edit_style/$', self.admin_site.admin_view(self.edit_style),
+                name='admin_edit_style'),
             url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page), name='admin_edit_page'),
         )
         return my_urls + urls
@@ -342,7 +358,6 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
         return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
 
-
     def edit_page(self, request, page_pk):
         if request.method == 'GET':
             all_pages = HtmlPage.objects.all()
@@ -357,10 +372,11 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 page=page,
                 template_pages=template_pages,
                 pages=pages,
+                title=_('Edit page'),
                 is_popup=True,
             )
             context = update_context(context, page)
-            return render(request, 'admin/editor.html', context)
+            return render(request, 'admin/editor_form.html', context)
 
     def add_plugin(self, request, page_pk):
         if request.method == 'GET':
@@ -482,5 +498,5 @@ admin.site.register(HtmlPage, HtmlPageAdmin)
 admin.site.register(SyndicationPage)
 admin.site.register(Style, StyleAdmin)
 admin.site.register(StyleClass, StyleClassAdmin)
-admin.site.register(ColumnManager, ColumnPlugin)
 admin.site.register(RowManager, RowPlugin)
+admin.site.register(ColumnManager, ColumnPlugin)

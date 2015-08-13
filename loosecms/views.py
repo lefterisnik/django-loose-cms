@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect, render
 from django.core import urlresolvers
 from django.http import Http404
@@ -22,7 +23,7 @@ def detail(request, page_slug, *args,  **kwargs):
     # If there are not pages, redirect to login admin page to login
     if not pages:
         if not request.user.is_authenticated():
-            return redirect(urlresolvers.reverse('admin:index'))
+            return redirect(urlresolvers.reverse('admin:login') + '?next=' + request.path )
 
     # Exam if page exist else raise 404
     try:
@@ -41,9 +42,10 @@ def detail(request, page_slug, *args,  **kwargs):
                 is_popup=True,
                 template_pages=template_pages,
                 pages=pages,
+                title=_('Edit page'),
             )
             context = update_context(context)
-            return render(request, 'admin/editor_lite.html', context)
+            return render(request, 'admin/editor_form.html', context)
         else:
             raise Http404
 
