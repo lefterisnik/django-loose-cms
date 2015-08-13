@@ -9,7 +9,9 @@
             pickTime: false
         });
 
-        $('table').dataTable();
+        $('.table-datatable').dataTable();
+
+        $('[data-toggle="tooltip"]').tooltip();
 
         function getCookie(name) {
             var cookieValue = null;

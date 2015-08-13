@@ -115,12 +115,17 @@ body {
 /*          Control position and color for the admin button in templates      */
 /*============================================================================*/
 
-.sb-toggle-left{
+.sb-toggle-left {
+    position: fixed;
     color: gray;
     top: 15px;
+    left: 0px;
     z-index: 1031;
 }
 
+#sb-site {
+    transform: none;
+}
 
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {

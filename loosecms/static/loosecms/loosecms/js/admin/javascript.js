@@ -67,6 +67,7 @@
                         $(e.target).fadeIn(2000);
                         panel.resize(null, caclulate_height(this));
                         $(this).height('100%');
+                        panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
                     });
                 }

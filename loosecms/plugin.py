@@ -14,13 +14,13 @@ class ColumnPlugin(PluginModelAdmin):
     plugin = False
     prepopulated_fields = {'slug': ('title', )}
     extra_initial_help = None
+    fields = ('type', 'placeholder', 'title', 'slug', 'width', 'order', 'published')
 
     def get_changeform_initial_data(self, request):
         initial = {}
         if self.extra_initial_help:
             initial['type'] = self.extra_initial_help['type']
             initial['placeholder'] = self.extra_initial_help['placeholder']
-            initial['manager'] = self.extra_initial_help['page']
 
             columns = ColumnManager.objects.filter(placeholder=self.extra_initial_help['placeholder']).order_by('order')
 
@@ -45,6 +45,7 @@ class RowPlugin(PluginModelAdmin):
     plugin = False
     prepopulated_fields = {'slug': ('title', )}
     extra_initial_help = None
+    fields = ('type', 'placeholder', 'title', 'slug', 'page', 'order', 'published')
 
     def get_changeform_initial_data(self, request):
         initial = {}

@@ -393,7 +393,6 @@ class HtmlPageAdmin(admin.ModelAdmin):
             if 'placeholder' in request.POST:
                 placeholder = request.POST['placeholder']
 
-        print request.POST, request.GET
         plugin_pool.discover_plugins()
         #TODO: avoid for loop, because we arleady have type plugin
         for plugin in plugin_pool.plugins:
