@@ -3,12 +3,7 @@
 /*============================================================================*/
 
 body {
-    /*padding-top: 50px;
-    padding-bottom: 70px;*/
-}
-
-#content {
-    padding-top: 50px;
+    padding-top: 70px;
     padding-bottom: 70px;
 }
 
@@ -49,25 +44,6 @@ body {
 
 
 /*============================================================================*/
-/*       Customize modal dialog                                               */
-/*============================================================================*/
-
-.modal-header{
-    border-bottom: 0px;
-    padding: 10px 15px;
-}
-
-.modal-body{
-    padding: 0;
-}
-
-.modal-footer{
-    border-top: 0px;
-    padding: 10px 15px;
-}
-
-
-/*============================================================================*/
 /*       Customize iframe height                                              */
 /*============================================================================*/
 
@@ -102,13 +78,13 @@ body {
 /*          Change background image from control of carousels                 */
 /*============================================================================*/
 
-.carousel-control.left, .carousel-control.right{
+/*.carousel-control.left, .carousel-control.right{
     background-image: none;
 }
 
 .carousel-control{
     width: 4%;
-}
+}*/
 
 
 /*============================================================================*/
