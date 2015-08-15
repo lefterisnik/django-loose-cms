@@ -64,37 +64,11 @@ class Style(models.Model):
         return self.title
 
 
-class Page(models.Model):
-    RETURN_TYPE = (
-        ('0', 'HTML'),
-        ('1', 'RSS'),
-    )
-
+class HtmlPage(models.Model):
     title = models.CharField(_('title'), max_length=50, unique=True,
             help_text=_('Give a symbolic name. The actual name of url provided from the field slug.'))
     slug = models.SlugField(_('slug'), unique=True, null=True, blank=True,
             help_text=_('The url of this page.'))
-
-    published = models.BooleanField(_('publish'), default=True)
-
-    type = models.CharField(_('type'), max_length='1', choices=RETURN_TYPE,
-            help_text=_('Select the type you want to return this page.'))
-
-    def get_absolute_url(self):
-        if self.slug:
-            return reverse('pages-info', kwargs={"page_slug": self.slug})
-        else:
-            return reverse('pages-home')
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = _('pages')
-        verbose_name_plural = _('pages')
-
-
-class HtmlPage(Page):
     home = models.BooleanField(_('home page'), default=False,
             help_text=_('Check this box if you want this page to be the home page.'))
     template = models.ForeignKey('self', verbose_name=_('template'), blank=True, null=True,
@@ -107,6 +81,17 @@ class HtmlPage(Page):
     ctime = models.DateTimeField(auto_now_add=True)
 
     utime = models.DateTimeField(auto_now=True)
+
+    published = models.BooleanField(_('publish'), default=True)
+
+    def __unicode__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        if self.slug:
+            return reverse('pages-info', kwargs={"page_slug": self.slug})
+        else:
+            return reverse('pages-home')
 
     def render(self, request, context):
         if request.user.is_authenticated() and request.user.is_staff:
@@ -148,40 +133,9 @@ class HtmlPage(Page):
                     msg = _('There is already a published error page. Only one page can be the error page and published')
                     raise ValidationError({'is_error': msg})
 
-
-
-    def __unicode__(self):
-        return self.title
-
     class Meta:
         verbose_name = _('html pages')
         verbose_name_plural = _('html pages')
-
-
-class SyndicationPage(Page):
-    choices = tuple((app, app) for app in settings.INSTALLED_APPS if os.path.exists(os.path.join(settings.BASE_DIR, app, 'rss.py')))
-
-    app = models.CharField(max_length=50, choices=choices)
-
-    ctime = models.DateTimeField(auto_now_add=True)
-
-    utime = models.DateTimeField(auto_now=True)
-
-    def render(self, context):
-        modname = 'rss'
-        module_name = '%s.%s' % (self.app, modname)
-        try:
-            module = import_module(module_name)
-            return module.NewsFeed().__call__(context['request'])
-        except:
-            return
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = _('syndication pages')
-        verbose_name_plural = _('syndication pages')
 
 
 class RowManager(Plugin):

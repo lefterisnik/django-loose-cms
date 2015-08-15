@@ -72,11 +72,11 @@ class MyHtmlParser(HTMLParser):
 class HtmlPageAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title', )}
     list_filter = ('is_template', 'published', 'is_error', 'home')
-    list_display = ('title', 'type', 'is_template', 'home', 'published')
+    list_display = ('title', 'is_template', 'home', 'published')
     list_editable = ('published', )
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'type', 'template', 'published')
+            'fields': ('title', 'slug', 'template', 'published')
         }),
         ('Advanced options',{
             'fields': ('home', 'is_template', 'is_error')
@@ -495,7 +495,6 @@ class StyleClassAdmin(admin.ModelAdmin):
 
 
 admin.site.register(HtmlPage, HtmlPageAdmin)
-admin.site.register(SyndicationPage)
 admin.site.register(Style, StyleAdmin)
 admin.site.register(StyleClass, StyleClassAdmin)
 admin.site.register(RowManager, RowPlugin)

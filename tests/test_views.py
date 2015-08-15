@@ -10,7 +10,6 @@ from loosecms.views import error404
 def create_page(is_template):
     htmlpage = HtmlPage.objects.create(title='page1',
                                        slug='page1',
-                                       type='0',
                                        is_template=is_template)
     return htmlpage
 
@@ -27,7 +26,6 @@ def create_row_plugin(htmlpage):
 def create_404_page():
     htmlpage = HtmlPage.objects.create(title='page404',
                                        slug='page404',
-                                       type='0',
                                        is_error=True)
     return htmlpage
 

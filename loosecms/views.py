@@ -11,7 +11,7 @@ from .utils import *
 
 def detail(request, page_slug, *args,  **kwargs):
     # Get all pages
-    pages = Page.objects.select_related('htmlpage', 'syndicationpage').all()
+    pages = HtmlPage.objects.all()
 
     context = {}
     context['page_slug'] = page_slug
@@ -23,21 +23,21 @@ def detail(request, page_slug, *args,  **kwargs):
     # If there are not pages, redirect to login admin page to login
     if not pages:
         if not request.user.is_authenticated():
-            return redirect(urlresolvers.reverse('admin:login') + '?next=' + request.path )
+            return redirect(urlresolvers.reverse('admin:login') + '?next=' + request.path)
 
     # Exam if page exist else raise 404
     try:
         if not page_slug:
-            page = pages.get(published=True, htmlpage__home=True)
+            page = pages.get(published=True, home=True)
         else:
             page = pages.get(published=True, slug=page_slug)
 
-        if page.htmlpage.is_template and request.user.is_anonymous():
+        if page.is_template and request.user.is_anonymous():
             raise Http404
-    except Page.DoesNotExist:
+    except HtmlPage.DoesNotExist:
         if request.user.is_authenticated() and request.user.is_staff:
-            template_pages = pages.filter(htmlpage__is_template=True)
-            pages = pages.filter(htmlpage__is_template=False)
+            template_pages = pages.filter(is_template=True)
+            pages = pages.filter(is_template=False)
             context.update(
                 is_popup=True,
                 template_pages=template_pages,
@@ -49,8 +49,6 @@ def detail(request, page_slug, *args,  **kwargs):
         else:
             raise Http404
 
-    # TODO: add control to exam what type is
-    page = page.htmlpage
     context['page'] = page
     context = update_context(context, page)
     context['styles'] = Style.objects.all().prefetch_related('styleclasses')
