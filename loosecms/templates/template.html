@@ -15,7 +15,11 @@
                 {% for style in styles %}
                     {% with classes=style.styleclasses.all %}
                         {% if style.css %}
-                            $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("style", "{{ style.css }}");
+                        {% if style.element_is_grid %}
+                        $("#cms_plugin_{{ style.plugin.pk }}").attr("style", "{{ style.css|strip }}");
+                        {% else %}
+                        $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("style", "{{ style.css|strip }}");
+                        {% endif %}
                         {% endif %}
                         $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("class", "{{ classes|join:' ' }}");
                     {% endwith %}

@@ -13,13 +13,13 @@ from django.core.exceptions import ValidationError
 
 def update_css_file(sender, instance, created, **kwargs):
     styleclasses = StyleClass.objects.filter(from_source=False)
-    f = open(os.path.join(settings.BASE_DIR, 'static/tsschgr/css/cms-style.css'), 'w')
+    f = open(os.path.join(settings.BASE_DIR, 'static/loosecms/loosecms/css/cms-style.css'), 'w')
 
     for styleclass in styleclasses:
-        f.write('.%s {\n' % styleclass.name)
-        f.write(styleclass.css)
-        f.write('}\n')
-
+        for styleclassinherit in styleclass.styleclassinherit_set.all():
+            f.write('%s {\n' % styleclassinherit.title)
+            f.write(styleclassinherit.css)
+            f.write('}\n')
     f.close()
 
 
@@ -36,8 +36,6 @@ class Plugin(models.Model):
 
 class StyleClass(models.Model):
     title = models.CharField(max_length=50, unique=True)
-    name = models.SlugField(unique=True)
-    css = models.TextField()
     description = models.TextField(blank=True, null=True)
     from_source = models.BooleanField(default=False)
 
@@ -48,7 +46,20 @@ class StyleClass(models.Model):
         verbose_name = _('classes')
         verbose_name_plural = _('classes')
 
-signals.post_save.connect(update_css_file, sender=StyleClass)
+
+class StyleClassInherit(models.Model):
+    title = models.CharField(max_length=150, unique=True)
+    css = models.TextField()
+    styleclass = models.ForeignKey(StyleClass)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _('classes inheritance')
+        verbose_name_plural = _('classes inheritance')
+
+signals.post_save.connect(update_css_file, sender=StyleClassInherit)
 
 
 class Style(models.Model):
@@ -56,9 +67,10 @@ class Style(models.Model):
     plugin = models.ForeignKey(Plugin)
     html_tag = models.CharField(max_length=50)
     styleclasses = models.ManyToManyField(StyleClass)
-    styleid = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    css = models.TextField()
-    description = models.TextField(blank=True, null=True)
+    styleid = models.CharField(max_length=50, unique=True, blank=True)
+    css = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    element_is_grid = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.title
@@ -123,13 +135,13 @@ class HtmlPage(models.Model):
 
         if self.home and self.published:
             for htmlpage in htmlpages:
-                if htmlpage.home and htmlpage.published:
+                if htmlpage.home and htmlpage.published and self.pk != htmlpage.pk:
                     msg = _('There is already a published home page. Only one page can be the home page and published')
                     raise ValidationError({'home': msg})
 
         if self.is_error and self.published:
             for htmlpage in htmlpages:
-                if htmlpage.is_error and htmlpage.published:
+                if htmlpage.is_error and htmlpage.published and self.pk != htmlpage.pk:
                     msg = _('There is already a published error page. Only one page can be the error page and published')
                     raise ValidationError({'is_error': msg})
 

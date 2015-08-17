@@ -104,3 +104,7 @@ def add_class(field, custom_classes=''):
     except:
         field.field.widget.attrs.update({'class': classes})
     return field
+
+@register.filter
+def strip(value):
+    return ' '.join(value.splitlines())

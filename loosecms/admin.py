@@ -10,6 +10,7 @@ from django.utils.encoding import force_text
 from django.template.loader import render_to_string
 from django.conf.urls import patterns, url
 from django.forms.models import modelformset_factory
+from django.contrib.staticfiles import finders
 from django.contrib import messages
 from django.contrib import admin
 from django.core import urlresolvers
@@ -42,7 +43,7 @@ class MyHtmlParser(HTMLParser):
                 return
 
         self.examed_tags[position].append([tag, attrs])
-        #print self.examed_tags.values()
+        pprint.pprint(self.examed_tags.values())
 
         has_attr = False
         if len(attrs):
@@ -160,19 +161,19 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 if plugin_admin.template:
                     # TODO: give the appropiate context to return real template
                     template = render_to_string(plugin_admin.template)
+            print template
+
 
             # Find all html tags from them template
             parser = MyHtmlParser()
             parser.feed(template)
 
-
             # Find all css of the project and pass it to the css list
             css = []
-            for root, dirnames, filenames in os.walk(os.path.join(settings.BASE_DIR, 'static')):
-                for filename in fnmatch.filter(filenames, '*.css'):
-                    if 'min' not in filename:
-                        css.append(os.path.join(root, filename))
-
+            for finder in finders.get_finders():
+                for file in list(finder.list(['*.js', '*.min.css', '*.woff2', '*.svg', '*.eot', '*.woff', '*.ttf',
+                                              '*.png', '*.jpg', '*.otf', '*.psd', '*.map', '*.txt', '*.gif', '*.md'])):
+                    css.append(finders.find(file[0]))
 
             # For each css, parse it with tinycss and exam if id or class exist in them
             # and then take the attrs or declarations according to tinycss
@@ -225,18 +226,27 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
             def get_already(position, tag):
                 defaults = []
-                string = ''
                 for choice in parser.tags[position][tag]:
                     if choice == 'class':
                         for tag_class in parser.tags[position][tag][choice]:
-                            for tag_class_name_css in parser.tags[position][tag][choice][tag_class]:
-                                string += '%s {\n%s\n}\n\n' % (tag_class_name_css, '\n'.join(x.name + ": " + x.value.as_css() + ";"
-                                                            for x in parser.tags[position][tag][choice][tag_class][tag_class_name_css]))
+
                             try:
-                                styleclass = StyleClass(title=tag_class, name=tag_class, css=string, from_source=True)
-                                styleclass.save()
-                            except:
                                 styleclass = StyleClass.objects.get(title=tag_class)
+                            except StyleClass.DoesNotExist:
+                                styleclass = StyleClass(title=tag_class, from_source=True)
+                                styleclass.save()
+
+                            for tag_class_name_css in parser.tags[position][tag][choice][tag_class]:
+                                print tag_class, tag_class_name_css
+                                string = '%s\n' % ('\n'.join(x.name + ": " + x.value.as_css() + ";"
+                                            for x in parser.tags[position][tag][choice][tag_class][tag_class_name_css]))
+                                try:
+                                    styleclassinherit = StyleClassInherit.objects.get(title=tag_class_name_css)
+                                except StyleClassInherit.DoesNotExist:
+                                    styleclassinherit = StyleClassInherit(title=tag_class_name_css, css=string,
+                                                                          styleclass=styleclass)
+                                    styleclassinherit.save()
+
                             defaults.append(styleclass)
 
                 return [x.pk for x in defaults]
@@ -291,7 +301,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             formset = StyleFormSet(request.POST, request.FILES)
             if formset.is_valid():
                 formset.save()
-                return JsonResponse({'redirect_url': page.get_absolute_url()})
+                return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
             else:
                 context = dict(
                     # Include common variables for rendering the admin template.
@@ -490,8 +500,15 @@ class StyleAdmin(admin.ModelAdmin):
         super(StyleAdmin, self).__init__(model, admin_site)
 
 
+class StyleClassInheritInline(admin.StackedInline):
+    model = StyleClassInherit
+    extra = 1
+
+
 class StyleClassAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'name': ('title', )}
+    inlines = [
+        StyleClassInheritInline
+    ]
 
 
 admin.site.register(HtmlPage, HtmlPageAdmin)
