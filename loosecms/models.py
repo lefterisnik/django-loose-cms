@@ -31,7 +31,7 @@ class Plugin(models.Model):
     published = models.BooleanField(_('publish'), default=True)
 
     def __unicode__(self):
-        return "%s" % self.pk
+        return "%s (%s)" % (self.pk, self.type)
 
 
 class StyleClass(models.Model):

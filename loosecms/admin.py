@@ -11,8 +11,7 @@ from django.template.loader import render_to_string
 from django.conf.urls import patterns, url
 from django.forms.models import modelformset_factory
 from django.contrib.staticfiles import finders
-from django.contrib import messages
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core import urlresolvers
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
@@ -490,7 +489,6 @@ class HtmlPageAdmin(admin.ModelAdmin):
         return render(request, 'admin/move_form.html', context)
 
 
-
 class StyleAdmin(admin.ModelAdmin):
     filter_horizontal = ('styleclasses',)
     form = StyleForm
@@ -509,7 +507,6 @@ class StyleClassAdmin(admin.ModelAdmin):
     inlines = [
         StyleClassInheritInline
     ]
-
 
 admin.site.register(HtmlPage, HtmlPageAdmin)
 admin.site.register(Style, StyleAdmin)

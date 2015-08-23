@@ -1,0 +1,157 @@
+{% extends "admin/change_form.html" %}
+{% load i18n staticfiles cms_tags admin_urls admin_static admin_modify %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/font-awesome/css/font-awesome.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/filemanager.css' %}" />
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+    <form enctype="multipart/form-data" action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
+        <div class="col-sm-9 form-fields">
+            <div class="panel panel-default form-panel">
+                <a href="#" class="form-expand">
+                    <span class="glyphicon glyphicon-resize-horizontal"></span>
+                </a>
+                <div class="panel-body">
+                    {% if errors %}
+                        <p class="errornote">
+                        {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                        </p>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="id_document">Upload file</label>
+                        <input type="file" id="id_document" name="document">
+                        {% if 'id_document' in errors %}
+                            <p class="help-block error">{{ errors|get_dict_value:"id_document" }}</p>
+                        {% endif %}
+                        <p class="help-block">Upload a new file.</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" id="id_upload_to" name="upload_to" value="{{ upload_to }}">
+                    </div>
+                    <hr/>
+                    <div class="form-group">
+                        <label for="id_table">Select one of the existing files</label>
+                        <table id="table" cellpadding="0" cellspacing="0" border="0" class="table table-bordered table-hover table-condensed table-datatable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Root Path</th>
+                                    <th>Full Path</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in docs %}
+                                    <tr>
+                                        {% for attr in doc %}
+                                        <td>{{ attr }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 form-buttons">
+            <div data-spy="affix" data-offset-top="125">
+                <div class="submit-row list-group">
+                    <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
+                        <span class="fa fa-upload"></span>
+                        <span class="text">{% trans 'Upload' %}</span>
+                    </button>
+                    <button id="button_select" title="{% trans 'Select' %}" class="list-group-item" name="_select">
+                        <span class="fa fa-share"></span>
+                        <span class="text">{% trans 'Select' %}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block js %}{{ block.super }}
+<script>
+    var jQuery = django.jQuery || {};
+</script>
+<script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script>
+    (function($) {
+        $(document).ready(function() {
+            var selector = "#" + window.opener.select_field_id;
+            var selector_options = selector + " option";
+
+            datatable = $('.table-datatable').DataTable();
+
+            $(selector_options, opener.document).each(function()
+            {
+                full_path = $(this).val()
+                if ($(this).html().indexOf('/') !== -1){
+                    if ($(this).html().indexOf('/') === 0){
+                        if ($(this).html().match('/').length === 1 ){
+                            var path = '/';
+                            var name = $(this).html().replace('/', '');
+                        } else {
+                            var array = $(this).html().split('/', 2)
+                            var path = array[0] + array[1]
+                            var name = array[2]
+                        }
+                    }
+                }
+                else{
+                    var path = '/';
+                    var name = $(this).html();
+                }
+
+                datatable.row.add( [
+                    name,
+                    path,
+                    full_path,
+                ] ).draw();
+            });
+
+            // propagate data to parent window select
+            {% for doc in docs %}
+            var text = "{{ doc.0 }}";
+            var value = "{{ doc.2 }}";
+            console.log($(selector, opener.document));
+            var option = new Option(text, value);
+            $(selector, opener.document).append($(option));
+            {% endfor %}
+
+
+            $('.table-datatable tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('selected') ) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    datatable.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+
+            $('#button_select').on('click', function(e){
+                e.preventDefault();
+                if (datatable.rows('.selected').data().length !== 0){
+                    var option = $.map(datatable.rows('.selected').data(), function (item) {
+                        return item[2]
+                    });
+
+                    $(selector, opener.document).val(option);
+                    self.close();
+                } else {
+                    alert('You must select on file or close the window');
+                }
+            });
+        });
+    }) (django.jQuery);
+</script>
+{% endblock %}
