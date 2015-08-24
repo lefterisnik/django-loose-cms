@@ -525,27 +525,25 @@ class HtmlPageAdmin(admin.ModelAdmin):
         return response
 
     def move_plugin(self, request, page_pk, pk):
+        plugin = get_object_or_404(Plugin, pk=pk)
+
         if request.method == 'POST':
             form = MovePluginForm(request.POST)
             if form.is_valid():
                 new_placeholder = form.cleaned_data['new_placeholder']
                 new_page = form.cleaned_data['new_page']
 
-                plugin_pool.discover_plugins()
-                plugin = get_object_or_404(Plugin.objects, pk=pk)
-                plugin_model = plugin_pool.plugins[plugin.type].model
-                instance = plugin_model.objects.get(pk=pk)
-                instance.placeholder = new_placeholder
-                if instance.type == 'RowPlugin':
-                    instance.page = new_page
-                instance.save()
+                if new_placeholder:
+                    plugin.placeholder = new_placeholder
+                    plugin.save()
                 return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         else:
-            form = MovePluginForm(page=page_pk, plugin=pk)
+            form = MovePluginForm(plugin=plugin)
 
         context = dict(
             # Include common variables for rendering the admin template.
             self.admin_site.each_context(request),
+            current_app=self.admin_site.name,
             form=form,
             is_popup=True,
             title=_('Move plugin'),

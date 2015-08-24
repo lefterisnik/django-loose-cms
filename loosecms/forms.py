@@ -1,9 +1,10 @@
 # -*- coding:utf-8 -*-
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Q
 from django import forms
+from django.db.models import Q, F, Count
+from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.related import ManyToManyRel
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper, FilteredSelectMultiple
+
 from .models import *
 
 
@@ -65,24 +66,32 @@ class StyleForm(forms.ModelForm):
 
 
 class MovePluginForm(forms.Form):
+    required_css_class = 'required'
     new_page = forms.ModelChoiceField(queryset=HtmlPage.objects.all(),
                                       label=_('New page'),
-                                      required=True,
+                                      required=False,
                                       help_text=_('Give the new page to move the plugin.'))
     new_placeholder = forms.ModelChoiceField(queryset=ColumnManager.objects.all(),
                                              label=_('New placeholder'),
-                                             required=True,
-                                             help_text=_('Give the new placeholder column of the page you select above.'))
+                                             required=False,
+                                             help_text=_('Give the new placeholder column of the page you select'
+                                                         ' above.'))
 
     def __init__(self, *args, **kwargs):
-        page = kwargs.pop('page', None)
         plugin = kwargs.pop('plugin', None)
         super(MovePluginForm, self).__init__(*args, **kwargs)
 
-        if page:
-            self.fields['new_page'].queryset = HtmlPage.objects.filter(~Q(pk=page))
         if plugin:
-            self.fields['new_placeholder'].queryset = ColumnManager.objects.filter(~Q(placeholder=plugin))
+            if plugin.type == 'RowPlugin':
+                self.fields['new_page'].widget = forms.HiddenInput()
+            else:
+                self.fields['new_page'].queryset = HtmlPage.objects.all()
+
+            # Fetch all columnns that have not childs (for each column, id column is not appear in placeholder_id)
+            plugins = Plugin.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
+            columns = ColumnManager.objects.exclude(pk__in=plugins).exclude(placeholder=plugin)
+
+            self.fields['new_placeholder'].queryset = columns
 
 class RowManagerForm(PluginForm):
     class Meta(PluginForm.Meta):
