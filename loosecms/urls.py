@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls.static import static
-from django.conf.urls import include, url
 from django.conf import settings
 from django.contrib import admin
+from django.conf.urls import include, url
+from django.conf.urls.static import static
 
 from .views import *
+from .admin import site
 
 handler404 = error404
-
 extra_urlpatterns = []
-
 app_urlpatterns = []
 
 # Find all urlconfs of all plugins and add thus to extra_patterns
@@ -29,11 +28,11 @@ urlpatterns = app_urlpatterns
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-
 # Initialization of the urlpatterns. First append all extra urlconfs of plugins, then add only the view for page index
 # and finally append the home page pattern
 urlpatterns += [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(site.urls)),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/', include(extra_urlpatterns)),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/$', detail, name='category-info'),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/(?P<slug>[0-9A-Za-z-_.]+)/$', detail, name='info'),

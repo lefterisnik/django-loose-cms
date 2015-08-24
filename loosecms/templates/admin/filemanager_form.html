@@ -88,28 +88,30 @@
         $(document).ready(function() {
             var selector = "#" + window.opener.select_field_id;
             var selector_options = selector + " option";
+            var parent_path = window.opener.path
 
             datatable = $('.table-datatable').DataTable();
 
             $(selector_options, opener.document).each(function()
             {
-                full_path = $(this).val()
-                if ($(this).html().indexOf('/') !== -1){
+                full_path = $(this).val();
+                if ($(this).html().indexOf('/') !== -1) {
                     if ($(this).html().indexOf('/') === 0){
-                        if ($(this).html().match('/').length === 1 ){
-                            var path = '/';
+                        if ($(this).html().match(/\//g).length === 1 ){
+                            var path = '/' + parent_path;
                             var name = $(this).html().replace('/', '');
                         } else {
-                            var array = $(this).html().split('/', 2)
-                            var path = array[0] + array[1]
+                            var array = $(this).html().split(/\//g,3)
+                            var path = '/' + parent_path + '/' + array[0] + array[1]
                             var name = array[2]
                         }
                     }
                 }
                 else{
-                    var path = '/';
+                    var path = '/' + parent_path;
                     var name = $(this).html();
                 }
+                console.log(path, name);
 
                 datatable.row.add( [
                     name,

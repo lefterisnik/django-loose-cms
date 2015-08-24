@@ -19,8 +19,7 @@ class UploadFilePathWidget(widgets.Select):
         self.upload_to = upload_to
 
     def render(self, name, value, attrs=None, choices=()):
-        print self.choices
-        filemanager_url = reverse('admin:admin_filemanager', )
+        filemanager_url = reverse('admin:admin_filemanager', current_app='filemanager')
         filemanager_url += '?to_field=%s&upload_to=%s' % (attrs['id'], self.upload_to)
         if value is None:
             value = ''
@@ -33,8 +32,8 @@ class UploadFilePathWidget(widgets.Select):
             output.append(options)
         output.append('</select>')
         span = '<span class="input-group-btn">\
-                <a href="%s" data-id="%s" class="filemanager btn btn-default">Search or upload a file</a>\
-                </span>' % (filemanager_url, attrs['id'])
+                <a href="%s" data-id="%s" data-path="%s" class="filemanager btn btn-default">Search or upload a file</a>\
+                </span>' % (filemanager_url, attrs['id'], self.path)
         output.append(span)
         output.append(input_group_finish)
         return mark_safe('\n'.join(output))

@@ -37,6 +37,7 @@
         $('body').on('click', '.filemanager', function(e){
             e.preventDefault();
             select_field_id = $(this).data('id');
+            path = $(this).data('path');
 
             var name = "UploadWindow";
             var href = $(this).attr('href');

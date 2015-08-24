@@ -1,29 +1,94 @@
 # -*- coding: utf-8 -*-
-from HTMLParser import HTMLParser
-import fnmatch
 import os
+import pprint
+import fnmatch
 import tinycss
-from urlparse import urlparse
+import collections
 
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
-from django.template.loader import render_to_string
-from django.conf.urls import patterns, url
-from django.forms.models import modelformset_factory
-from django.contrib.staticfiles import finders
-from django.contrib import admin, messages
-from django.core import urlresolvers
-from django.http import JsonResponse, HttpResponse
+from urlparse import urlparse
+from HTMLParser import HTMLParser
+
 from django.conf import settings
+from django.http import HttpResponse
+from django.core import urlresolvers
+from django.contrib import admin, messages
+from django.conf.urls import patterns, url
+from django.utils.encoding import force_text
+from django.contrib.staticfiles import finders
+from django.template.loader import render_to_string
+from django.forms.models import modelformset_factory
+from django.core.files.storage import default_storage
+from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext_lazy as _
+
 
 from .models import *
 from .forms import *
 from .plugin_pool import plugin_pool
 from .utils import *
 from .plugin import *
-import pprint
-import collections
+
+
+class FileManagerAdminSite(admin.AdminSite):
+
+    def get_urls(self):
+        """
+        Add custom urls to filemanager admin site.
+        :return: urls
+        """
+        urlpatterns = patterns('',
+            url(r'^filemanager/$', self.admin_view(self.filemanager), name='admin_filemanager'),
+        )
+        return urlpatterns
+
+    @never_cache
+    def filemanager(self, request):
+        """
+        List files of specific path and give the upload input
+        :return: path of selected file or uploaded file
+        """
+        errors = {}
+        context = dict(
+            # Include common variables for rendering the admin template.
+            self.each_context(request),
+            current_app=self.name,
+            title=_('Select or Upload File'),
+            is_popup=True,
+            errors=errors,
+        )
+
+        if request.method == 'GET':
+            if 'upload_to' in request.GET:
+                upload_to = request.GET['upload_to']
+                context.update(
+                    upload_to=upload_to,
+                )
+
+        if request.method == 'POST':
+            upload_to = request.POST['upload_to']
+            context.update(
+                    upload_to=upload_to,
+                )
+            if not request.FILES:
+                msg = _('This field is required.')
+                errors['id_document'] = msg
+                context.update(
+                    errors=errors
+                )
+            else:
+                file_ = request.FILES['document']
+                filename = '%s/%s' %(upload_to, file_.name)
+
+                name = default_storage.save(filename, file_)
+                context.update(
+                    docs=(
+                        [name.split('/')[1], '/', default_storage.path(name)],
+                    )
+                )
+        return render(request, 'admin/filemanager_form.html', context)
+
+site = FileManagerAdminSite('filemanager')
 
 
 class MyHtmlParser(HTMLParser):
