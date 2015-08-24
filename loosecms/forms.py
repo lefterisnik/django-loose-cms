@@ -88,8 +88,12 @@ class MovePluginForm(forms.Form):
                 self.fields['new_page'].queryset = HtmlPage.objects.all()
 
             # Fetch all columnns that have not childs (for each column, id column is not appear in placeholder_id)
+            # and if have must be rowplugin
+            # TODO: exam if placeholder is nested column and throw an error
+            rows = RowManager.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
             plugins = Plugin.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
-            columns = ColumnManager.objects.exclude(pk__in=plugins).exclude(placeholder=plugin)
+            columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins)) & ~Q(placeholder=plugin)
+                                                   & ~Q(pk=plugin.placeholder))
 
             self.fields['new_placeholder'].queryset = columns
 
