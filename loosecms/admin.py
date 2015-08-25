@@ -9,19 +9,18 @@ from urlparse import urlparse
 from HTMLParser import HTMLParser
 
 from django.conf import settings
-from django.http import HttpResponse
-from django.core import urlresolvers
 from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.utils.encoding import force_text
 from django.contrib.staticfiles import finders
+from django.core import urlresolvers, serializers
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.forms.models import modelformset_factory
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
-
 
 from .models import *
 from .forms import *
@@ -205,7 +204,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 name='admin_move_plugin'),
             url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/edit_style/$', self.admin_site.admin_view(self.edit_style),
                 name='admin_edit_style'),
-            url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page), name='admin_edit_page'),
+            url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
+                name='admin_edit_page'),
+            url(r'^(?P<page_pk>\d+)/move_plugin/(?P<pk>\d+)/api/$', self.admin_site.admin_view(self.move_plugin_api),
+                name='admin_move_plugin_api'),
         )
         return my_urls + urls
 
@@ -526,16 +528,26 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
     def move_plugin(self, request, page_pk, pk):
         plugin = get_object_or_404(Plugin, pk=pk)
+        page = get_object_or_404(HtmlPage, pk=page_pk)
 
         if request.method == 'POST':
-            form = MovePluginForm(request.POST)
+            form = MovePluginForm(request.POST, plugin=plugin)
             if form.is_valid():
                 new_placeholder = form.cleaned_data['new_placeholder']
                 new_page = form.cleaned_data['new_page']
 
-                if new_placeholder:
+                if new_page and plugin.type == 'RowPlugin':
+                    rowmanager = plugin.rowmanager
+                    rowmanager.page = new_page
+                    if new_placeholder:
+                        rowmanager.placeholder = new_placeholder
+                    else:
+                        rowmanager.placeholder = None
+                    rowmanager.save()
+                elif new_placeholder and plugin.type == 'ColumnPlugin':
                     plugin.placeholder = new_placeholder
                     plugin.save()
+
                 return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         else:
             form = MovePluginForm(plugin=plugin)
@@ -550,6 +562,48 @@ class HtmlPageAdmin(admin.ModelAdmin):
             form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(page_pk, pk))
         )
         return render(request, 'admin/move_form.html', context)
+
+    def move_plugin_api(self, request, page_pk, pk):
+        if request.method == 'GET':
+            plugin = get_object_or_404(Plugin, pk=pk)
+
+            if plugin.type == 'RowPlugin':
+                if 'selected_page' in request.GET:
+                    selected_page = request.GET['selected_page']
+                    if selected_page:
+                        page = get_object_or_404(HtmlPage, pk=selected_page)
+
+                        rows = RowManager.objects.filter(placeholder__isnull=False)\
+                            .values_list('placeholder', flat=True)
+                        plugins = Plugin.objects.filter(placeholder__isnull=False)\
+                            .values_list('placeholder', flat=True)
+                        columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
+                                                               & ~Q(placeholder=plugin) & ~Q(pk=plugin.placeholder)
+                                                               & Q(placeholder__rowmanager__page=page))\
+                            .values('type', 'title', 'pk')
+                    else:
+                        rows = RowManager.objects.filter(placeholder__isnull=False)\
+                            .values_list('placeholder', flat=True)
+                        plugins = Plugin.objects.filter(placeholder__isnull=False)\
+                            .values_list('placeholder', flat=True)
+                        columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
+                                                               & ~Q(placeholder=plugin) & ~Q(pk=plugin.placeholder))\
+                            .values('type', 'title', 'pk')
+
+                return JsonResponse(list(columns), safe=False)
+            elif plugin.type == 'ColumnPlugin':
+                if 'selected_page' in request.GET:
+                    selected_page = request.GET['selected_page']
+                    if selected_page:
+                        page = get_object_or_404(HtmlPage, pk=selected_page)
+                        rows = RowManager.objects.filter(page=page).exclude(pk=plugin.placeholder)\
+                            .values('type', 'title', 'pk')
+                    else:
+                        rows = RowManager.objects.exclude(pk=plugin.placeholder)\
+                            .values('type', 'title', 'pk')
+
+                return JsonResponse(list(rows), safe=False)
+
 
 
 class StyleAdmin(admin.ModelAdmin):

@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from django import forms
-from django.db.models import Q, F, Count
+from django.db.models import Q
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.related import ManyToManyRel
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper, FilteredSelectMultiple
@@ -70,32 +71,73 @@ class MovePluginForm(forms.Form):
     new_page = forms.ModelChoiceField(queryset=HtmlPage.objects.all(),
                                       label=_('New page'),
                                       required=False,
-                                      help_text=_('Give the new page to move the plugin.'))
+                                      help_text=_('Select the new page that you want the plugin to move. You can '
+                                                  'select this box if you want to make it a root row plugin in '
+                                                  'another page'))
     new_placeholder = forms.ModelChoiceField(queryset=ColumnManager.objects.all(),
                                              label=_('New placeholder'),
                                              required=False,
-                                             help_text=_('Give the new placeholder column of the page you select'
-                                                         ' above.'))
+                                             help_text=_('Select the new placeholder. You can select this box if you '
+                                                         'want ot move the plugin in a specific column. There is no '
+                                                         'need to select the new page field because all columns knows '
+                                                         'the page that are placed.'))
 
     def __init__(self, *args, **kwargs):
-        plugin = kwargs.pop('plugin', None)
+        self.plugin = kwargs.pop('plugin', None)
         super(MovePluginForm, self).__init__(*args, **kwargs)
 
-        if plugin:
-            if plugin.type == 'RowPlugin':
-                self.fields['new_page'].widget = forms.HiddenInput()
-            else:
-                self.fields['new_page'].queryset = HtmlPage.objects.all()
+        if self.plugin:
+            if self.plugin.type == 'RowPlugin':
+                # If plugin owns to a template page then show only the pages that have not this template as template
+                if self.plugin.rowmanager.page.is_template:
+                    pages = HtmlPage.objects.exclude(template=self.plugin.rowmanager.page.pk)\
+                        .exclude(pk=self.plugin.rowmanager.page.pk)
+                    if pages.count() == 0:
+                        self.fields['new_page'].widget = forms.HiddenInput()
+                    else:
+                        self.fields['new_page'].queryset = pages
+                        self.fields['new_page'].required = True
+                else:
+                    self.fields['new_page'].required = True
 
-            # Fetch all columnns that have not childs (for each column, id column is not appear in placeholder_id)
-            # and if have must be rowplugin
-            # TODO: exam if placeholder is nested column and throw an error
-            rows = RowManager.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
-            plugins = Plugin.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
-            columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins)) & ~Q(placeholder=plugin)
-                                                   & ~Q(pk=plugin.placeholder))
+                # Fetch all columnns that have not childs (for each column, id column is not appear in placeholder_id)
+                # and if have must be rowplugin
+                # TODO: exam if placeholder is nested column and throw an error
+                rows = RowManager.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
+                plugins = Plugin.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
+                columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins)) & ~Q(placeholder=self.plugin)
+                                                       & ~Q(pk=self.plugin.placeholder))
 
-            self.fields['new_placeholder'].queryset = columns
+                self.fields['new_placeholder'].queryset = columns
+            elif self.plugin.type == 'ColumnPlugin':
+                # TODO: exam if placeholder is enough space for the new column
+                rows = RowManager.objects.exclude(pk=self.plugin.placeholder)
+
+                self.fields['new_placeholder'].queryset = rows
+                self.fields['new_placeholder'].required = True
+
+    def clean(self):
+        cleaned_data = super(MovePluginForm, self).clean()
+        new_page = cleaned_data.get('new_page')
+        new_placeholder = cleaned_data.get('new_placeholder')
+        if self.plugin.type == 'RowPlugin':
+            if new_placeholder and not new_page:
+                msg = _('You have to select a page in order to list the appropriate placeholders.')
+                self.add_error('new_page', msg)
+
+            if not new_placeholder and not new_page:
+                msg = _('You have to select a page or a page and a placeholder.')
+                raise ValidationError(msg)
+        elif self.plugin.type == 'ColumnPlugin':
+            if not new_placeholder and not new_page:
+                msg = _('You have to select a placeholder or a page and a placeholder.')
+                raise ValidationError(msg)
+
+            if new_page and not new_placeholder:
+                msg = _('You have to select a placeholder.')
+                self.add_error('new_placeholder', msg)
+
+
 
 class RowManagerForm(PluginForm):
     class Meta(PluginForm.Meta):
