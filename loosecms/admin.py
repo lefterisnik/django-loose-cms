@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
 import os
-import pprint
 import fnmatch
-import tinycss
-import collections
 
 from urlparse import urlparse
-from HTMLParser import HTMLParser
+
 
 from django.conf import settings
+from django.core import urlresolvers
+from django.template import RequestContext
 from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.utils.encoding import force_text
 from django.contrib.staticfiles import finders
-from django.core import urlresolvers, serializers
 from django.http import HttpResponse, JsonResponse
-from django.template.loader import render_to_string
 from django.forms.models import modelformset_factory
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.template.loader import render_to_string, get_template
 
 from .models import *
 from .forms import *
@@ -88,49 +86,6 @@ class FileManagerAdminSite(admin.AdminSite):
         return render(request, 'admin/filemanager_form.html', context)
 
 site = FileManagerAdminSite('filemanager')
-
-
-class MyHtmlParser(HTMLParser):
-    def __init__(self):
-        HTMLParser.__init__(self)
-        self.tags = {}
-        self.examed_tags  = {}
-
-    def handle_starttag(self, tag, attrs):
-        position = '%s' % ':'.join(str(i) for i in self.getpos())
-        self.examed_tags[position] = []
-
-        for pos in self.examed_tags:
-            if [tag, attrs] in self.examed_tags[pos]:
-                self.tags[pos + ',' + position] = self.tags.pop(pos)
-                return
-
-        self.examed_tags[position].append([tag, attrs])
-        pprint.pprint(self.examed_tags.values())
-
-        has_attr = False
-        if len(attrs):
-            position = '%s' % ':'.join(str(i) for i in self.getpos())
-
-            if position not in self.tags:
-                self.tags[position] = {}
-            if tag not in self.tags[position]:
-                self.tags[position][tag] = {}
-
-            # Add values to dict
-            for attr in attrs:
-                if 'class' in attr or 'id' in attr:
-                    if attr in self.tags[position][tag]:
-                        self.tags[position][tag][attr[0]] += dict([(i, dict()) for i in attr[1].split()])
-                    else:
-                        self.tags[position][tag][attr[0]] = dict([(i, dict()) for i in attr[1].split()])
-                    has_attr = True
-                if 'style' in attr:
-                    self.tags[position][tag][attr[0]] = attr[1]
-
-            if not has_attr:
-                self.tags.pop(position)
-                return
 
 
 class HtmlPageAdmin(admin.ModelAdmin):
@@ -211,59 +166,264 @@ class HtmlPageAdmin(admin.ModelAdmin):
         )
         return my_urls + urls
 
-    def edit_style(self, request, page_pk, pk):
-        page = HtmlPage.objects.get(pk=page_pk)
-        if request.method == 'GET':
-            plugin_pool.discover_plugins()
-            plugin = get_object_or_404(Plugin.objects, pk=pk)
-            plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
-            instance = plugin_admin.model.objects.get(pk=pk)
-
-            if plugin.type == 'RowPlugin':
-                template = '<div class="row" id="'+ instance.slug +'">'
-            elif plugin.type == 'ColumnPlugin':
-                template = '<div class="col-lg-' + instance.width + '" id="' + instance.slug + '">'
+    def add_view(self, request, form_url='', extra_context=None):
+        """
+        Return the appropiate form or save the page
+        :param request:
+        :return:json or the html form
+        """
+        is_popup = False
+        if request.META.get('HTTP_REFERER'):
+            referrer = urlparse(request.META.get('HTTP_REFERER'))
+            #TODO: be more specific. We arleady know all admin urls and all views
+            # so we can exam the full func or hole urls.
+            # In this case we have more referrers to exam
+            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
+                is_popup = False
             else:
-                if plugin_admin.template:
-                    # TODO: give the appropiate context to return real template
-                    template = render_to_string(plugin_admin.template)
-            print template
+                is_popup = True
+
+        extra_context = extra_context or {}
+        extra_context.update(
+            is_popup=is_popup,
+        )
+
+        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_add')
+
+        return super(HtmlPageAdmin, self).add_view(request, form_url, extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        """
+        Return the appropiate form or sace the page
+        :param request:
+        :param object_id:
+        :param form_url:
+        :param extra_context:
+        :return:
+        """
+        is_popup = False
+        if request.META.get('HTTP_REFERER'):
+            referrer = urlparse(request.META.get('HTTP_REFERER'))
+            #TODO: be more specific. We arleady know all admin urls and all views
+            # so we can exam the full func or hole urls.
+            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
+                is_popup = False
+            else:
+                is_popup = True
+
+
+        extra_context = extra_context or {}
+        extra_context.update(
+            is_popup=is_popup,
+        )
+
+        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_change', args=(object_id, ))
+
+        return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    def edit_page(self, request, page_pk):
+        """
+        View for the editor of a HTML page
+        :param request:
+        :param page_pk:
+        :return: HTML
+        """
+        if request.method == 'GET':
+            all_pages = HtmlPage.objects.all()
+            page = all_pages.get(pk=page_pk)
+            template_pages = all_pages.filter(is_template=True)
+            pages = all_pages.filter(is_template=False)
+
+            context = dict(
+                # Include common variables for rendering the admin template.
+                self.admin_site.each_context(request),
+                # Anything else you want in the context...
+                page=page,
+                template_pages=template_pages,
+                pages=pages,
+                title=_('Edit page'),
+                is_popup=True,
+            )
+            context = update_context(context, page)
+            return render(request, 'admin/editor_form.html', context)
+
+    def add_plugin(self, request, page_pk):
+        """
+        View for adding a plugin
+        :param request:
+        :param page_pk:
+        :return: HTML (add_view) or a script that close popup window
+        """
+        if request.method == 'GET':
+            if 'type' in request.GET:
+                type = request.GET['type']
+            if 'placeholder' in request.GET:
+                placeholder = request.GET['placeholder']
+            else:
+                placeholder = None
+
+        if request.method == 'POST':
+            if 'type' in request.POST:
+                type = request.POST['type']
+            if 'placeholder' in request.POST:
+                placeholder = request.POST['placeholder']
+
+        plugin_pool.discover_plugins()
+        #TODO: avoid for loop, because we arleady have type plugin
+        for plugin in plugin_pool.plugins:
+            if type == plugin:
+                page = HtmlPage.objects.get(pk=page_pk)
+                plugin_admin = plugin_pool.plugins[plugin](plugin_pool.plugins[plugin].model, self.admin_site)
+                plugin_admin.extra_initial_help = {
+                    'page': page,
+                    'type': type,
+                    'placeholder': placeholder,
+                }
+                extra_context = {
+                    'is_popup': True,
+                }
+                form_url = urlresolvers.reverse('admin:admin_add_plugin', args=(page_pk, ))
+                response = plugin_admin.add_view(request, form_url=form_url, extra_context=extra_context)
+
+                if plugin_admin.object_successfully_added:
+                    return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+                return response
+
+    def edit_plugin(self, request, page_pk, pk):
+        """
+        Prompt edit form for requested plugin
+        :param request:
+        :param pk:
+        :return: HTML (change_view) or a script that close popup window
+        """
+        page = HtmlPage.objects.get(pk=page_pk)
+        plugin_pool.discover_plugins()
+        plugin = get_object_or_404(Plugin.objects, pk=pk)
+        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
+
+        extra_context = {
+            'is_popup': True,
+        }
+        form_url = urlresolvers.reverse('admin:admin_edit_plugin', args=(page_pk, pk))
+        response = plugin_admin.change_view(request, pk, form_url=form_url, extra_context=extra_context)
+        if plugin_admin.object_successfully_changed:
+            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+        return response
+
+    def delete_plugin(self, request, page_pk, pk):
+        """
+        Prompt delete form for requested plugin
+        :param request:
+        :param page_pk:
+        :param pk:
+        :return: HTML (delete_view) or a script that close popup window
+        """
+        page = HtmlPage.objects.get(pk=page_pk)
+        plugin_pool.discover_plugins()
+        plugin = get_object_or_404(Plugin.objects, pk=pk)
+        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
+
+        extra_context = {
+            'is_popup': True,
+            'delete_url': urlresolvers.reverse('admin:admin_delete_plugin', args=(page_pk, pk))
+        }
+        response = plugin_admin.delete_view(request, pk, extra_context=extra_context)
+        if plugin_admin.object_successfully_deleted:
+            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+        return response
+
+    def move_plugin(self, request, page_pk, pk):
+        """
+        Prompt custom move form for requested plugin
+        :param request:
+        :param page_pk:
+        :param pk:
+        :return: HTML (move_form) or a script that close popup window
+        """
+        plugin = get_object_or_404(Plugin, pk=pk)
+        page = get_object_or_404(HtmlPage, pk=page_pk)
+
+        if request.method == 'POST':
+            form = MovePluginForm(request.POST, plugin=plugin)
+            if form.is_valid():
+                new_placeholder = form.cleaned_data['new_placeholder']
+                new_page = form.cleaned_data['new_page']
+
+                if new_page and plugin.type == 'RowPlugin':
+                    rowmanager = plugin.rowmanager
+                    rowmanager.page = new_page
+                    if new_placeholder:
+                        rowmanager.placeholder = new_placeholder
+                    else:
+                        rowmanager.placeholder = None
+                    rowmanager.save()
+                elif new_placeholder and plugin.type == 'ColumnPlugin':
+                    plugin.placeholder = new_placeholder
+                    plugin.save()
+
+                return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+        else:
+            form = MovePluginForm(plugin=plugin)
+
+        context = dict(
+            # Include common variables for rendering the admin template.
+            self.admin_site.each_context(request),
+            current_app=self.admin_site.name,
+            form=form,
+            is_popup=True,
+            title=_('Move plugin'),
+            form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(page_pk, pk))
+        )
+        return render(request, 'admin/move_form.html', context)
+
+    def edit_style(self, request, page_pk, pk):
+        """
+        Prompt edit style form for requested plugin
+        :param request:
+        :param page_pk:
+        :param pk:
+        :return: HTML (edit_style_form) or a script that close popup window
+        """
+        page = get_object_or_404(HtmlPage, pk=page_pk)
+        if request.method == 'GET':
+            plugin = get_object_or_404(Plugin.objects, pk=pk)
+
+            # Create the modeladmin instance of the plugin
+            plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
+            plugin_model = plugin_modeladmin_cls.model
+            plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
+
+            # Fetch the plugin manager that contain the appropriate context variables
+            plugin_manager = get_object_or_404(plugin_model, pk=pk)
+
+            if plugin_modeladmin.__class__.__name__ == 'RowPlugin':
+                rendered_template = '<div class="row" id="'+ plugin_manager.slug +'">'
+            elif plugin_modeladmin.__class__.__name__ == 'ColumnPlugin':
+                rendered_template = '<div class="col-lg-' + plugin_manager.width + '" id="' + plugin_manager.slug + '">'
+            else:
+                if plugin_modeladmin.template:
+                    request_context = RequestContext(request)
+                    rendered_template = plugin_modeladmin.render_to_string(request_context, plugin_manager)
 
 
             # Find all html tags from them template
             parser = MyHtmlParser()
-            parser.feed(template)
+            parser.feed(rendered_template)
+
 
             # Find all css of the project and pass it to the css list
-            css = []
+            csss = []
             for finder in finders.get_finders():
-                for file in list(finder.list(['*.js', '*.min.css', '*.woff2', '*.svg', '*.eot', '*.woff', '*.ttf',
+                for file_ in list(finder.list(['*.js', '*.min.css', '*.woff2', '*.svg', '*.eot', '*.woff', '*.ttf',
                                               '*.png', '*.jpg', '*.otf', '*.psd', '*.map', '*.txt', '*.gif', '*.md'])):
-                    css.append(finders.find(file[0]))
+                    csss.append(finders.find(file_[0]))
 
-            # For each css, parse it with tinycss and exam if id or class exist in them
-            # and then take the attrs or declarations according to tinycss
-            for css in css:
-                css_parser = tinycss.make_parser('page3')
-                stylesheet = css_parser.parse_stylesheet_file(css)
-                for position in parser.tags:
-                    for tag in parser.tags[position]:
-                        for choice in parser.tags[position][tag]:
-                            if choice == 'class':
-                                for tag_class in parser.tags[position][tag][choice]:
-                                    for rule in stylesheet.rules:
-                                        if not rule.at_keyword:
-                                            if rule.selector.as_css().endswith(".%s" % tag_class):
-                                                parser.tags[position][tag][choice][tag_class][rule.selector.as_css()] = list(rule.declarations)
-                            elif choice == 'id':
-                                for tag_id in parser.tags[position][tag][choice]:
-                                    for rule in stylesheet.rules:
-                                        if not rule.at_keyword:
-                                            if rule.selector.as_css().endswith("#" + tag_id):
-                                                parser.tags[position][tag][choice][tag_id][rule.selector.as_css()] = list(rule.declarations)
+            populate_cssclasses_attrs(csss, parser.plugin_style.css_classes)
 
-            pprint.pprint(parser.tags)
-            parser.tags = collections.OrderedDict(sorted(parser.tags.items()))
+            for css_class in  parser.plugin_style.css_classes:
+                print css_class.name, css_class.attrs, '\n'
+            return
+
 
             def get_style(position, tag):
                 if 'style' in parser.tags[position][tag]:
@@ -379,191 +539,14 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 )
                 return render(request, 'admin/edit_style_form.html', context)
 
-    def add_view(self, request, form_url='', extra_context=None):
-        """
-        Return the appropiate form or save the page
-        :param request:
-        :return:json or the html form
-        """
-        is_popup = False
-        if request.META.get('HTTP_REFERER'):
-            referrer = urlparse(request.META.get('HTTP_REFERER'))
-            #TODO: be more specific. We arleady know all admin urls and all views
-            # so we can exam the full func or hole urls.
-            # In this case we have more referrers to exam
-            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = False
-            else:
-                is_popup = True
-
-        extra_context = extra_context or {}
-        extra_context.update(
-            is_popup=is_popup,
-        )
-
-        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_add')
-
-        return super(HtmlPageAdmin, self).add_view(request, form_url, extra_context)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        """
-        Return the appropiate form or sace the page
-        :param request:
-        :param object_id:
-        :param form_url:
-        :param extra_context:
-        :return:
-        """
-        is_popup = False
-        if request.META.get('HTTP_REFERER'):
-            referrer = urlparse(request.META.get('HTTP_REFERER'))
-            #TODO: be more specific. We arleady know all admin urls and all views
-            # so we can exam the full func or hole urls.
-            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = False
-            else:
-                is_popup = True
-
-
-        extra_context = extra_context or {}
-        extra_context.update(
-            is_popup=is_popup,
-        )
-
-        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_change', args=(object_id, ))
-
-        return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
-
-    def edit_page(self, request, page_pk):
-        if request.method == 'GET':
-            all_pages = HtmlPage.objects.all()
-            page = all_pages.get(pk=page_pk)
-            template_pages = all_pages.filter(is_template=True)
-            pages = all_pages.filter(is_template=False)
-
-            context = dict(
-                # Include common variables for rendering the admin template.
-                self.admin_site.each_context(request),
-                # Anything else you want in the context...
-                page=page,
-                template_pages=template_pages,
-                pages=pages,
-                title=_('Edit page'),
-                is_popup=True,
-            )
-            context = update_context(context, page)
-            return render(request, 'admin/editor_form.html', context)
-
-    def add_plugin(self, request, page_pk):
-        if request.method == 'GET':
-            if 'type' in request.GET:
-                type = request.GET['type']
-            if 'placeholder' in request.GET:
-                placeholder = request.GET['placeholder']
-            else:
-                placeholder = None
-
-        if request.method == 'POST':
-            if 'type' in request.POST:
-                type = request.POST['type']
-            if 'placeholder' in request.POST:
-                placeholder = request.POST['placeholder']
-
-        plugin_pool.discover_plugins()
-        #TODO: avoid for loop, because we arleady have type plugin
-        for plugin in plugin_pool.plugins:
-            if type == plugin:
-                page = HtmlPage.objects.get(pk=page_pk)
-                plugin_admin = plugin_pool.plugins[plugin](plugin_pool.plugins[plugin].model, self.admin_site)
-                plugin_admin.extra_initial_help = {
-                    'page': page,
-                    'type': type,
-                    'placeholder': placeholder,
-                }
-                extra_context = {
-                    'is_popup': True,
-                }
-                form_url = urlresolvers.reverse('admin:admin_add_plugin', args=(page_pk, ))
-                response = plugin_admin.add_view(request, form_url=form_url, extra_context=extra_context)
-
-                if plugin_admin.object_successfully_added:
-                    return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
-                return response
-
-    def edit_plugin(self, request, page_pk, pk):
-        """
-        Prompt edit form for requested plugin
-        :param request:
-        :param pk:
-        :return: change_view if request is get or confirm.html if request is post
-        """
-        page = HtmlPage.objects.get(pk=page_pk)
-        plugin_pool.discover_plugins()
-        plugin = get_object_or_404(Plugin.objects, pk=pk)
-        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
-
-        extra_context = {
-            'is_popup': True,
-        }
-        form_url = urlresolvers.reverse('admin:admin_edit_plugin', args=(page_pk, pk))
-        response = plugin_admin.change_view(request, pk, form_url=form_url, extra_context=extra_context)
-        if plugin_admin.object_successfully_changed:
-            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
-        return response
-
-    def delete_plugin(self, request, page_pk, pk):
-        page = HtmlPage.objects.get(pk=page_pk)
-        plugin_pool.discover_plugins()
-        plugin = get_object_or_404(Plugin.objects, pk=pk)
-        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
-
-        extra_context = {
-            'is_popup': True,
-            'delete_url': urlresolvers.reverse('admin:admin_delete_plugin', args=(page_pk, pk))
-        }
-        response = plugin_admin.delete_view(request, pk, extra_context=extra_context)
-        if plugin_admin.object_successfully_deleted:
-            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
-        return response
-
-    def move_plugin(self, request, page_pk, pk):
-        plugin = get_object_or_404(Plugin, pk=pk)
-        page = get_object_or_404(HtmlPage, pk=page_pk)
-
-        if request.method == 'POST':
-            form = MovePluginForm(request.POST, plugin=plugin)
-            if form.is_valid():
-                new_placeholder = form.cleaned_data['new_placeholder']
-                new_page = form.cleaned_data['new_page']
-
-                if new_page and plugin.type == 'RowPlugin':
-                    rowmanager = plugin.rowmanager
-                    rowmanager.page = new_page
-                    if new_placeholder:
-                        rowmanager.placeholder = new_placeholder
-                    else:
-                        rowmanager.placeholder = None
-                    rowmanager.save()
-                elif new_placeholder and plugin.type == 'ColumnPlugin':
-                    plugin.placeholder = new_placeholder
-                    plugin.save()
-
-                return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
-        else:
-            form = MovePluginForm(plugin=plugin)
-
-        context = dict(
-            # Include common variables for rendering the admin template.
-            self.admin_site.each_context(request),
-            current_app=self.admin_site.name,
-            form=form,
-            is_popup=True,
-            title=_('Move plugin'),
-            form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(page_pk, pk))
-        )
-        return render(request, 'admin/move_form.html', context)
-
     def move_plugin_api(self, request, page_pk, pk):
+        """
+        Api that refresh select boxes of move form
+        :param request:
+        :param page_pk:
+        :param pk:
+        :return: JSON array of the new placeholders
+        """
         if request.method == 'GET':
             plugin = get_object_or_404(Plugin, pk=pk)
 
