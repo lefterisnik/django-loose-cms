@@ -4,7 +4,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-    <div id="content-main">
+<div id="content-main">
     <form action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
         <div class="col-sm-9 form-fields">
             <div class="panel panel-default form-panel">
@@ -68,6 +68,7 @@
             </div>
         </div>
     </form>
+</div>
 {% endblock %}
 
 {% block js %}{{ block.super }}

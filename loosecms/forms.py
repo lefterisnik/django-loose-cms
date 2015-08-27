@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from django import forms
 from django.db.models import Q
+from django.forms.formsets import BaseFormSet
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.related import ManyToManyRel
@@ -31,7 +32,6 @@ class HtmlPageTemplateForm(forms.ModelForm):
         }
 
 
-
 class HtmlPageForm(forms.ModelForm):
 
     class Meta:
@@ -43,27 +43,55 @@ class HtmlPageForm(forms.ModelForm):
         }
 
 
-class StyleForm(forms.ModelForm):
-    position = forms.CharField(widget=forms.HiddenInput(), max_length=50, required=False)
+class RowManagerForm(PluginForm):
+    class Meta(PluginForm.Meta):
+        model = RowManager
 
-    class Meta:
-        model = Style
-        fields = '__all__'
-        widgets = {
-            'plugin': forms.HiddenInput(),
-            'html_tag': forms.TextInput(attrs={'class': 'vTextField form-control', 'readonly': True}),
-            'css': forms.Textarea(attrs={'class': 'vLargeTextField form-control'}),
-            'description': forms.Textarea(attrs={'class': 'vLargeTextField form-control'}),
-            'title': forms.TextInput(attrs={'class': 'vTextField form-control'}),
-            'styleid': forms.TextInput(attrs={'class': 'vTextField form-control', 'readonly': True}),
-            'styleclasses': FilteredSelectMultiple('StyleClass', False),
+
+class ColumnManagerForm(PluginForm):
+    class Meta(PluginForm.Meta):
+        model = ColumnManager
+
+
+class BaseStyleFormSet(BaseFormSet):
+
+    def __init__(self, admin_site, *args, **kwargs):
+        self.admin_site = admin_site
+        super(BaseStyleFormSet, self).__init__(*args, **kwargs)
+
+    def _construct_form(self, i, **kwargs):
+        defaults = {
+            'admin_site': self.admin_site,
         }
+        defaults.update(kwargs)
+        return super(BaseStyleFormSet, self)._construct_form(i, **defaults)
 
-    #def __init__(self, *args, **kwargs):
-    #    super(StyleForm, self).__init__(*args, **kwargs)
-    #    self.fields['styleclasses'].widget = RelatedFieldWidgetWrapper(FilteredSelectMultiple('Classes', False),
-    #                                                             Style._meta.get_field('styleclasses').rel,
-    #                                                              self.admin_site)
+
+class StyleForm(forms.Form):
+    required_css_class = 'required'
+    original_html = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}),
+                                    max_length=150)
+    html_tag = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}),
+                               max_length=150,
+                               required=True)
+    html_id = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}),
+                              max_length=150,
+                              required=False)
+    css = forms.CharField(widget=forms.Textarea(),
+                          required=False)
+    styleclasses = forms.ModelMultipleChoiceField(queryset=StyleClass.objects.all(),
+                                                  required=False)
+    position = forms.CharField(widget=forms.HiddenInput(),
+                               max_length=100,
+                               required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.admin_site = kwargs.pop('admin_site', None)
+        super(StyleForm, self).__init__(*args, **kwargs)
+        self.fields['styleclasses'].widget = RelatedFieldWidgetWrapper(FilteredSelectMultiple('Classes', False),
+                                                                       Style._meta.get_field('styleclasses').rel,
+                                                                       self.admin_site)
+        self.fields['styleclasses'].queryset = StyleClass.objects.all()
 
 
 class MovePluginForm(forms.Form):
@@ -136,14 +164,3 @@ class MovePluginForm(forms.Form):
             if new_page and not new_placeholder:
                 msg = _('You have to select a placeholder.')
                 self.add_error('new_placeholder', msg)
-
-
-
-class RowManagerForm(PluginForm):
-    class Meta(PluginForm.Meta):
-        model = RowManager
-
-
-class ColumnManagerForm(PluginForm):
-    class Meta(PluginForm.Meta):
-        model = ColumnManager

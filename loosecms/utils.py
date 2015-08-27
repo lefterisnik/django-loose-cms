@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import pprint
 import tinycss
 import operator
 import collections
 from django.db.models import Q
 from HTMLParser import HTMLParser
-from .models import Plugin, ColumnManager, RowManager
+from .models import Plugin, ColumnManager, RowManager, Style, StyleClass, StyleClassInherit
 
+
+## Functions for collecting the grid of a page
 
 def get_sort_list(list, item):
     return sorted(list, key=operator.attrgetter(item))
@@ -67,19 +68,68 @@ def update_context(context, page=None):
         return context
 
 
-def populate_cssclasses_attrs(csss, css_classes):
+## Function for edit style form
+
+def populate_cssclasses_attrs(csss, plugin_style_inst):
     # For each css, parse it with tinycss and exam if id or class exist in them
     # and then take the attrs or declarations according to tinycss
     for css in csss:
         css_parser = tinycss.make_parser('page3')
         stylesheet = css_parser.parse_stylesheet_file(css)
 
-        for css_class in css_classes:
+        for html_tag in plugin_style_inst.html_tags:
             for rule in stylesheet.rules:
                 if not rule.at_keyword:
-                    if rule.selector.as_css().endswith(".%s" % css_class.name):
-                        css_class.attrs[rule.selector.as_css()] = list(rule.declarations)
+                    for css_class in html_tag.classes:
+                        if rule.selector.as_css().endswith(".%s" % css_class.name):
+                            css_class.attrs[rule.selector.as_css()] = list(rule.declarations)
+                    if rule.selector.as_css().endswith("#%s" % html_tag.id):
+                        for declaration in rule.declarations:
+                            html_tag.style += '%s: %s' % (declaration.name, declaration.value.as_css())
 
+
+def get_initial_values(plugin_style_inst):
+    return [get_dict(html_tag) for html_tag in plugin_style_inst.html_tags]
+
+
+def get_dict(html_tag):
+    return {
+        'original_html': html_tag.original,
+        'html_tag': html_tag.name,
+        'html_id': html_tag.id,
+        'styleclasses': get_styleclasses(html_tag),
+        'css': html_tag.style,
+        'position': html_tag.position
+    }
+
+
+def get_styleclasses(html_tag):
+    defaults = []
+    for class_ in html_tag.classes:
+        try:
+            styleclass = StyleClass.objects.get(title=class_.name, override=False)
+            # TODO: if override is False then user don't change it (add extra attrs )
+            # so it is safe to update class attrs
+        except StyleClass.DoesNotExist:
+            styleclass = StyleClass(title=class_.name, from_source=True)
+            styleclass.save()
+
+        for attr in class_.attrs:
+
+            css = '%s\n' % ('\n'.join(x.name + ": " + x.value.as_css() + ";" for x in class_.attrs[attr]))
+            try:
+                styleclassinherit = StyleClassInherit.objects.get(title=attr)
+            except StyleClassInherit.DoesNotExist:
+                styleclassinherit = StyleClassInherit(title=attr, css=css,
+                                                      styleclass=styleclass)
+                styleclassinherit.save()
+
+        defaults.append(styleclass)
+
+    return [x.pk for x in defaults]
+
+
+## Classes for the parsing html plugin's template
 
 class PluginStyle(object):
     def __init__(self, html_tags=None, css_classes=None):
@@ -87,11 +137,6 @@ class PluginStyle(object):
             self.html_tags = []
         else:
             self.html_tags = html_tags
-
-        if css_classes is None:
-            self.css_classes = []
-        else:
-            self.css_classes = css_classes
 
     def exam_if_tag_exist(self, htmltag_inst):
         if len(self.html_tags) != 0:
@@ -104,8 +149,8 @@ class PluginStyle(object):
         return False
 
     def exam_if_class_exist(self, class_name):
-        if len(self.css_classes) != 0:
-            for css_class in  self.css_classes:
+        for html_tag in self.html_tags:
+            for css_class in html_tag.classes:
                 if class_name == css_class.name:
                     return css_class
         return False
@@ -121,8 +166,8 @@ class CssClass(object):
 
 
 class HtmlTag(object):
-    def __init__(self, name, position=None, id=None, classes=None, style=""):
-        self.name, self.id, self.style = name, id, style
+    def __init__(self, name, original=None, position=None, id=None, classes=None, style=""):
+        self.name, self.id, self.style, self.original = name, id, style, original
         if classes is None:
             self.classes = []
         else:
@@ -156,6 +201,7 @@ class MyHtmlParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         html_tag = HtmlTag(name=tag, position=self.getpos())
+        html_tag.original = self.get_starttag_text()
 
         for attr in attrs:
             if attr[0] == 'class':
@@ -163,7 +209,6 @@ class MyHtmlParser(HTMLParser):
                     exist = self.plugin_style.exam_if_class_exist(class_)
                     if not exist :
                         css_class = CssClass(name=class_)
-                        self.plugin_style.css_classes.append(css_class)
                         html_tag.add_class_inst(css_class)
                     else:
                         html_tag.add_class_inst(exist)
@@ -174,6 +219,5 @@ class MyHtmlParser(HTMLParser):
 
 
         if not self.plugin_style.exam_if_tag_exist(html_tag):
-            #print html_tag, tag, attrs, html_tag.classes, html_tag.name, html_tag.position, '\n'
             self.plugin_style.html_tags.append(html_tag)
 

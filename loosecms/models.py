@@ -38,6 +38,7 @@ class StyleClass(models.Model):
     title = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
     from_source = models.BooleanField(default=False)
+    override = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.title
@@ -48,7 +49,7 @@ class StyleClass(models.Model):
 
 
 class StyleClassInherit(models.Model):
-    title = models.CharField(max_length=150, unique=True)
+    title = models.TextField()
     css = models.TextField()
     styleclass = models.ForeignKey(StyleClass)
 
@@ -66,8 +67,8 @@ class Style(models.Model):
     title = models.CharField(max_length=50, unique=True)
     plugin = models.ForeignKey(Plugin)
     html_tag = models.CharField(max_length=50)
+    html_id = models.CharField(max_length=50, unique=True, blank=True)
     styleclasses = models.ManyToManyField(StyleClass)
-    styleid = models.CharField(max_length=50, unique=True, blank=True)
     css = models.TextField(blank=True)
     description = models.TextField(blank=True)
     element_is_grid = models.BooleanField(default=False)

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import fnmatch
 
 from urlparse import urlparse
+from bs4 import BeautifulSoup
 
 
 from django.conf import settings
@@ -12,8 +14,8 @@ from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.utils.encoding import force_text
 from django.contrib.staticfiles import finders
+from django.forms.formsets import formset_factory
 from django.http import HttpResponse, JsonResponse
-from django.forms.models import modelformset_factory
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404, render
@@ -385,27 +387,31 @@ class HtmlPageAdmin(admin.ModelAdmin):
         :return: HTML (edit_style_form) or a script that close popup window
         """
         page = get_object_or_404(HtmlPage, pk=page_pk)
+
+        plugin = get_object_or_404(Plugin.objects, pk=pk)
+
+        # Create the modeladmin instance of the plugin
+        plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
+        plugin_model = plugin_modeladmin_cls.model
+        plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
+
+        # Fetch the plugin manager that contain the appropriate context variables
+        plugin_manager = get_object_or_404(plugin_model, pk=pk)
+
+        if plugin_modeladmin.__class__.__name__ == 'RowPlugin':
+            rendered_template = '<div class="row" id="'+ plugin_manager.slug +'">'
+        elif plugin_modeladmin.__class__.__name__ == 'ColumnPlugin':
+            rendered_template = '<div class="col-lg-' + plugin_manager.width + '" id="' + plugin_manager.slug + '">'
+        else:
+            if plugin_modeladmin.template:
+                request_context = RequestContext(request)
+                rendered_template = plugin_modeladmin.render_to_string(request_context, plugin_manager)
+
+        # Normalize template without whitespaces
+        lines = rendered_template.split('\n')
+        rendered_template = '\n'.join([line for line in lines if not re.match(r'^\s*$', line)])
+
         if request.method == 'GET':
-            plugin = get_object_or_404(Plugin.objects, pk=pk)
-
-            # Create the modeladmin instance of the plugin
-            plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
-            plugin_model = plugin_modeladmin_cls.model
-            plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
-
-            # Fetch the plugin manager that contain the appropriate context variables
-            plugin_manager = get_object_or_404(plugin_model, pk=pk)
-
-            if plugin_modeladmin.__class__.__name__ == 'RowPlugin':
-                rendered_template = '<div class="row" id="'+ plugin_manager.slug +'">'
-            elif plugin_modeladmin.__class__.__name__ == 'ColumnPlugin':
-                rendered_template = '<div class="col-lg-' + plugin_manager.width + '" id="' + plugin_manager.slug + '">'
-            else:
-                if plugin_modeladmin.template:
-                    request_context = RequestContext(request)
-                    rendered_template = plugin_modeladmin.render_to_string(request_context, plugin_manager)
-
-
             # Find all html tags from them template
             parser = MyHtmlParser()
             parser.feed(rendered_template)
@@ -418,123 +424,60 @@ class HtmlPageAdmin(admin.ModelAdmin):
                                               '*.png', '*.jpg', '*.otf', '*.psd', '*.map', '*.txt', '*.gif', '*.md'])):
                     csss.append(finders.find(file_[0]))
 
-            populate_cssclasses_attrs(csss, parser.plugin_style.css_classes)
+            populate_cssclasses_attrs(csss, parser.plugin_style)
 
-            for css_class in  parser.plugin_style.css_classes:
-                print css_class.name, css_class.attrs, '\n'
-            return
-
-
-            def get_style(position, tag):
-                if 'style' in parser.tags[position][tag]:
-                    style = parser.tags[position][tag]['style']
-                else:
-                    style = ''
-
-                # Get current styles and concat them with the template
-                try:
-                    styles = Style.objects.get(plugin=pk, html_tag=tag)
-                    style += styles.css
-                    return style
-                except Style.DoesNotExist:
-                    return style
-
-            def get_id(position, tag):
-                if 'id' in parser.tags[position][tag]:
-                    for key, value in parser.tags[position][tag]['id'].items():
-                        return key
-
-                try:
-                    styles = Style.objects.get(plugin=pk, html_tag=tag)
-                    return styles.styleid
-                except Style.DoesNotExist:
-                    return None
-
-            def get_already(position, tag):
-                defaults = []
-                for choice in parser.tags[position][tag]:
-                    if choice == 'class':
-                        for tag_class in parser.tags[position][tag][choice]:
-
-                            try:
-                                styleclass = StyleClass.objects.get(title=tag_class)
-                            except StyleClass.DoesNotExist:
-                                styleclass = StyleClass(title=tag_class, from_source=True)
-                                styleclass.save()
-
-                            for tag_class_name_css in parser.tags[position][tag][choice][tag_class]:
-                                print tag_class, tag_class_name_css
-                                string = '%s\n' % ('\n'.join(x.name + ": " + x.value.as_css() + ";"
-                                            for x in parser.tags[position][tag][choice][tag_class][tag_class_name_css]))
-                                try:
-                                    styleclassinherit = StyleClassInherit.objects.get(title=tag_class_name_css)
-                                except StyleClassInherit.DoesNotExist:
-                                    styleclassinherit = StyleClassInherit(title=tag_class_name_css, css=string,
-                                                                          styleclass=styleclass)
-                                    styleclassinherit.save()
-
-                            defaults.append(styleclass)
-
-                return [x.pk for x in defaults]
-
-
-            def get_title(position, tag):
-                # Get current styles and concat them with the template
-                try:
-                    styles = Style.objects.get(plugin=pk, html_tag=tag)
-                    return styles.title
-                except Style.DoesNotExist:
-                    return None
-
-            def get_description(position, tag):
-                # Get current styles and concat them with the template
-                try:
-                    styles = Style.objects.get(plugin=pk, html_tag=tag)
-                    return styles.description
-                except Style.DoesNotExist:
-                    return None
-
-
-            extra = len(parser.tags)
-            StyleFormSet = modelformset_factory(Style, StyleForm, extra=extra, can_delete=True)
-
-            formset = StyleFormSet(initial=[
-                {'title': get_title(position, tag),
-                 'plugin': pk,
-                 'position': '@line %s %s' %(position, tag),
-                 'html_tag': tag,
-                 'css': get_style(position, tag),
-                 'styleid': get_id(position, tag),
-                 'description': get_description(position, tag),
-                 'styleclasses': get_already(position, tag)} for position in parser.tags for tag in parser.tags[position]
-            ])
+            StyleFormSet = formset_factory(StyleForm, formset=BaseStyleFormSet, extra=0, can_delete=True)
+            formset = StyleFormSet(initial=get_initial_values(parser.plugin_style), admin_site=self.admin_site)
 
             context = dict(
                 # Include common variables for rendering the admin template.
                 self.admin_site.each_context(request),
+                current_app=self.admin_site.name,
                 title=_('Edit stylesheet'),
                 formset=formset,
                 is_popup=True,
-                is_ajax=request.is_ajax(),
-                template=template,
+                template=rendered_template,
                 form_url=urlresolvers.reverse('admin:admin_edit_style', args=(page_pk, pk))
             )
             return render(request, 'admin/edit_style_form.html', context)
 
         if request.method == 'POST':
-            StyleFormSet = modelformset_factory(Style, StyleForm)
-
-            formset = StyleFormSet(request.POST, request.FILES)
+            StyleFormSet = formset_factory(StyleForm, formset=BaseStyleFormSet)
+            formset = StyleFormSet(data=request.POST, files=request.FILES, admin_site=self.admin_site)
             if formset.is_valid():
-                formset.save()
+                for form in formset:
+                    styleclasses = form.cleaned_data['styleclasses']
+                    css = form.cleaned_data['css']
+                    original_html = form.cleaned_data['original_html']
+
+                    add_styleclasses = False
+
+                    html = BeautifulSoup(original_html, 'html.parser')
+                    if html.contents[0].get('class'):
+                        original_styleclasses = html.contents[0]['class']
+                        original_styleclasses.sort()
+                        styleclasses = [x.title for x in styleclasses]
+                        styleclasses.sort()
+                        if styleclasses != original_styleclasses:
+                            add_styleclasses = True
+                    else:
+                        if styleclasses:
+                            add_styleclasses = True
+
+                    if add_styleclasses or css:
+                        #TODO: copy template to a new template folder (template app folder for
+                        #overriding them) and change the classes
+                        pass
                 return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
             else:
                 context = dict(
                     # Include common variables for rendering the admin template.
                     self.admin_site.each_context(request),
+                    current_app=self.admin_site.name,
+                    title=_('Edit stylesheet'),
                     formset=formset,
                     is_popup=True,
-                    is_ajax=request.is_ajax(),
+                    template=rendered_template,
                     form_url=urlresolvers.reverse('admin:admin_edit_style', args=(page_pk, pk))
                 )
                 return render(request, 'admin/edit_style_form.html', context)
@@ -591,11 +534,11 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
 class StyleAdmin(admin.ModelAdmin):
     filter_horizontal = ('styleclasses',)
-    form = StyleForm
+    #form = StyleForm
 
-    def __init__(self, model, admin_site):
-        self.form.admin_site = admin_site
-        super(StyleAdmin, self).__init__(model, admin_site)
+    #def __init__(self, model, admin_site):
+    #    self.form.admin_site = admin_site
+    #    super(StyleAdmin, self).__init__(model, admin_site)
 
 
 class StyleClassInheritInline(admin.StackedInline):
@@ -610,6 +553,7 @@ class StyleClassAdmin(admin.ModelAdmin):
 
 admin.site.register(HtmlPage, HtmlPageAdmin)
 admin.site.register(Style, StyleAdmin)
+admin.site.register(StyleClassInherit)
 admin.site.register(StyleClass, StyleClassAdmin)
 admin.site.register(RowManager, RowPlugin)
 admin.site.register(ColumnManager, ColumnPlugin)

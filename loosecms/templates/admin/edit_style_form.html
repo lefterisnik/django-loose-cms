@@ -16,16 +16,18 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <textarea readonly="True" style="width: 100%; min-height: 200px; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">
-                            {{ template }}
-                            </textarea>
+                            <textarea readonly="True" style="width: 100%; min-height: 200px; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">{{ template|safe }}</textarea>
                         </div>
                     </div>
 
-                    {% if form.errors %}
+                    {% if formset.errors %}
+                        {{ formset.errors }}
                         <p class="errornote">
-                        {% if form.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                        {% if formset.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
                         </p>
+                        {% for error in formset.non_field_errors %}
+                        <p class="help-block error">{{ error }}</p>
+                        {% endfor %}
                     {% endif %}
 
                     <div class="row">
@@ -51,52 +53,31 @@
                                     <div class="form-row form-group{% if field.errors %} has-error{% endif %}{% if field.is_hidden %} hidden{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
                                         {% with field|widget_type as widget_type %}
                                             <div class="widget_type__{{ widget_type }}">
-                                              {% if widget_type == 'adminsplitdatetime' %}
-                                                {% if not is_tabular %}
-                                                  {{ field.label_tag }}
+                                                {# only show the label for visible fields #}
+                                                {% if not field.is_hidden %}
+                                                    {% if not is_tabular %}
+                                                        {{ field.label_tag }}
+                                                    {% endif %}
+
+                                                    {% for error in field.errors %}
+                                                        <p class="help-block error">{{ error }}</p>
+                                                    {% endfor %}
+
+                                                    {% if field.field.help_text %}
+                                                        <p class="help-block">
+                                                        {{ field.field.help_text|safe }}
+                                                        </p>
+                                                    {% endif %}
                                                 {% endif %}
                                                 {% if field.is_readonly %}
-                                                  <p>{{ field.contents|linebreaksbr }}</p>
-                                                {% else %}
-                                                  {{ field.field }}
-                                                {% endif %}
-
-                                                {% for error in field.errors %}
-                                                  <p class="help-block error">{{ error }}</p>
-                                                {% endfor %}
-
-                                                {% if field.field.help_text %}
-                                                  <p class="help-block">
-                                                    {{ field.field.help_text|safe }}
-                                                  </p>
-                                                {% endif %}
-                                              {% else %}
-                                                {# only show the label for visible fields #}
-                                                {% if not field.field.is_hidden %}
-                                                  {% if not is_tabular %}
-                                                    {{ field.label_tag }}
-                                                  {% endif %}
-                                                {% endif %}
-                                                  {% if field.is_readonly %}
                                                     <p>{{ field.contents|linebreaksbr }}</p>
-                                                  {% else %}
+                                                {% else %}
                                                     {% if widget_type == 'adminradioselect' or widget_type == 'checkboxselectmultiple' or widget_type == 'readonlypasswordhashwidget' or widget_type == 'adminfilewidget' %}
-                                                      {{ field.field }}
+                                                        {{ field.field }}
                                                     {% else %}
-                                                      {{ field|add_class:"form-control" }}
+                                                        {{ field|add_class:"form-control" }}
                                                     {% endif %}
-                                                  {% endif %}
-
-                                                  {% for error in field.errors %}
-                                                    <p class="help-block error">{{ error }}</p>
-                                                  {% endfor %}
-
-                                                  {% if field.field.help_text %}
-                                                    <p class="help-block">
-                                                      {{ field.field.help_text|safe }}
-                                                    </p>
-                                                  {% endif %}
-                                              {% endif %}
+                                                {% endif %}
                                             </div>
                                         {% endwith %}
                                     </div>
