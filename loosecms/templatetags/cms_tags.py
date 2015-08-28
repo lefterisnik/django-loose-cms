@@ -10,7 +10,8 @@ def render_plugin(context, plugin):
     plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
     plugin_model = plugin_modeladmin_cls.model
     plugin_modeladmin = plugin_modeladmin_cls(plugin_model, None)
-    manager = plugin_modeladmin.model.objects.get(pk=plugin.pk)
+    # For Debugging: manager = plugin_modeladmin.model.objects.get(pk=plugin.pk)
+    manager = getattr(plugin, str(plugin_model._meta.object_name).lower())
     return plugin_modeladmin.render(context, manager)
 
 @register.inclusion_tag('templatetags/get_available_plugin_links.html', takes_context=True)

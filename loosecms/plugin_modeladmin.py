@@ -67,7 +67,6 @@ class PluginModelAdmin(admin.ModelAdmin):
         :param manager:
         :return: HTML
         """
-        print "mpika"
         context = self.update_context(context, manager)
         template = loader.get_template(self.template)
         return template.render(context)

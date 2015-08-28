@@ -6,6 +6,8 @@ from django.db.models import Q
 from HTMLParser import HTMLParser
 from .models import Plugin, ColumnManager, RowManager, Style, StyleClass, StyleClassInherit
 
+from .plugin_pool import plugin_pool
+
 
 ## Functions for collecting the grid of a page
 
@@ -15,16 +17,21 @@ def get_sort_list(list, item):
 
 def update_context(context, page=None):
     if page:
+        # Prefetch onetoone relations between plugin and plugin manager
+        select_related = tuple(plugin_pool.plugins[x].model._meta.object_name.lower() for x in plugin_pool.plugins)
+        select_related += ('placeholder', )
+
         # Get all row (otherwise placeholder) from the current page and template
-        query_rows = RowManager.objects.select_related('placeholder').filter(Q(page=page) | Q(page=page.template),
-                                                                             published=True)
+        query_rows = RowManager.objects.select_related('placeholder')\
+            .filter(Q(page=page) | Q(page=page.template),
+                    published=True)
         # Get all columns tha have as parent placeholder the rows that appear to this page
-        query_columns = ColumnManager.objects.select_related('placeholder').filter(Q(placeholder__rowmanager__page=page) | Q(placeholder__rowmanager__page=page.template),
-                                                                                   published=True)
+        query_columns = ColumnManager.objects.select_related('placeholder')\
+            .filter(Q(placeholder__rowmanager__page=page) | Q(placeholder__rowmanager__page=page.template),
+                    published=True)
         # Get all plugins except RowPlugin and ColumnPlugin
-        query_plugins = Plugin.objects.select_related('placeholder').filter(~Q(type='RowPlugin'),
-                                                                            ~Q(type='ColumnPlugin'),
-                                                                            published=True)
+        query_plugins = Plugin.objects.select_related(*select_related)\
+            .filter(~Q(type='RowPlugin'), ~Q(type='ColumnPlugin'), published=True)
 
         rows = list(query_rows)
         columns = list(query_columns)
