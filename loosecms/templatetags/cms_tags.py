@@ -7,15 +7,15 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def render_plugin(context, plugin):
-    plugin_pool.discover_plugins()
-    plugin_modeladmin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, None)
+    plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
+    plugin_model = plugin_modeladmin_cls.model
+    plugin_modeladmin = plugin_modeladmin_cls(plugin_model, None)
     manager = plugin_modeladmin.model.objects.get(pk=plugin.pk)
     return plugin_modeladmin.render(context, manager)
 
 @register.inclusion_tag('templatetags/get_available_plugin_links.html', takes_context=True)
 def get_available_plugin_links(context, column):
     plugins = {}
-    plugin_pool.discover_plugins()
     for plugin in plugin_pool.plugins:
         if plugin_pool.plugins[plugin].plugin:
             plugins[plugin_pool.plugins[plugin].name] = plugin_pool.plugins[plugin].__name__

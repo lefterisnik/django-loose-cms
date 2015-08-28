@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from django.template import loader
 from django.contrib import admin, messages
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 
 class PluginModelAdmin(admin.ModelAdmin):
-
+    template = None
     object_successfully_added = False
     object_successfully_changed = False
     object_successfully_deleted = False
@@ -49,3 +50,35 @@ class PluginModelAdmin(admin.ModelAdmin):
         self.object_successfully_deleted = True
 
         return super(PluginModelAdmin, self).response_delete(request, obj_display, obj_id)
+
+    def update_context(self, context, manager):
+        """
+        You should override this function to add values to context
+        :param context:
+        :param manager:
+        :return: Context
+        """
+        return context
+
+    def render(self, context, manager):
+        """
+        Render to html the plugin
+        :param context:
+        :param manager:
+        :return: HTML
+        """
+        print "mpika"
+        context = self.update_context(context, manager)
+        template = loader.get_template(self.template)
+        return template.render(context)
+
+    def render_to_string(self, context, manager):
+        """
+        Render to string the plugin. This is used by stylesheet action
+        :param context:
+        :param manager:
+        :return: String html of the plugin
+        """
+        context = self.update_context(context, manager)
+        return loader.render_to_string(self.template, context)
+

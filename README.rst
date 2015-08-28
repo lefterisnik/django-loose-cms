@@ -14,8 +14,9 @@ Features
 --------
 
 * Build bootstrap grid
-* Edit stylesheet of the plugins
+* Edit stylesheet of the plugins (no functional)
 * Template pages
+* File manager with custom model field
 
 Requirements
 ------------
@@ -25,6 +26,7 @@ Loose CMS requires:
 * Django version 1.8
 * Python 2.6 or 2.7
 * tinycss
+* beautifulsoup4
 * bootstrap-admin
 
 Quick Start
@@ -180,6 +182,10 @@ Some plugins:
 * `django-loosecms-doc`_.
 * `django-loosecms-cas`_.
 * `django-loosecms-menu`_.
+* `django-loosecms-link`_.
+* `django-loosecms-rss`_.
+* `django-loosecms-dynamo`_.
+* `django-loosecms-search`_.
 
 
 .. _django-loosecms-text: https://github.com/lefterisnik/django-loosecms-text
@@ -187,3 +193,7 @@ Some plugins:
 .. _django-loosecms-doc: https://github.com/lefterisnik/django-loosecms-doc
 .. _django-loosecms-cas: https://github.com/lefterisnik/django-loosecms-cas
 .. _django-loosecms-menu: https://github.com/lefterisnik/django-loosecms-menu
+.. _django-loosecms-link: https://github.com/lefterisnik/django-loosecms-link
+.. _django-loosecms-rss: https://github.com/lefterisnik/django-loosecms-rss
+.. _django-loosecms-search: https://github.com/lefterisnik/django-loosecms-search
+.. _django-loosecms-dynamo: https://github.com/lefterisnik/django-loosecms-dynamo

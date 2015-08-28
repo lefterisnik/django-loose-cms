@@ -14,14 +14,14 @@ class PluginPool(object):
     def clear(self):
         """
         Clear plugin dict
-        :return:
+        :return: None
         """
         self.plugins = {}
 
     def discover_plugins(self):
         """
         Discover plugin by installed apps and importing plugin.py from every plugin
-        :return:
+        :return: None
         """
         modname = 'plugin'
         for app in settings.INSTALLED_APPS:

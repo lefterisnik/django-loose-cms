@@ -30,6 +30,7 @@ setup(
     install_requires=[
         'Django>=1.8,<1.9',
         'tinycss',
+        'beautifulsoup4',
         'bootstrap-admin',
     ],
 )
