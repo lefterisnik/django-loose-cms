@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.core import urlresolvers
 from django.http import Http404
 from django.views.defaults import page_not_found
 
 from .models import *
-from .utils import *
+from .utils.render import update_context
 
 
 def detail(request, page_slug, *args,  **kwargs):

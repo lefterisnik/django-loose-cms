@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
 import re
-import fnmatch
-
-from urlparse import urlparse
 from bs4 import BeautifulSoup
+from urlparse import urlparse
 
-
-from django.conf import settings
 from django.core import urlresolvers
 from django.template import RequestContext
 from django.contrib import admin, messages
@@ -18,14 +13,12 @@ from django.forms.formsets import formset_factory
 from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string, get_template
 
-from .models import *
 from .forms import *
-from .plugin_pool import plugin_pool
-from .utils import *
+from .utils.render import update_context
+from .utils.style import *
 from .plugin import *
 
 

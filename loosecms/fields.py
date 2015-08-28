@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django import forms
 from django.db import models
 from django.conf import settings
-from .widgets import UploadFilePathWidget
 from django.core.files.storage import default_storage
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FieldFile, FileDescriptor
-import os
+
+from .widgets import UploadFilePathWidget
 
 
 class UploadFilePathField(models.FilePathField):
