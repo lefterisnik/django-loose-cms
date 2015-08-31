@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.utils.importlib import import_module
 
 from .views import *
-from .admin import site
+from .admin.sites import site
 
 handler404 = error404
 extra_urlpatterns = []

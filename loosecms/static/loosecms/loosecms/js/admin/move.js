@@ -32,14 +32,15 @@
         });
 
 
-        /******************************Open upload or select dialog***********************************/
+        /******************************Filter move dialog***********************************/
 
         $('body').on('change', '#id_new_page', function(e){
             e.preventDefault();
 
             var new_placeholder = $('#id_new_placeholder')
 
-            var api_url = window.location.href + 'api/';
+            var attrs = window.location.href.split('/');
+            var api_url = filter_move_choices + attrs[attrs.length-2] + '/';
             api_url = api_url + '?selected_page=' + this.value;
 
 

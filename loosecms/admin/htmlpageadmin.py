@@ -8,79 +8,18 @@ from django.template import RequestContext
 from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.utils.encoding import force_text
+from django.shortcuts import get_object_or_404
 from django.contrib.staticfiles import finders
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, JsonResponse
-from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from .forms import *
-from .utils.render import update_context
-from .utils.style import *
-from .plugin import *
-
-
-class FileManagerAdminSite(admin.AdminSite):
-
-    def get_urls(self):
-        """
-        Add custom urls to filemanager admin site.
-        :return: urls
-        """
-        urlpatterns = patterns('',
-            url(r'^filemanager/$', self.admin_view(self.filemanager), name='admin_filemanager'),
-        )
-        return urlpatterns
-
-    @never_cache
-    def filemanager(self, request):
-        """
-        List files of specific path and give the upload input
-        :return: path of selected file or uploaded file
-        """
-        errors = {}
-        context = dict(
-            # Include common variables for rendering the admin template.
-            self.each_context(request),
-            current_app=self.name,
-            title=_('Select or Upload File'),
-            is_popup=True,
-            errors=errors,
-        )
-
-        if request.method == 'GET':
-            if 'upload_to' in request.GET:
-                upload_to = request.GET['upload_to']
-                context.update(
-                    upload_to=upload_to,
-                )
-
-        if request.method == 'POST':
-            upload_to = request.POST['upload_to']
-            context.update(
-                    upload_to=upload_to,
-                )
-            if not request.FILES:
-                msg = _('This field is required.')
-                errors['id_document'] = msg
-                context.update(
-                    errors=errors
-                )
-            else:
-                file_ = request.FILES['document']
-                filename = '%s/%s' %(upload_to, file_.name)
-
-                name = default_storage.save(filename, file_)
-                context.update(
-                    docs=(
-                        [name.split('/')[1], '/', default_storage.path(name)],
-                    )
-                )
-        return render(request, 'admin/filemanager_form.html', context)
-
-site = FileManagerAdminSite('filemanager')
+from ..models import HtmlPage
+from ..forms import *
+from ..utils.render import update_context
+from ..utils.style import *
+from ..plugin_pool import plugin_pool
 
 
 class HtmlPageAdmin(admin.ModelAdmin):
@@ -97,6 +36,34 @@ class HtmlPageAdmin(admin.ModelAdmin):
         }),
     )
     search_fields = ['title', 'slug']
+
+    def get_urls(self):
+        """
+        Add custom urls to page admin.
+        :return: urls
+        """
+        urls = super(HtmlPageAdmin, self).get_urls()
+        my_urls = patterns('',
+            url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
+                name='admin_edit_page'),
+            url(r'^(?P<page_pk>\d+)/add_plugin/$', self.admin_site.admin_view(self.add_plugin),
+                name='admin_add_plugin'),
+
+            # Plugin urls
+            url(r'^edit_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_plugin),
+                name='admin_edit_plugin'),
+            url(r'^delete_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.delete_plugin),
+                name='admin_delete_plugin'),
+            url(r'^move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin),
+                name='admin_move_plugin'),
+            url(r'^edit_style/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_style),
+                name='admin_edit_style'),
+
+            # API urls
+            url(r'^api/move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin_api),
+                name='admin_move_plugin_api'),
+        )
+        return my_urls + urls
 
     def response_add(self, request, obj, post_url_continue=None):
         """
@@ -136,30 +103,6 @@ class HtmlPageAdmin(admin.ModelAdmin):
             return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
 
         return super(HtmlPageAdmin, self).response_add(request, obj)
-
-    def get_urls(self):
-        """
-        Add custom urls to page admin.
-        :return: urls
-        """
-        urls = super(HtmlPageAdmin, self).get_urls()
-        my_urls = patterns('',
-            url(r'^(?P<page_pk>\d+)/add_plugin/$', self.admin_site.admin_view(self.add_plugin),
-                name='admin_add_plugin'),
-            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_plugin),
-                name='admin_edit_plugin'),
-            url(r'^(?P<page_pk>\d+)/delete_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.delete_plugin),
-                name='admin_delete_plugin'),
-            url(r'^(?P<page_pk>\d+)/move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin),
-                name='admin_move_plugin'),
-            url(r'^(?P<page_pk>\d+)/edit_plugin/(?P<pk>\d+)/edit_style/$', self.admin_site.admin_view(self.edit_style),
-                name='admin_edit_style'),
-            url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
-                name='admin_edit_page'),
-            url(r'^(?P<page_pk>\d+)/move_plugin/(?P<pk>\d+)/api/$', self.admin_site.admin_view(self.move_plugin_api),
-                name='admin_move_plugin_api'),
-        )
-        return my_urls + urls
 
     def add_view(self, request, form_url='', extra_context=None):
         """
@@ -216,6 +159,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
         return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
 
+    @never_cache
     def edit_page(self, request, page_pk):
         """
         View for the editor of a HTML page
@@ -242,6 +186,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             context = update_context(context, page)
             return render(request, 'admin/editor_form.html', context)
 
+    @never_cache
     def add_plugin(self, request, page_pk):
         """
         View for adding a plugin
@@ -263,80 +208,79 @@ class HtmlPageAdmin(admin.ModelAdmin):
             if 'placeholder' in request.POST:
                 placeholder = request.POST['placeholder']
 
-        plugin_pool.discover_plugins()
-        #TODO: avoid for loop, because we arleady have type plugin
-        for plugin in plugin_pool.plugins:
-            if type == plugin:
-                page = HtmlPage.objects.get(pk=page_pk)
-                plugin_admin = plugin_pool.plugins[plugin](plugin_pool.plugins[plugin].model, self.admin_site)
-                plugin_admin.extra_initial_help = {
-                    'page': page,
-                    'type': type,
-                    'placeholder': placeholder,
-                }
-                extra_context = {
-                    'is_popup': True,
-                }
-                form_url = urlresolvers.reverse('admin:admin_add_plugin', args=(page_pk, ))
-                response = plugin_admin.add_view(request, form_url=form_url, extra_context=extra_context)
+        if type in plugin_pool.plugins:
+            page = get_object_or_404(HtmlPage, pk=page_pk)
+            plugin_modeladmin_cls = plugin_pool.plugins[type]
+            plugin_model = plugin_modeladmin_cls.model
+            plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
+            plugin_modeladmin.extra_initial_help = {
+                'page': page,
+                'type': type,
+                'placeholder': placeholder,
+            }
+            extra_context = {
+                'is_popup': True,
+            }
+            form_url = urlresolvers.reverse('admin:admin_add_plugin', args=(page_pk, ))
+            response = plugin_modeladmin.add_view(request, form_url=form_url, extra_context=extra_context)
 
-                if plugin_admin.object_successfully_added:
-                    return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
-                return response
+            if plugin_modeladmin.object_successfully_added:
+                return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+            return response
 
-    def edit_plugin(self, request, page_pk, pk):
+    @never_cache
+    def edit_plugin(self, request, pk):
         """
         Prompt edit form for requested plugin
         :param request:
         :param pk:
         :return: HTML (change_view) or a script that close popup window
         """
-        page = HtmlPage.objects.get(pk=page_pk)
-        plugin_pool.discover_plugins()
         plugin = get_object_or_404(Plugin.objects, pk=pk)
-        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
+        plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
+        plugin_model = plugin_modeladmin_cls.model
+        plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
 
         extra_context = {
             'is_popup': True,
         }
-        form_url = urlresolvers.reverse('admin:admin_edit_plugin', args=(page_pk, pk))
-        response = plugin_admin.change_view(request, pk, form_url=form_url, extra_context=extra_context)
-        if plugin_admin.object_successfully_changed:
+        form_url = urlresolvers.reverse('admin:admin_edit_plugin', args=(pk, ))
+        response = plugin_modeladmin.change_view(request, pk, form_url=form_url, extra_context=extra_context)
+        if plugin_modeladmin.object_successfully_changed:
             return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         return response
 
-    def delete_plugin(self, request, page_pk, pk):
+    @never_cache
+    def delete_plugin(self, request, pk):
         """
         Prompt delete form for requested plugin
         :param request:
-        :param page_pk:
         :param pk:
         :return: HTML (delete_view) or a script that close popup window
         """
-        page = HtmlPage.objects.get(pk=page_pk)
-        plugin_pool.discover_plugins()
         plugin = get_object_or_404(Plugin.objects, pk=pk)
-        plugin_admin = plugin_pool.plugins[plugin.type](plugin_pool.plugins[plugin.type].model, self.admin_site)
+        plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
+        plugin_model = plugin_modeladmin_cls.model
+        plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
 
         extra_context = {
             'is_popup': True,
-            'delete_url': urlresolvers.reverse('admin:admin_delete_plugin', args=(page_pk, pk))
+            'delete_url': urlresolvers.reverse('admin:admin_delete_plugin', args=(pk, ))
         }
-        response = plugin_admin.delete_view(request, pk, extra_context=extra_context)
-        if plugin_admin.object_successfully_deleted:
+        response = plugin_modeladmin.delete_view(request, pk, extra_context=extra_context)
+        if plugin_modeladmin.object_successfully_deleted:
             return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         return response
 
-    def move_plugin(self, request, page_pk, pk):
+    @never_cache
+    def move_plugin(self, request, pk):
         """
         Prompt custom move form for requested plugin
         :param request:
-        :param page_pk:
         :param pk:
         :return: HTML (move_form) or a script that close popup window
         """
         plugin = get_object_or_404(Plugin, pk=pk)
-        page = get_object_or_404(HtmlPage, pk=page_pk)
 
         if request.method == 'POST':
             form = MovePluginForm(request.POST, plugin=plugin)
@@ -367,11 +311,12 @@ class HtmlPageAdmin(admin.ModelAdmin):
             form=form,
             is_popup=True,
             title=_('Move plugin'),
-            form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(page_pk, pk))
+            form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(pk, ))
         )
         return render(request, 'admin/move_form.html', context)
 
-    def edit_style(self, request, page_pk, pk):
+    @never_cache
+    def edit_style(self, request, pk):
         """
         Prompt edit style form for requested plugin
         :param request:
@@ -379,9 +324,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
         :param pk:
         :return: HTML (edit_style_form) or a script that close popup window
         """
-        page = get_object_or_404(HtmlPage, pk=page_pk)
-
-        plugin = get_object_or_404(Plugin.objects, pk=pk)
+        plugin = get_object_or_404(Plugin, pk=pk)
 
         # Create the modeladmin instance of the plugin
         plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
@@ -475,7 +418,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 )
                 return render(request, 'admin/edit_style_form.html', context)
 
-    def move_plugin_api(self, request, page_pk, pk):
+    @never_cache
+    def move_plugin_api(self, request, pk):
         """
         Api that refresh select boxes of move form
         :param request:
@@ -523,30 +467,5 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
                 return JsonResponse(list(rows), safe=False)
 
-
-
-class StyleAdmin(admin.ModelAdmin):
-    filter_horizontal = ('styleclasses',)
-    #form = StyleForm
-
-    #def __init__(self, model, admin_site):
-    #    self.form.admin_site = admin_site
-    #    super(StyleAdmin, self).__init__(model, admin_site)
-
-
-class StyleClassInheritInline(admin.StackedInline):
-    model = StyleClassInherit
-    extra = 1
-
-
-class StyleClassAdmin(admin.ModelAdmin):
-    inlines = [
-        StyleClassInheritInline
-    ]
-
 admin.site.register(HtmlPage, HtmlPageAdmin)
-admin.site.register(Style, StyleAdmin)
-admin.site.register(StyleClassInherit)
-admin.site.register(StyleClass, StyleClassAdmin)
-admin.site.register(RowManager, RowPlugin)
-admin.site.register(ColumnManager, ColumnPlugin)
+

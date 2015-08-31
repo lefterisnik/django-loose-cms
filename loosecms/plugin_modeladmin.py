@@ -6,6 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class PluginModelAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/plugin_change_form.html'
+    delete_confirmation_template = 'admin/plugin_delete_form.html'
     template = None
     object_successfully_added = False
     object_successfully_changed = False

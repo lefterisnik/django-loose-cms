@@ -206,18 +206,18 @@ class StaffViews(TestCase):
         self.client.login(username='admin', password='admin')
 
         # Test edit row plugin
-        url = reverse('admin:admin_edit_plugin', args=(self.htmlpage.pk, self.row.pk))
+        url = reverse('admin:admin_edit_plugin', args=(self.row.pk, ))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         # Testing delete row plugin
-        url = reverse('admin:admin_delete_plugin', args=(self.htmlpage.pk, self.row.pk))
+        url = reverse('admin:admin_delete_plugin', args=(self.row.pk, ))
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
         # Testing move row plugin
-        url = reverse('admin:admin_move_plugin', args=(self.htmlpage.pk, self.row.pk))
+        url = reverse('admin:admin_move_plugin', args=(self.row.pk, ))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

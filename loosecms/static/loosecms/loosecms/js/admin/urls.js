@@ -1,0 +1,1 @@
+filter_move_choices = '/admin/loosecms/htmlpage/api/move_plugin/'

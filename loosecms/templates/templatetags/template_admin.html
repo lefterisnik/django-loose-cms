@@ -16,14 +16,14 @@
                             Action <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk row.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
-                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk row.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
-                            <li><a href="{% url 'admin:admin_move_plugin' page.pk row.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
+                            <li><a href="{% url 'admin:admin_edit_plugin' row.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                            <li><a href="{% url 'admin:admin_delete_plugin' row.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                            <li><a href="{% url 'admin:admin_move_plugin' row.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
                             <li role="presentation" class="divider"></li>
                             <li role="presentation" class="dropdown-header">CSS</li>
-                            <li><a href="{% url 'admin:admin_edit_style' page.pk row.pk %}" class="edit-style">{% trans 'Edit style' %}</a></li>
+                            <li><a href="{% url 'admin:admin_edit_style' row.pk %}" class="edit-style">{% trans 'Edit style' %}</a></li>
                             <li role="presentation" class="divider"></li>
-                            <li role="presentation" class="dropdown-header">{% trans 'Add extensions' %}</li>
+                            <li role="presentation" class="dropdown-header">{% trans 'Add plugin' %}</li>
                             <li><a href="{% url 'admin:admin_add_plugin' page.pk %}" class="add-plugin" data-placeholder="{{ row.pk }}" data-type="ColumnPlugin">{% trans 'Create column' %}</a></li>
                         </ul>
                     </div>
@@ -42,9 +42,9 @@
                                             Action <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk column.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
-                                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk column.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
-                                            <li><a href="{% url 'admin:admin_move_plugin' page.pk column.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
+                                            <li><a href="{% url 'admin:admin_edit_plugin' column.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                                            <li><a href="{% url 'admin:admin_delete_plugin' column.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                                            <li><a href="{% url 'admin:admin_move_plugin' column.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
                                             {% if column not in processing_plugins %}
                                             <li class="divider"></li>
                                             <li><a href="{% url 'admin:admin_add_plugin' page.pk %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="RowPlugin">{% trans 'Add nested row' %}</a></li>
@@ -66,11 +66,11 @@
                                                             Action <span class="caret"></span>
                                                         </button>
                                                         <ul class="dropdown-menu" role="menu">
-                                                            <li><a href="{% url 'admin:admin_edit_plugin' page.pk plugin.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
-                                                            <li><a href="{% url 'admin:admin_delete_plugin' page.pk plugin.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
+                                                            <li><a href="{% url 'admin:admin_edit_plugin' plugin.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
+                                                            <li><a href="{% url 'admin:admin_delete_plugin' plugin.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
                                                             <li role="presentation" class="divider"></li>
                                                             <li role="presentation" class="dropdown-header">CSS</li>
-                                                            <li><a href="{% url 'admin:admin_edit_style' page.pk plugin.pk %}" class="edit-style">{% trans 'Edit style '%}</a></li>
+                                                            <li><a href="{% url 'admin:admin_edit_style' plugin.pk %}" class="edit-style">{% trans 'Edit style '%}</a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
