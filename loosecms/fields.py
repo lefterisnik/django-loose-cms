@@ -8,8 +8,13 @@ from django.core.files.storage import default_storage
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FieldFile, FileDescriptor
 
-from .widgets import UploadFilePathWidget
+from ckeditor.fields import RichTextField
+from .widgets.cketextarea import LoosecmsCKEditorWidget
+from .widgets.filemanager import UploadFilePathWidget
 
+from .plugin_pool import plugin_pool
+
+## Model Fields
 
 class UploadFilePathField(models.FilePathField):
     attr_class = FieldFile
@@ -55,8 +60,47 @@ class UploadFilePathField(models.FilePathField):
         return super(UploadFilePathField, self).formfield(**defaults)
 
 
-## Form Fields
+class LoosecmsRichTextField(RichTextField):
 
+    def __init__(self, *args, **kwargs):
+        self.plugins = []
+        plugin_pool.discover_plugins()
+        for plugin, cls in plugin_pool.plugins.items():
+            if cls.plugin_cke:
+                self.plugins.append(cls(cls.model, None))
+
+        self.extra_plugins = kwargs.pop('extra_plugins', list())
+        self.external_plugin_resources = kwargs.pop('external_plugin_resources', list())
+
+        if self.plugins:
+            self.extra_plugins.append('loosecms')
+            self.external_plugin_resources.append(
+                ['loosecms', settings.STATIC_URL + 'loosecms/loosecms/ckeditor_plugins/loosecms/', 'plugin.js']
+            )
+
+        kwargs['extra_plugins'] = self.extra_plugins
+        kwargs['external_plugin_resources'] = self.external_plugin_resources
+        super(LoosecmsRichTextField, self).__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(LoosecmsRichTextField, self).deconstruct()
+        del kwargs['extra_plugins']
+        del kwargs['external_plugin_resources']
+        if self.plugins is not None:
+            kwargs['plugins'] = self.plugins
+        return name, path, args, kwargs
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': LoosecmsRichTextFormField,
+            'plugins': self.plugins,
+        }
+        defaults.update(kwargs)
+
+        return super(LoosecmsRichTextField, self).formfield(**defaults)
+
+
+## Form Fields
 
 class UploadFilePathFormField(forms.FilePathField):
     widget = UploadFilePathWidget
@@ -69,5 +113,15 @@ class UploadFilePathFormField(forms.FilePathField):
         super(UploadFilePathFormField, self).__init__(path=self.path, *args, **kwargs)
 
         self.widget.upload_to = self.upload_to
+
+
+class LoosecmsRichTextFormField(forms.CharField):
+
+    def __init__(self, config_name='default', extra_plugins=None, external_plugin_resources=None,
+                 plugins=None, *args, **kwargs):
+        kwargs.update({'widget': LoosecmsCKEditorWidget(config_name=config_name, extra_plugins=extra_plugins,
+                                                        external_plugin_resources=external_plugin_resources,
+                                                        plugins=plugins)})
+        super(LoosecmsRichTextFormField, self).__init__(*args, **kwargs)
 
 

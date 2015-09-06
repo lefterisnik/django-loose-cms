@@ -6,6 +6,7 @@ flake8>=2.1.0
 tox>=1.7.0
 
 # Additional test requirements go here
+django-ckeditor
 bootstrap_admin
 tinycss
 beautifulsoup4

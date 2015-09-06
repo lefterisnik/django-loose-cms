@@ -43,16 +43,6 @@ class HtmlPageForm(forms.ModelForm):
         }
 
 
-class RowManagerForm(PluginForm):
-    class Meta(PluginForm.Meta):
-        model = RowManager
-
-
-class ColumnManagerForm(PluginForm):
-    class Meta(PluginForm.Meta):
-        model = ColumnManager
-
-
 class BaseStyleFormSet(BaseFormSet):
 
     def __init__(self, admin_site, *args, **kwargs):

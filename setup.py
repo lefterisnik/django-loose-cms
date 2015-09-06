@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-loose-cms',
-    version='0.1',
+    version='0.2',
     packages=['loosecms'],
     include_package_data=True,
     license='BSD License',
@@ -29,6 +29,7 @@ setup(
     ],
     install_requires=[
         'Django>=1.8,<1.9',
+        'django-ckeditor',
         'tinycss',
         'beautifulsoup4',
         'bootstrap-admin',

@@ -46,10 +46,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
         my_urls = patterns('',
             url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
                 name='admin_edit_page'),
-            url(r'^(?P<page_pk>\d+)/add_plugin/$', self.admin_site.admin_view(self.add_plugin),
-                name='admin_add_plugin'),
 
             # Plugin urls
+            url(r'^add_plugin/$', self.admin_site.admin_view(self.add_plugin),
+                name='admin_add_plugin'),
             url(r'^edit_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_plugin),
                 name='admin_edit_plugin'),
             url(r'^delete_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.delete_plugin),
@@ -187,11 +187,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
             return render(request, 'admin/editor_form.html', context)
 
     @never_cache
-    def add_plugin(self, request, page_pk):
+    def add_plugin(self, request):
         """
         View for adding a plugin
         :param request:
-        :param page_pk:
         :return: HTML (add_view) or a script that close popup window
         """
         if request.method == 'GET':
@@ -202,6 +201,9 @@ class HtmlPageAdmin(admin.ModelAdmin):
             else:
                 placeholder = None
 
+            referrer = urlparse(request.META.get('HTTP_REFERER'))
+            page_pk = referrer.path.split('/')[4]
+
         if request.method == 'POST':
             if 'type' in request.POST:
                 type = request.POST['type']
@@ -209,22 +211,23 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 placeholder = request.POST['placeholder']
 
         if type in plugin_pool.plugins:
-            page = get_object_or_404(HtmlPage, pk=page_pk)
             plugin_modeladmin_cls = plugin_pool.plugins[type]
             plugin_model = plugin_modeladmin_cls.model
             plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
-            plugin_modeladmin.extra_initial_help = {
-                'page': page,
-                'type': type,
-                'placeholder': placeholder,
-            }
-            extra_context = {
-                'is_popup': True,
-            }
-            form_url = urlresolvers.reverse('admin:admin_add_plugin', args=(page_pk, ))
+            if request.method == 'GET':
+                page = get_object_or_404(HtmlPage, pk=page_pk)
+                plugin_modeladmin.extra_initial_help = dict(
+                    page=page,
+                    placeholder=placeholder,
+                )
+
+            extra_context = dict(
+                is_popup = True
+            )
+            form_url = urlresolvers.reverse('admin:admin_add_plugin')
             response = plugin_modeladmin.add_view(request, form_url=form_url, extra_context=extra_context)
 
-            if plugin_modeladmin.object_successfully_added:
+            if plugin_modeladmin.object_successfully_added and not plugin_modeladmin.plugin_cke:
                 return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
             return response
 
@@ -246,7 +249,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
         }
         form_url = urlresolvers.reverse('admin:admin_edit_plugin', args=(pk, ))
         response = plugin_modeladmin.change_view(request, pk, form_url=form_url, extra_context=extra_context)
-        if plugin_modeladmin.object_successfully_changed:
+
+        if plugin_modeladmin.object_successfully_changed and not plugin_modeladmin.plugin_cke:
             return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         return response
 

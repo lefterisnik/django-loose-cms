@@ -1,0 +1,22 @@
+{% load cms_tags %}
+
+<script>
+var LooseCMS = {};
+
+(function ($) {
+    'use strict';
+    $(document).ready(function () {
+        LooseCMS.CKEditor = {
+            options: {
+                'add_plugin_url': "{% url 'admin:admin_add_plugin' 5 %}",
+                'plugins': [
+                    {% for plugin in plugins %}
+                        { 'name': '{{ plugin.name|escapejs }}', 'type': '{{ plugin|get_class_name|escapejs }}' }
+                    {% endfor %}
+                ]
+            }
+        }
+    })
+}) (django.jQuery)
+
+</script>

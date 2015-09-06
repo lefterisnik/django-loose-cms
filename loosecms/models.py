@@ -3,11 +3,11 @@ import os
 from django.utils.translation import ugettext_lazy as _
 
 from django.db import models
-from django.db.models import signals
 from django.conf import settings
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
 
 
 def update_css_file(sender, instance, created, **kwargs):
@@ -23,11 +23,18 @@ def update_css_file(sender, instance, created, **kwargs):
 
 
 class Plugin(models.Model):
-    type = models.CharField(max_length=50, null=True)
+    default_type = None
+
+    type = models.CharField(max_length=50, blank=True)
 
     placeholder = models.ForeignKey('self', blank=True, null=True)
 
     published = models.BooleanField(_('publish'), default=True)
+
+    def save(self, *args, **kwargs):
+        self.type = self.default_type
+        super(Plugin, self).save(*args, **kwargs)
+
 
     def __unicode__(self):
         return "%s (%s)" % (self.pk, self.type)
@@ -59,7 +66,7 @@ class StyleClassInherit(models.Model):
         verbose_name = _('classes inheritance')
         verbose_name_plural = _('classes inheritance')
 
-signals.post_save.connect(update_css_file, sender=StyleClassInherit)
+post_save.connect(update_css_file, sender=StyleClassInherit)
 
 
 class Style(models.Model):
@@ -151,6 +158,8 @@ class HtmlPage(models.Model):
 
 
 class RowManager(Plugin):
+    default_type = "RowPlugin"
+
     title = models.CharField(_('title'), max_length=200,
             help_text=_('Give the name of the row.'))
     slug = models.SlugField(_('slug'), unique=True,
@@ -180,6 +189,8 @@ class RowManager(Plugin):
 
 
 class ColumnManager(Plugin):
+    default_type = "ColumnPlugin"
+
     title = models.CharField(_('title'), max_length=200,
                              help_text=_('Give the name of the column.'))
     slug = models.SlugField(_('slug'), unique=True,

@@ -1,0 +1,13 @@
+@charset "utf-8";
+
+/* float left with the label */
+.cke_chrome { float:left; width:100%; }
+
+/* insure dialog has relative positioning for absolute positioned content */
+.cke_dialog_contents_body { position:relative; }
+
+/* show cmsplugin label */
+.cke_button__loosecms .cke_button_label { padding-left:5px; padding-right:5px; display:inline; }
+
+/* make dropdow larger */
+.cke_combopanel { min-width:200px; }

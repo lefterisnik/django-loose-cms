@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.conf.urls import patterns, url
+from django.core.urlresolvers import reverse
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext_lazy as _
 
+from ..plugin_pool import plugin_pool
 
-class FileManagerAdminSite(admin.AdminSite):
+
+class LooseCMSAdminSite(admin.AdminSite):
 
     def get_urls(self):
         """
-        Add custom urls to filemanager admin site.
+        Add custom urls to loosecms admin site.
         :return: urls
         """
         urlpatterns = patterns('',
-            url(r'^filemanager/$', self.admin_view(self.filemanager), name='admin_filemanager'),
+            url(r'^filemanager/$', self.admin_view(self.filemanager),
+                name='admin_filemanager')
         )
         return urlpatterns
 
@@ -65,4 +70,5 @@ class FileManagerAdminSite(admin.AdminSite):
                 )
         return render(request, 'admin/filemanager_form.html', context)
 
-site = FileManagerAdminSite('filemanager')
+
+site = LooseCMSAdminSite('loosecms')

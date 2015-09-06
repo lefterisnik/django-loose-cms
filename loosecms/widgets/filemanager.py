@@ -19,7 +19,7 @@ class UploadFilePathWidget(widgets.Select):
         self.upload_to = upload_to
 
     def render(self, name, value, attrs=None, choices=()):
-        filemanager_url = reverse('admin:admin_filemanager', current_app='filemanager')
+        filemanager_url = reverse('admin:admin_filemanager', current_app='loosecms')
         filemanager_url += '?to_field=%s&upload_to=%s' % (attrs['id'], self.upload_to)
         if value is None:
             value = ''
