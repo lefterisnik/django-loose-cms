@@ -82,14 +82,6 @@ class LoosecmsRichTextField(RichTextField):
         kwargs['external_plugin_resources'] = self.external_plugin_resources
         super(LoosecmsRichTextField, self).__init__(*args, **kwargs)
 
-    def deconstruct(self):
-        name, path, args, kwargs = super(LoosecmsRichTextField, self).deconstruct()
-        del kwargs['extra_plugins']
-        del kwargs['external_plugin_resources']
-        if self.plugins is not None:
-            kwargs['plugins'] = self.plugins
-        return name, path, args, kwargs
-
     def formfield(self, **kwargs):
         defaults = {
             'form_class': LoosecmsRichTextFormField,

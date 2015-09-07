@@ -1,4 +1,4 @@
-{% load cms_tags %}
+{% load cms_tags staticfiles %}
 
 <script>
 var LooseCMS = {};
@@ -8,7 +8,7 @@ var LooseCMS = {};
     $(document).ready(function () {
         LooseCMS.CKEditor = {
             options: {
-                'add_plugin_url': "{% url 'admin:admin_add_plugin' 5 %}",
+                'add_plugin_url': "{% url 'admin:admin_add_plugin' %}",
                 'plugins': [
                     {% for plugin in plugins %}
                         { 'name': '{{ plugin.name|escapejs }}', 'type': '{{ plugin|get_class_name|escapejs }}' }
@@ -18,5 +18,5 @@ var LooseCMS = {};
         }
     })
 }) (django.jQuery)
-
 </script>
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/ckeditor.css' %}" />

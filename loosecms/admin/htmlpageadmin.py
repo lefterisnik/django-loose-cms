@@ -187,7 +187,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             return render(request, 'admin/editor_form.html', context)
 
     @never_cache
-    def add_plugin(self, request):
+    def add_plugin(self, request, page_pk=None):
         """
         View for adding a plugin
         :param request:
@@ -201,8 +201,16 @@ class HtmlPageAdmin(admin.ModelAdmin):
             else:
                 placeholder = None
 
-            referrer = urlparse(request.META.get('HTTP_REFERER'))
-            page_pk = referrer.path.split('/')[4]
+            if page_pk is None:
+                referrer = urlparse(request.META.get('HTTP_REFERER'))
+                page_pk = referrer.path.split('/')[4]
+                try:
+                    page_pk = int(page_pk)
+                    page = get_object_or_404(HtmlPage, pk=page_pk)
+                except ValueError:
+                    page = None
+
+
 
         if request.method == 'POST':
             if 'type' in request.POST:
@@ -215,9 +223,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
             plugin_model = plugin_modeladmin_cls.model
             plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
             if request.method == 'GET':
-                page = get_object_or_404(HtmlPage, pk=page_pk)
                 plugin_modeladmin.extra_initial_help = dict(
-                    page=page,
+                    page=page if page else None,
                     placeholder=placeholder,
                 )
 

@@ -8,11 +8,6 @@ from .forms import PluginForm
 
 
 class PluginModelAdmin(admin.ModelAdmin):
-    class Media:
-        css = {
-            'all': ('loosecms/loosecms/css/admin/ckeditor.css', )
-        }
-
     change_form_template = 'admin/plugin_change_form.html'
     delete_confirmation_template = 'admin/plugin_delete_form.html'
     form = PluginForm

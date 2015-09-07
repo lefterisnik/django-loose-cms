@@ -88,9 +88,6 @@
                         var iframe = $(CKEDITOR.dialog.getCurrent().parts.contents.$).find('iframe').contents();
                         iframe.find('form').submit();
                         return false;
-
-                        // Finally, insert the element into the editor at the caret position.
-                        //editor.insertElement( abbr );
                     }
                 }};
 
@@ -147,8 +144,8 @@
                             delete LooseCMS.CKEditor.element;
                             $(this).unbind();
                         }
-                        $(this).contents().find('.submit-row').hide().end()
-                            .find('#container').css('min-width', 0).css('padding', 0);
+                        $(this).contents()
+                            .find('.submit-row').hide().end();
                     });
             },
 
@@ -169,9 +166,9 @@
                             delete LooseCMS.CKEditor.element;
                             $(this).unbind();
                         }
-                        $(this).contents().find('.submit-row').hide().end()
-                       .find('#container').css('min-width', 0).css('padding', 0)
-                       .find('#id_name').val(selected_text);
+                        $(this).contents()
+                            .find('.submit-row').hide().end()
+                            .find('#id_title').val(selected_text);
                     });
             },
 
