@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.conf.urls import url
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.conf.urls import patterns, url
 from django.core.urlresolvers import reverse
 from django.core.files.storage import default_storage
 from django.views.decorators.cache import never_cache
@@ -18,10 +18,11 @@ class LooseCMSAdminSite(admin.AdminSite):
         Add custom urls to loosecms admin site.
         :return: urls
         """
-        urlpatterns = patterns('',
+        urlpatterns = [
             url(r'^filemanager/$', self.admin_view(self.filemanager),
                 name='admin_filemanager')
-        )
+        ]
+
         return urlpatterns
 
     @never_cache

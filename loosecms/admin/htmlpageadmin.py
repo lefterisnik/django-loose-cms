@@ -3,10 +3,10 @@ import re
 from bs4 import BeautifulSoup
 from urlparse import urlparse
 
+from django.conf.urls import url
 from django.core import urlresolvers
 from django.template import RequestContext
 from django.contrib import admin, messages
-from django.conf.urls import patterns, url
 from django.utils.encoding import force_text
 from django.shortcuts import get_object_or_404
 from django.contrib.staticfiles import finders
@@ -43,7 +43,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
         :return: urls
         """
         urls = super(HtmlPageAdmin, self).get_urls()
-        my_urls = patterns('',
+        htmlpage_urls = [
             url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
                 name='admin_edit_page'),
 
@@ -62,8 +62,9 @@ class HtmlPageAdmin(admin.ModelAdmin):
             # API urls
             url(r'^api/move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin_api),
                 name='admin_move_plugin_api'),
-        )
-        return my_urls + urls
+        ]
+
+        return htmlpage_urls + urls
 
     def response_add(self, request, obj, post_url_continue=None):
         """
