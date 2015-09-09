@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
 from .plugin_pool import plugin_pool
-from .models import ColumnManager, RowManager
+from .models import Column, Row
 
 from plugin_modeladmin import PluginModelAdmin
 
 
 class ColumnPlugin(PluginModelAdmin):
-    model = ColumnManager
+    model = Column
     name =_('Column')
     prepopulated_fields = {'slug': ('title', )}
 
     def get_changeform_initial_data(self, request):
         initial = super(ColumnPlugin, self).get_changeform_initial_data(request)
-        columns = ColumnManager.objects.filter(placeholder=initial['placeholder']).order_by('order')
+        columns = self.model.objects.filter(placeholder=initial['placeholder']).order_by('order')
 
         order = 0
         width = 12
@@ -28,7 +28,7 @@ class ColumnPlugin(PluginModelAdmin):
 
 
 class RowPlugin(PluginModelAdmin):
-    model = RowManager
+    model = Row
     name = _('Row')
     prepopulated_fields = {'slug': ('title', )}
 

@@ -20,6 +20,9 @@
                             <li><a href="{% url 'admin:admin_delete_plugin' row.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
                             <li><a href="{% url 'admin:admin_move_plugin' row.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
                             <li role="presentation" class="divider"></li>
+                            <li role="presentation" class="dropdown-header">{% trans 'Plugin options' %}</li>
+                            <li><a href="{% url 'admin:admin_select_plugin' row.pk %}" class="select-plugin">{% trans 'Select/Change plugin' %}</a></li>
+                            <li role="presentation" class="divider"></li>
                             <li role="presentation" class="dropdown-header">CSS</li>
                             <li><a href="{% url 'admin:admin_edit_style' row.pk %}" class="edit-style">{% trans 'Edit style' %}</a></li>
                             <li role="presentation" class="divider"></li>
@@ -45,9 +48,12 @@
                                             <li><a href="{% url 'admin:admin_edit_plugin' column.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
                                             <li><a href="{% url 'admin:admin_delete_plugin' column.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
                                             <li><a href="{% url 'admin:admin_move_plugin' column.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
+                                            <li role="presentation" class="divider"></li>
+                                            <li role="presentation" class="dropdown-header">{% trans 'Plugin options' %}</li>
+                                            <li><a href="{% url 'admin:admin_select_plugin' column.pk %}" class="select-plugin">{% trans 'Select/Change plugin' %}</a></li>
                                             {% if column not in processing_plugins %}
                                             <li class="divider"></li>
-                                            <li><a href="{% url 'admin:admin_add_plugin' %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="RowPlugin">{% trans 'Add nested row' %}</a></li>
+                                            <li><a href="{% url 'admin:admin_add_placeholder' page.pk %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="RowPlugin">{% trans 'Add nested row' %}</a></li>
                                             {% get_available_plugin_links column %}
                                             {% endif %}
                                         </ul>

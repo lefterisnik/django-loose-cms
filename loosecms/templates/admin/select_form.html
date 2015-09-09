@@ -1,0 +1,73 @@
+{% extends "admin/change_form.html" %}
+{% load i18n staticfiles cms_tags admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
+        <div class="col-sm-9 form-fields">
+            <div class="panel panel-default form-panel">
+                <a href="#" class="form-expand">
+                    <span class="glyphicon glyphicon-resize-horizontal"></span>
+                </a>
+                <div class="panel-body">
+                    {% if form.errors %}
+                        <p class="errornote">
+                        {% if form.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                        </p>
+                        {% for error in form.non_field_errors %}
+                        <p class="help-block error">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% for field in form %}
+                    <div class="form-row form-group{% if field.errors %} has-error{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
+                        {% with field|widget_type as widget_type %}
+                            <div class="widget_type__{{ widget_type }}">
+                                {# only show the label for visible fields #}
+                                {% if not field.is_hidden %}
+                                    {% if not is_tabular %}
+                                        {{ field.label_tag }}
+                                    {% endif %}
+
+                                    {% if field.is_readonly %}
+                                        <p>{{ field.contents|linebreaksbr }}</p>
+                                    {% else %}
+                                        {% if widget_type == 'adminradioselect' or widget_type == 'checkboxselectmultiple' or widget_type == 'readonlypasswordhashwidget' or widget_type == 'adminfilewidget' %}
+                                            {{ field.field }}
+                                        {% else %}
+                                            {{ field|add_class:"form-control" }}
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% for error in field.errors %}
+                                        <p class="help-block error">{{ error }}</p>
+                                    {% endfor %}
+
+                                    {% if field.field.help_text %}
+                                        <p class="help-block">
+                                        {{ field.field.help_text|safe }}
+                                        </p>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endwith %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 form-buttons">
+            <div data-spy="affix" data-offset-top="125">
+                <div class="submit-row list-group">
+                    <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <span class="text">{% trans 'Save' %}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

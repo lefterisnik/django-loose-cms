@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 
+from .plugin_pool import plugin_pool
+
 
 def update_css_file(sender, instance, created, **kwargs):
     styleclasses = StyleClass.objects.filter(from_source=False)
@@ -35,9 +37,10 @@ class Plugin(models.Model):
         self.type = self.default_type
         super(Plugin, self).save(*args, **kwargs)
 
-
     def __unicode__(self):
-        return "%s (%s)" % (self.pk, self.type)
+        plugin_modeladmin_cls = plugin_pool.plugins[self.type]
+        child_plugin = getattr(self, plugin_modeladmin_cls.model._meta.model_name)
+        return "%s (%s)" % (child_plugin.title, self.type)
 
 
 class StyleClass(models.Model):
@@ -153,11 +156,11 @@ class HtmlPage(models.Model):
                     raise ValidationError({'is_error': msg})
 
     class Meta:
-        verbose_name = _('html pages')
+        verbose_name = _('html page')
         verbose_name_plural = _('html pages')
 
 
-class RowManager(Plugin):
+class Row(Plugin):
     default_type = "RowPlugin"
 
     title = models.CharField(_('title'), max_length=200,
@@ -172,15 +175,15 @@ class RowManager(Plugin):
         return "%s (%s)" %(self.title, self.type)
 
     class Meta:
-        verbose_name = _('row managers')
-        verbose_name_plural = _('row managers')
+        verbose_name = _('row')
+        verbose_name_plural = _('rows')
 
     def clean(self):
         """
         Don't allow same level row have the same order
         :return: cleaned_data and errors
         """
-        rows = RowManager.objects.filter(placeholder=self.placeholder, page=self.page)
+        rows = Row.objects.filter(placeholder=self.placeholder, page=self.page)
 
         for row in rows:
             if self.order == row.order and self.pk != row.pk:
@@ -188,7 +191,7 @@ class RowManager(Plugin):
                 raise ValidationError({'order': msg})
 
 
-class ColumnManager(Plugin):
+class Column(Plugin):
     default_type = "ColumnPlugin"
 
     title = models.CharField(_('title'), max_length=200,
@@ -203,15 +206,15 @@ class ColumnManager(Plugin):
         return "%s (%s)" %(self.title, self.type)
 
     class Meta:
-        verbose_name = _('column managers')
-        verbose_name_plural = _('column managers')
+        verbose_name = _('column')
+        verbose_name_plural = _('columns')
 
     def clean(self):
         """
         Don't allow width to be greater than 12
         :return: cleaned_data and errors
         """
-        columns = ColumnManager.objects.filter(placeholder=self.placeholder)
+        columns = Column.objects.filter(placeholder=self.placeholder)
         sum_width = 0
         for column in columns:
             if self.pk != column.pk:

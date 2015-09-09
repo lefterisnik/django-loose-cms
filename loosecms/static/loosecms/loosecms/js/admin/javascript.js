@@ -1,4 +1,6 @@
 (function($) {
+    'use strict';
+
     $(document).ready(function() {
         // using jQuery
         var slidebar = new $.slidebars();
@@ -45,7 +47,8 @@
 
         function make_jspanel(url) {
 
-            $.jsPanel({
+            var panel = $.jsPanel({
+                show: "fadeOut",
                 size: {
                     width: function(){ return $(window).width()*(2/3) },
                     height: 'auto'
@@ -64,7 +67,10 @@
                 },
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
+                        $('#overlay').fadeOut();
                         $(e.target).fadeIn(2000);
+
+                        panel.fadeIn();
                         panel.resize(null, caclulate_height(this));
                         $(this).height('100%');
                         panel.reposition("top center");
@@ -83,6 +89,8 @@
                 slidebar.slidebars.toggle('left');
             }
 
+            $('#overlay').fadeTo("slow", 0.5);
+
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -96,6 +104,8 @@
             if (slidebar.slidebars.active('left')){
                 slidebar.slidebars.toggle('left');
             }
+
+            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
             var type = $(this).data('type');
@@ -126,6 +136,8 @@
                 slidebar.slidebars.toggle('left');
             }
 
+            $('#overlay').fadeTo("slow", 0.5);
+
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -140,6 +152,8 @@
             if (slidebar.slidebars.active('left')){
                 slidebar.slidebars.toggle('left');
             }
+
+            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
             var type = $(this).data('type');
@@ -161,6 +175,8 @@
         $('body').on('click', '.edit-plugin', function(e){
             e.preventDefault();
 
+            $('#overlay').fadeTo("slow", 0.5);
+
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -171,21 +187,37 @@
         $('body').on('click', '.delete-plugin', function(e){
             e.preventDefault();
 
+            $('#overlay').fadeTo("slow", 0.5);
+
             var url = $(this).attr('href');
 
             make_jspanel(url);
         });
-
 
         /**************************************Move plugin***********************************************/
 
         $('body').on('click', '.move-plugin', function(e){
             e.preventDefault();
 
+            $('#overlay').fadeTo("slow", 0.5);
+
             var url = $(this).attr('href');
 
             make_jspanel(url);
         });
+
+        /**************************************Move plugin***********************************************/
+
+        $('body').on('click', '.select-plugin', function(e){
+            e.preventDefault();
+
+            $('#overlay').fadeTo("slow", 0.5);
+
+            var url = $(this).attr('href');
+
+            make_jspanel(url);
+        });
+
     });
 
 }) (django.jQuery);

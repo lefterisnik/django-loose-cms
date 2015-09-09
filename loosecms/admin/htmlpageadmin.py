@@ -46,6 +46,9 @@ class HtmlPageAdmin(admin.ModelAdmin):
         htmlpage_urls = [
             url(r'^(?P<page_pk>\d+)/edit_page/$', self.admin_site.admin_view(self.edit_page),
                 name='admin_edit_page'),
+            url(r'^(?P<page_pk>\d+)/add_placeholder/$', self.admin_site.admin_view(self.add_placeholder),
+                name='admin_add_placeholder'),
+
 
             # Plugin urls
             url(r'^add_plugin/$', self.admin_site.admin_view(self.add_plugin),
@@ -56,6 +59,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 name='admin_delete_plugin'),
             url(r'^move_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.move_plugin),
                 name='admin_move_plugin'),
+            url(r'^select_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.select_plugin),
+                name='admin_select_plugin'),
             url(r'^edit_style/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_style),
                 name='admin_edit_style'),
 
@@ -187,13 +192,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             context = update_context(context, page)
             return render(request, 'admin/editor_form.html', context)
 
-    @never_cache
-    def add_plugin(self, request, page_pk=None):
-        """
-        View for adding a plugin
-        :param request:
-        :return: HTML (add_view) or a script that close popup window
-        """
+    def _wrapper_add_plugin(self, request, page=None):
         if request.method == 'GET':
             if 'type' in request.GET:
                 type = request.GET['type']
@@ -202,28 +201,22 @@ class HtmlPageAdmin(admin.ModelAdmin):
             else:
                 placeholder = None
 
-            if page_pk is None:
-                referrer = urlparse(request.META.get('HTTP_REFERER'))
-                page_pk = referrer.path.split('/')[4]
-                try:
-                    page_pk = int(page_pk)
-                    page = get_object_or_404(HtmlPage, pk=page_pk)
-                except ValueError:
-                    page = None
-
-
-
         if request.method == 'POST':
             if 'type' in request.POST:
                 type = request.POST['type']
-            if 'placeholder' in request.POST:
-                placeholder = request.POST['placeholder']
 
         if type in plugin_pool.plugins:
             plugin_modeladmin_cls = plugin_pool.plugins[type]
             plugin_model = plugin_modeladmin_cls.model
             plugin_modeladmin = plugin_modeladmin_cls(plugin_model, self.admin_site)
             if request.method == 'GET':
+                if page is None and placeholder:
+                    placeholder_plugin = Plugin.objects.get(pk=placeholder)
+                    if placeholder_plugin.type == 'RowPlugin':
+                        page = placeholder_plugin.row.page
+                    elif placeholder_plugin.placeholder.type == 'RowPlugin':
+                        page = placeholder_plugin.placeholder.row.page
+
                 plugin_modeladmin.extra_initial_help = dict(
                     page=page if page else None,
                     placeholder=placeholder,
@@ -238,6 +231,28 @@ class HtmlPageAdmin(admin.ModelAdmin):
             if plugin_modeladmin.object_successfully_added and not plugin_modeladmin.plugin_cke:
                 return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
             return response
+
+    @never_cache
+    def add_placeholder(self, request, page_pk):
+        """
+        View for adding a row plugin as placeholder. In this view is nessecary to have the page_pk
+        :param request:
+        :param page_pk: HTML (add_view) or a script that close popup window
+        :return:
+        """
+        page = get_object_or_404(HtmlPage, pk=page_pk)
+        return self._wrapper_add_plugin(request, page)
+
+
+    @never_cache
+    def add_plugin(self, request):
+        """
+        View for adding a plugin. In this view the page will get it from placeholder row
+        :param request:
+        :return: HTML (add_view) or a script that close popup window
+        """
+        return self._wrapper_add_plugin(request)
+
 
     @never_cache
     def edit_plugin(self, request, pk):
@@ -285,6 +300,38 @@ class HtmlPageAdmin(admin.ModelAdmin):
         return response
 
     @never_cache
+    def select_plugin(self, request, pk):
+        """
+        Prompt custom select form for searching available plugins
+        :param request:
+        :param pk:
+        :return: HTML (select form) or a script that close popup window
+        """
+        plugin = get_object_or_404(Plugin, pk=pk)
+
+        if request.method == 'POST':
+            form = SelectPluginForm(request.POST, plugin=plugin)
+            if form.is_valid():
+                selected_plugin = form.cleaned_data['plugin']
+                selected_plugin.placeholder = plugin
+                selected_plugin.save()
+
+                return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+        else:
+            form = SelectPluginForm(plugin=plugin)
+
+        context = dict(
+            # Include common variables for rendering the admin template.
+            self.admin_site.each_context(request),
+            current_app=self.admin_site.name,
+            form=form,
+            is_popup=True,
+            title=_('Select/Change plugin'),
+            form_url=urlresolvers.reverse('admin:admin_select_plugin', args=(pk, ))
+        )
+        return render(request, 'admin/select_form.html', context)
+
+    @never_cache
     def move_plugin(self, request, pk):
         """
         Prompt custom move form for requested plugin
@@ -301,13 +348,13 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 new_page = form.cleaned_data['new_page']
 
                 if new_page and plugin.type == 'RowPlugin':
-                    rowmanager = plugin.rowmanager
-                    rowmanager.page = new_page
+                    row = plugin.row
+                    row.page = new_page
                     if new_placeholder:
-                        rowmanager.placeholder = new_placeholder
+                        row.placeholder = new_placeholder
                     else:
-                        rowmanager.placeholder = None
-                    rowmanager.save()
+                        row.placeholder = None
+                    row.save()
                 elif new_placeholder and plugin.type == 'ColumnPlugin':
                     plugin.placeholder = new_placeholder
                     plugin.save()
@@ -448,20 +495,20 @@ class HtmlPageAdmin(admin.ModelAdmin):
                     if selected_page:
                         page = get_object_or_404(HtmlPage, pk=selected_page)
 
-                        rows = RowManager.objects.filter(placeholder__isnull=False)\
+                        rows = Row.objects.filter(placeholder__isnull=False)\
                             .values_list('placeholder', flat=True)
                         plugins = Plugin.objects.filter(placeholder__isnull=False)\
                             .values_list('placeholder', flat=True)
-                        columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
+                        columns = Column.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
                                                                & ~Q(placeholder=plugin) & ~Q(pk=plugin.placeholder)
-                                                               & Q(placeholder__rowmanager__page=page))\
+                                                               & Q(placeholder__row__page=page))\
                             .values('type', 'title', 'pk')
                     else:
-                        rows = RowManager.objects.filter(placeholder__isnull=False)\
+                        rows = Row.objects.filter(placeholder__isnull=False)\
                             .values_list('placeholder', flat=True)
                         plugins = Plugin.objects.filter(placeholder__isnull=False)\
                             .values_list('placeholder', flat=True)
-                        columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
+                        columns = Column.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins))
                                                                & ~Q(placeholder=plugin) & ~Q(pk=plugin.placeholder))\
                             .values('type', 'title', 'pk')
 
@@ -471,10 +518,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
                     selected_page = request.GET['selected_page']
                     if selected_page:
                         page = get_object_or_404(HtmlPage, pk=selected_page)
-                        rows = RowManager.objects.filter(page=page).exclude(pk=plugin.placeholder)\
+                        rows = Row.objects.filter(page=page).exclude(pk=plugin.placeholder)\
                             .values('type', 'title', 'pk')
                     else:
-                        rows = RowManager.objects.exclude(pk=plugin.placeholder)\
+                        rows = Row.objects.exclude(pk=plugin.placeholder)\
                             .values('type', 'title', 'pk')
 
                 return JsonResponse(list(rows), safe=False)

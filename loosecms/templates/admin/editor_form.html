@@ -73,7 +73,7 @@
                     <ul>
                         <li class="dropdown-header">{% trans "Component actions" %}</li>
                         <li>
-                            <a class="add-plugin" href="{% url 'admin:admin_add_plugin' %}" data-type="RowPlugin">
+                            <a class="add-plugin" href="{% url 'admin:admin_add_placeholder' page.pk %}" data-type="RowPlugin">
                                 <span class="sidebar-nav-item-icon glyphicon glyphicon-share" aria-hidden="true"></span>
                                 {% trans "Create placeholder row" %}
                             </a>

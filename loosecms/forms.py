@@ -9,7 +9,6 @@ from django.contrib.admin.widgets import RelatedFieldWidgetWrapper, FilteredSele
 
 from .models import *
 
-
 class PluginForm(forms.ModelForm):
 
     class Meta:
@@ -92,7 +91,7 @@ class MovePluginForm(forms.Form):
                                       help_text=_('Select the new page that you want the plugin to move. You can '
                                                   'select this box if you want to make it a root row plugin in '
                                                   'another page'))
-    new_placeholder = forms.ModelChoiceField(queryset=ColumnManager.objects.all(),
+    new_placeholder = forms.ModelChoiceField(queryset=Column.objects.all(),
                                              label=_('New placeholder'),
                                              required=False,
                                              help_text=_('Select the new placeholder. You can select this box if you '
@@ -107,9 +106,9 @@ class MovePluginForm(forms.Form):
         if self.plugin:
             if self.plugin.type == 'RowPlugin':
                 # If plugin owns to a template page then show only the pages that have not this template as template
-                if self.plugin.rowmanager.page.is_template:
-                    pages = HtmlPage.objects.exclude(template=self.plugin.rowmanager.page.pk)\
-                        .exclude(pk=self.plugin.rowmanager.page.pk)
+                if self.plugin.row.page.is_template:
+                    pages = HtmlPage.objects.exclude(template=self.plugin.row.page.pk)\
+                        .exclude(pk=self.plugin.row.page.pk)
                     if pages.count() == 0:
                         self.fields['new_page'].widget = forms.HiddenInput()
                     else:
@@ -121,15 +120,15 @@ class MovePluginForm(forms.Form):
                 # Fetch all columnns that have not childs (for each column, id column is not appear in placeholder_id)
                 # and if have must be rowplugin
                 # TODO: exam if placeholder is nested column and throw an error
-                rows = RowManager.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
+                rows = Row.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
                 plugins = Plugin.objects.filter(placeholder__isnull=False).values_list('placeholder', flat=True)
-                columns = ColumnManager.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins)) & ~Q(placeholder=self.plugin)
+                columns = Column.objects.filter((Q(pk__in=rows) | ~Q(pk__in=plugins)) & ~Q(placeholder=self.plugin)
                                                        & ~Q(pk=self.plugin.placeholder))
 
                 self.fields['new_placeholder'].queryset = columns
             elif self.plugin.type == 'ColumnPlugin':
                 # TODO: exam if placeholder is enough space for the new column
-                rows = RowManager.objects.exclude(pk=self.plugin.placeholder)
+                rows = Row.objects.exclude(pk=self.plugin.placeholder)
 
                 self.fields['new_placeholder'].queryset = rows
                 self.fields['new_placeholder'].required = True
@@ -154,3 +153,24 @@ class MovePluginForm(forms.Form):
             if new_page and not new_placeholder:
                 msg = _('You have to select a placeholder.')
                 self.add_error('new_placeholder', msg)
+
+
+class SelectPluginForm(forms.Form):
+    required_css_class = 'required'
+    plugin = forms.ModelChoiceField(queryset=Plugin.objects.all(),
+                                    label=_('Select plugin'),
+                                    required=True,
+                                    help_text=_('Select the plugin to attach to this placeholder.'))
+
+    def __init__(self, *args, **kwargs):
+        self.plugin = kwargs.pop('plugin', None)
+        super(SelectPluginForm, self).__init__(*args, **kwargs)
+
+        if self.plugin:
+            if self.plugin.type == 'RowPlugin':
+                columns = Column.objects.all()
+                self.fields['plugin'].queryset = columns
+            elif self.plugin.type == 'ColumnPlugin':
+                plugins = Plugin.objects.exclude(type='ColumnPlugin')
+                self.fields['plugin'].queryset = plugins
+

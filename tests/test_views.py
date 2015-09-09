@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from loosecms.models import HtmlPage, RowManager
+from loosecms.models import HtmlPage, Row
 from loosecms.views import error404
 
 
@@ -15,11 +15,11 @@ def create_page(is_template):
 
 
 def create_row_plugin(htmlpage):
-    row = RowManager.objects.create(type='RowPlugin',
-                                    title='row1',
-                                    slug='row1',
-                                    page=htmlpage,
-                                    order=0)
+    row = Row.objects.create(type='RowPlugin',
+                             title='row1',
+                             slug='row1',
+                             page=htmlpage,
+                             order=0)
     return row
 
 
@@ -184,14 +184,15 @@ class StaffViews(TestCase):
         """
         self.htmlpage = create_page(is_template=True)
         self.client.login(username='admin', password='admin')
-        url = reverse('admin:admin_add_plugin', args=(self.htmlpage.pk, ))
+        row_url = reverse('admin:admin_add_placeholder', args=(self.htmlpage.pk, ))
+        column_url = reverse('admin:admin_add_plugin')
 
         # Testing add row plugin
-        response = self.client.get(url+'?type=RowPlugin')
+        response = self.client.get(row_url+'?type=RowPlugin')
         self.assertEqual(response.status_code, 200)
 
         # Testing add column plugin
-        response = self.client.get(url+'?type=ColumnPlugin')
+        response = self.client.get(column_url+'?type=ColumnPlugin')
         self.assertEqual(response.status_code, 200)
 
     # TODO: Add test at edit style of plugin
