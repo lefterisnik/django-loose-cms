@@ -11,9 +11,9 @@ from django.utils.encoding import force_text
 from django.shortcuts import get_object_or_404
 from django.contrib.staticfiles import finders
 from django.forms.formsets import formset_factory
-from django.http import HttpResponse, JsonResponse
 from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponse, JsonResponse, Http404
 
 from ..models import HtmlPage
 from ..forms import *
@@ -61,6 +61,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 name='admin_move_plugin'),
             url(r'^select_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.select_plugin),
                 name='admin_select_plugin'),
+            url(r'^remove_plugin/(?P<pk>\d+)/$', self.admin_site.admin_view(self.remove_plugin),
+                name='admin_remove_plugin'),
             url(r'^edit_style/(?P<pk>\d+)/$', self.admin_site.admin_view(self.edit_style),
                 name='admin_edit_style'),
 
@@ -295,6 +297,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
             'delete_url': urlresolvers.reverse('admin:admin_delete_plugin', args=(pk, ))
         }
         response = plugin_modeladmin.delete_view(request, pk, extra_context=extra_context)
+
         if plugin_modeladmin.object_successfully_deleted:
             return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
         return response
@@ -330,6 +333,22 @@ class HtmlPageAdmin(admin.ModelAdmin):
             form_url=urlresolvers.reverse('admin:admin_select_plugin', args=(pk, ))
         )
         return render(request, 'admin/select_form.html', context)
+
+    @never_cache
+    def remove_plugin(self, request, pk):
+        """
+        Remove plugin from current placeholder
+        :param request:
+        :param pk:
+        :return: None
+        """
+        if request.method == 'DELETE':
+            plugin = get_object_or_404(Plugin, pk=pk)
+            plugin.placeholder = None
+            plugin.save()
+            return HttpResponse()
+        else:
+            raise Http404
 
     @never_cache
     def move_plugin(self, request, pk):

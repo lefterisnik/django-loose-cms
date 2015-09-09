@@ -26,6 +26,7 @@ def update_context(context, page=None):
             .filter(Q(placeholder__row__page=page) | Q(placeholder__row__page=page.template), published=True)
         # Get all plugins except RowPlugin and ColumnPlugin
         query_plugins = Plugin.objects.select_related(*select_related)\
+            .exclude(placeholder=None)\
             .filter(~Q(type='RowPlugin'), ~Q(type='ColumnPlugin'), published=True)
 
         rows = list(query_rows)

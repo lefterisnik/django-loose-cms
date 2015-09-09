@@ -206,7 +206,7 @@
             make_jspanel(url);
         });
 
-        /**************************************Move plugin***********************************************/
+        /**************************************Select plugin*********************************************/
 
         $('body').on('click', '.select-plugin', function(e){
             e.preventDefault();
@@ -216,6 +216,25 @@
             var url = $(this).attr('href');
 
             make_jspanel(url);
+        });
+
+        /**************************************Remove plugin*********************************************/
+
+        $('body').on('click', '.remove-plugin', function(e){
+            e.preventDefault();
+
+            var url = $(this).attr('href');
+
+            $.ajax({
+                method: "DELETE",
+                url: url,
+                success: function( data, textStatus, jqXHR) {
+                    location.reload();
+                },
+                error: function( jqXHR, textStatus, errorThrown) {
+                    alert(errorThrown + jqXHR.responseText);
+                },
+            });
         });
 
     });

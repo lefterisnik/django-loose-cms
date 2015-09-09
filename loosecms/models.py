@@ -34,7 +34,8 @@ class Plugin(models.Model):
     published = models.BooleanField(_('publish'), default=True)
 
     def save(self, *args, **kwargs):
-        self.type = self.default_type
+        if self.type is None:
+            self.type = self.default_type
         super(Plugin, self).save(*args, **kwargs)
 
     def __unicode__(self):

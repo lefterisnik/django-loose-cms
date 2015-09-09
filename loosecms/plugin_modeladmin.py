@@ -64,7 +64,10 @@ class PluginModelAdmin(admin.ModelAdmin):
             element = self.render_to_string_cke(context, obj)
             return HttpResponse("<script>window.parent.LooseCMS.CKEditor['element'] = '%s';</script>" % element)
 
-        return super(PluginModelAdmin, self).response_add(request, obj)
+        if '_to_field' not in request.POST and '_popup' in request.POST:
+            return HttpResponse('<script>window.parent.location.reload(true);self.close();</script>')
+
+        return super(PluginModelAdmin, self).response_change(request, obj)
 
     def response_delete(self, request, obj_display, obj_id):
         """
