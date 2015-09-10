@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from itertools import chain
-from django.conf import settings
 from django.forms import widgets
 from django.forms.utils import flatatt
 from django.utils.html import format_html
@@ -11,14 +9,7 @@ from django.utils.safestring import mark_safe
 class UploadFilePathWidget(widgets.Select):
 
     class Media:
-        js = ('loosecms/loosecms/js/admin/filemanager.js', )
-
-    def __init__(self, attrs=None, upload_to=()):
-        super(UploadFilePathWidget, self).__init__(attrs)
-        # choices can be any iterable, but we may need to render this widget
-        # multiple times. Thus, collapse it into a list so it can be consumed
-        # more than once.
-        self.upload_to = upload_to
+        js = ('loosecms/loosecms/js/admin/site/fields/loosecms.filemanager.js', )
 
     def render(self, name, value, attrs=None, choices=()):
         filemanager_url = reverse('admin:admin_filemanager', current_app='loosecms')
@@ -39,15 +30,3 @@ class UploadFilePathWidget(widgets.Select):
         output.append(span)
         output.append(input_group_finish)
         return mark_safe('\n'.join(output))
-
-    def render_options(self, choices, selected_choices):
-        self.prepare_choices()
-        return super(UploadFilePathWidget, self).render_options(choices, selected_choices)
-
-    def prepare_choices(self):
-        tmp_choices = []
-        for option_value, option_label in chain(self.choices):
-            option_value = option_value.replace(settings.MEDIA_ROOT, '').lstrip('/')
-            tmp_choices.append((option_value, option_label))
-        del self.choices
-        self.choices = tmp_choices

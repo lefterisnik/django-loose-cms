@@ -51,8 +51,8 @@ class LooseCMSAdminSite(admin.AdminSite):
         if request.method == 'POST':
             upload_to = request.POST['upload_to']
             context.update(
-                    upload_to=upload_to,
-                )
+                upload_to=upload_to,
+            )
             if not request.FILES:
                 msg = _('This field is required.')
                 errors['id_document'] = msg
@@ -64,11 +64,15 @@ class LooseCMSAdminSite(admin.AdminSite):
                 filename = '%s/%s' %(upload_to, file_.name)
 
                 name = default_storage.save(filename, file_)
+                tmp = name.split('/')
+                root_path = tmp[0] if len(tmp) == 2 else tmp[:-1]
+                file_name = tmp[-1]
                 context.update(
                     docs=(
-                        [name.split('/')[1], '/', default_storage.path(name)],
+                        [file_name, root_path, default_storage.path(name)],
                     )
                 )
+
         return render(request, 'admin/filemanager_form.html', context)
 
 

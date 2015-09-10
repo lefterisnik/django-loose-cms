@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from itertools import chain
 
 from django import forms
 from django.db import models
@@ -13,6 +14,7 @@ from .widgets.cketextarea import LoosecmsCKEditorWidget
 from .widgets.filemanager import UploadFilePathWidget
 
 from .plugin_pool import plugin_pool
+
 
 ## Model Fields
 
@@ -100,11 +102,21 @@ class UploadFilePathFormField(forms.FilePathField):
     def __init__(self, upload_to, *args, **kwargs):
         self.upload_to = upload_to
         self.path = kwargs.pop('path', '')
-        self.widget.path = self.path
+        self.required = kwargs.pop('required', False)
         self.path = os.path.join(settings.MEDIA_ROOT, self.path)
         super(UploadFilePathFormField, self).__init__(path=self.path, *args, **kwargs)
 
+        self.widget.path = self.path
         self.widget.upload_to = self.upload_to
+
+        tmp_choices = []
+        for option_value, option_label in chain(self.choices):
+            option_value = option_value.replace(settings.MEDIA_ROOT, '').lstrip('/')
+            tmp_choices.append((option_value, option_label))
+        self.choices = tmp_choices
+
+        if self.required:
+            self.choices.insert(0, ("", "---------"))
 
 
 class LoosecmsRichTextFormField(forms.CharField):

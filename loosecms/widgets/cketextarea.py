@@ -64,3 +64,10 @@ class LoosecmsCKEditorWidget(CKEditorWidget):
 
     def pre_render(self, name, value, attrs=None):
         return mark_safe(render_to_string('ckeditor/widget_additional.html', {'plugins': self.plugins}))
+
+    def _set_config(self):
+        if 'filebrowserUploadUrl' not in self.config:
+            self.config.setdefault('filebrowserUploadUrl', reverse('ckeditor_upload'))
+        if 'filebrowserBrowseUrl' not in self.config:
+            self.config.setdefault('filebrowserBrowseUrl', reverse('ckeditor_browse'))
+        super(LoosecmsCKEditorWidget, self)._set_config()

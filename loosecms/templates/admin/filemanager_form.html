@@ -4,7 +4,7 @@
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" />
 <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/font-awesome/css/font-awesome.min.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/filemanager.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/site/loosecms.filemanager.css' %}" />
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
@@ -88,43 +88,44 @@
         $(document).ready(function() {
             var selector = "#" + window.opener.select_field_id;
             var selector_options = selector + " option";
-            var parent_path = window.opener.path
+            var parent_path = window.opener.path;
 
             datatable = $('.table-datatable').DataTable();
 
             $(selector_options, opener.document).each(function()
             {
-                full_path = $(this).val();
-                if ($(this).html().indexOf('/') !== -1) {
-                    if ($(this).html().indexOf('/') === 0){
-                        if ($(this).html().match(/\//g).length === 1 ){
-                            var path = '/' + parent_path;
-                            var name = $(this).html().replace('/', '');
-                        } else {
-                            var array = $(this).html().split(/\//g,3)
-                            var path = '/' + parent_path + '/' + array[0] + array[1]
-                            var name = array[2]
-                        }
-                    }
-                }
-                else{
-                    var path = '/' + parent_path;
-                    var name = $(this).html();
-                }
-                console.log(path, name);
+                if ($(this).val() !== ''){
+                    full_path = parent_path + $(this).html();
 
-                datatable.row.add( [
-                    name,
-                    path,
-                    full_path,
-                ] ).draw();
+                    if ($(this).html().match(/\//g).length === 1 ){
+                        var array = $(this).val().split(/\//g);
+                        var path = array[0];
+                        var name = array[1];
+                    } else {
+                        var array = $(this).val().split(/\//g);
+                        var path = array.slice(0, -1).join('/');
+                        var name = array[array.length-1];
+                    }
+
+                    datatable.row.add( [
+                        name,
+                        path,
+                        full_path,
+                    ] ).draw();
+                }
             });
 
             // propagate data to parent window select
             {% for doc in docs %}
-            var text = "{{ doc.0 }}";
-            var value = "{{ doc.2 }}";
-            console.log($(selector, opener.document));
+            var tmp = "{{ doc.1 }}/{{ doc.0 }}"
+            var array = tmp.split(/\//g);
+            if (array.length > 2){
+                var tmp_text = "/" + array.slice(1, -1).join('/');
+            } else {
+                var tmp_text = "/" + array[1];
+            }
+            var text = tmp_text;
+            var value = tmp;
             var option = new Option(text, value);
             $(selector, opener.document).append($(option));
             {% endfor %}
