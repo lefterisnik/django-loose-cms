@@ -39,7 +39,7 @@ class UploadFilePathField(models.FilePathField):
     def from_db_value(self, value, expression, connection, context):
         if value is None:
             return value
-        value = os.path.join(settings.MEDIA_ROOT, value)
+        #value = os.path.join(settings.MEDIA_ROOT, value)
         return value
 
     def get_prep_value(self, value):

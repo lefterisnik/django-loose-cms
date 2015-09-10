@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from itertools import chain
+from django.conf import settings
 from django.forms import widgets
 from django.forms.utils import flatatt
 from django.utils.html import format_html
@@ -37,3 +39,15 @@ class UploadFilePathWidget(widgets.Select):
         output.append(span)
         output.append(input_group_finish)
         return mark_safe('\n'.join(output))
+
+    def render_options(self, choices, selected_choices):
+        self.prepare_choices()
+        return super(UploadFilePathWidget, self).render_options(choices, selected_choices)
+
+    def prepare_choices(self):
+        tmp_choices = []
+        for option_value, option_label in chain(self.choices):
+            option_value = option_value.replace(settings.MEDIA_ROOT, '').lstrip('/')
+            tmp_choices.append((option_value, option_label))
+        del self.choices
+        self.choices = tmp_choices

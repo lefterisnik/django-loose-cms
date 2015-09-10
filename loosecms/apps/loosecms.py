@@ -2,8 +2,9 @@
 from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
 
-from .utils.setup import setup
-from .plugin_pool import plugin_pool
+
+from ..utils.setup import setup
+from ..plugin_pool import plugin_pool
 
 
 class LooseCMSConfig(AppConfig):
@@ -15,3 +16,5 @@ class LooseCMSConfig(AppConfig):
 
         # Import all plugins
         plugin_pool.discover_plugins()
+
+

@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/html">
 	<head>
-		<title>{{ page.title }} - {{ site_name }}</title>
+		<title>{{ page.title }} - {{ site.name }}</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,7 +12,7 @@
         <meta name="description" content="" />
 		<meta name="keywords" content="" /-->
 
-        <link rel="shortcut icon" href="{% static site_favicon %}" />
+        <link rel="shortcut icon" href="{{ loosecms.favicon.url }}" />
         <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap.min.css' %}" />
         <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap-theme.min.css' %}" />

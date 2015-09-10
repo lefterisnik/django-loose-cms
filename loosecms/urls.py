@@ -27,7 +27,10 @@ for app in settings.INSTALLED_APPS:
 urlpatterns = app_urlpatterns
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    media_url = getattr(settings, 'MEDIA_URL', None)
+    media_root = getattr(settings, 'MEDIA_ROOT', None)
+    if media_url and media_root:
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Initialization of the urlpatterns. First append all extra urlconfs of plugins, then add only the view for page index
 # and finally append the home page pattern

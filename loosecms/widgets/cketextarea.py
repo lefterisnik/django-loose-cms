@@ -59,10 +59,8 @@ class LoosecmsCKEditorWidget(CKEditorWidget):
         self.extra_plugins = extra_plugins
         self.plugins = plugins
 
-
     def render(self, name, value, attrs=None):
         return self.pre_render(name, value, attrs) + super(LoosecmsCKEditorWidget, self).render(name, value, attrs)
-
 
     def pre_render(self, name, value, attrs=None):
         return mark_safe(render_to_string('ckeditor/widget_additional.html', {'plugins': self.plugins}))
