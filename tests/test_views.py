@@ -3,7 +3,8 @@ from django.test import Client, TestCase
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from loosecms.models import HtmlPage, Row
+from loosecms.models import HtmlPage, Row, LooseCMSConfiguration
+from django.contrib.sites.models import Site
 from loosecms.views import error404
 
 
@@ -34,6 +35,10 @@ class AnonymousViews(TestCase):
 
     def setUp(self):
         self.client = Client()
+        site = Site.objects.create(domain='example.com', name='example.com')
+        site.save()
+        configuration = LooseCMSConfiguration.objects.create(site=site)
+        configuration.save()
 
     def test_no_pages(self):
         """
@@ -111,8 +116,10 @@ class StaffViews(TestCase):
         get_user_model().objects.create_superuser(username='admin',
                                                   email='admin@admin.com',
                                                   password='admin')
-
-
+        site = Site.objects.create(domain='example.com', name='example.com')
+        site.save()
+        configuration = LooseCMSConfiguration.objects.create(site=site)
+        configuration.save()
 
     def test_no_pages(self):
         """

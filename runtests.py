@@ -12,6 +12,8 @@ try:
         DATABASES={
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
+                'NAME': ':memory:',
+                'TEST_NAME': ':memory:',
             }
         },
         ROOT_URLCONF="loosecms.urls",
@@ -22,6 +24,9 @@ try:
             "django.contrib.sessions",
             "django.contrib.contenttypes",
             "django.contrib.staticfiles",
+            "django.contrib.humanize",
+            "ckeditor",
+            "loosecms.apps.LooseCMSSiteConfig",
             "loosecms",
         ],
         SITE_ID=1,
@@ -50,8 +55,8 @@ try:
                 },
             },
         ],
-        LOOSECMS_SITE_NAME='My site',
-        LOOSECMS_SITE_FAVICON='images/favicon.ico',
+        MEDIA_URL='/media/',
+        MEDIA_ROOT=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media'),
     )
 
     try:
