@@ -3,84 +3,11 @@
 
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" />
-<link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/font-awesome/css/font-awesome.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/editor/editor.base.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/site/loosecms.filemanager.css' %}" />
 {% endblock %}
 
-{% block breadcrumbs %}{% endblock %}
-
-{% block content %}
-    <div id="content-main">
-    <form enctype="multipart/form-data" action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
-        <div class="col-sm-9 form-fields">
-            <div class="panel panel-default form-panel">
-                <a href="#" class="form-expand">
-                    <span class="glyphicon glyphicon-resize-horizontal"></span>
-                </a>
-                <div class="panel-body">
-                    {% if errors %}
-                        <p class="errornote">
-                        {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
-                        </p>
-                    {% endif %}
-
-                    <div class="form-group">
-                        <label for="id_document">Upload file</label>
-                        <input type="file" id="id_document" name="document">
-                        {% if 'id_document' in errors %}
-                            <p class="help-block error">{{ errors|get_dict_value:"id_document" }}</p>
-                        {% endif %}
-                        <p class="help-block">Upload a new file.</p>
-                    </div>
-                    <div class="form-group">
-                        <input type="hidden" id="id_upload_to" name="upload_to" value="{{ upload_to }}">
-                    </div>
-                    <hr/>
-                    <div class="form-group">
-                        <label for="id_table">Select one of the existing files</label>
-                        <table id="table" cellpadding="0" cellspacing="0" border="0" class="table table-bordered table-hover table-condensed table-datatable">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Root Path</th>
-                                    <th>Full Path</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for doc in docs %}
-                                    <tr>
-                                        {% for attr in doc %}
-                                        <td>{{ attr }}</td>
-                                        {% endfor %}
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3 form-buttons">
-            <div data-spy="affix" data-offset-top="125">
-                <div class="submit-row list-group">
-                    <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
-                        <span class="fa fa-upload"></span>
-                        <span class="text">{% trans 'Upload' %}</span>
-                    </button>
-                    <button id="button_select" title="{% trans 'Select' %}" class="list-group-item" name="_select">
-                        <span class="fa fa-share"></span>
-                        <span class="text">{% trans 'Select' %}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
-{% endblock %}
-
-{% block js %}{{ block.super }}
-<script>
-    var jQuery = django.jQuery || {};
-</script>
+{% block extrahead %}{{ block.super }}
 <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 <script>
@@ -155,6 +82,99 @@
                 }
             });
         });
-    }) (django.jQuery);
+    }) (jQuery);
 </script>
+{% endblock %}
+
+{% block content %}
+<form enctype="multipart/form-data" action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
+    <div class="col-sm-9 form-fields">
+        <div class="panel panel-default form-panel">
+            <div class="panel-body">
+                {% if errors %}
+                <div class="alert alert-danger">
+                    {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                </div>
+                {% endif %}
+
+                <div id="content-main">
+                    <div>
+                        <div class="row">
+                            <div class="control-group field-document">
+                                <div class="col-md-12 form-group">
+                                    <div class="control-label col-md-3">
+                                        <label for="id_document">Upload file</label>
+                                    </div>
+                                    <div class="controls col-md-9">
+                                        <input type="file" id="id_document" name="document">
+                                        {% if 'id_document' in errors %}
+                                            <p class="help-block error">{{ errors|get_dict_value:"id_document" }}</p>
+                                        {% endif %}
+                                        <span class="help-block">Upload a new file.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="control-group field-upload_to hidden">
+                                <div class="col-md-12 form-group">
+                                    <div class="control-label col-md-3">
+                                        <label for="id_upload_to">Upload to</label>
+                                    </div>
+                                    <div class="controls col-md-9">
+                                        <input type ="hidden" id="id_upload_to" name="upload_to" value="{{ upload_to }}">
+                                        {% if 'id_upload_to' in errors %}
+                                            <p class="help-block error">{{ errors|get_dict_value:"id_upload_to" }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="control-group">
+                                <div class="col-md-12 form-group">
+                                    <div class="control-label col-md-3">
+                                        <label for="id_table">Select one of the existing files</label>
+                                    </div>
+                                    <div class="controls col-md-9">
+                                        <table id="id_table" cellpadding="0" cellspacing="0" border="0" class="table table-bordered table-hover table-condensed table-datatable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Root Path</th>
+                                                    <th>Full Path</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for doc in docs %}
+                                                    <tr>
+                                                        {% for attr in doc %}
+                                                        <td>{{ attr }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 form-actions">
+        <div data-spy="affix" data-offset-top="125">
+            <div class="list-group">
+                <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
+                    {% trans 'Save' %}
+                </button>
+                <button type="submit" id="button_select" title="{% trans 'Select' %}" class="list-group-item" name="_select">
+                    {% trans 'Select' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
 {% endblock %}

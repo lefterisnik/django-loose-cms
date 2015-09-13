@@ -2,6 +2,8 @@
     'use strict';
 
     $(document).ready(function() {
+        $('body').prepend('<span class="glyphicon glyphicon-menu-right sb-toggle-left" aria-hidden="true"></span>');
+
         // using jQuery
         var slidebar = new $.slidebars();
         $("#menu").metisMenu();
@@ -41,7 +43,7 @@
                 return $(window).height()*2/3;
             }
             else{
-                return iframe.contentWindow.document.body.offsetHeight + 35 + 'px';
+                return iframe.contentWindow.document.body.offsetHeight + 50 + 'px';
             }
         }
 
@@ -51,7 +53,7 @@
                 show: "fadeOut",
                 size: {
                     width: function(){ return $(window).width()*(2/3) },
-                    height: 'auto'
+                    height: 'auto',
                 },
                 controls: { minimize: 'disable', iconfont: "bootstrap" },
                 position: "top center",
@@ -63,7 +65,7 @@
                     src:    url,
                     style:  {"border": "solid transparent"},
                     width:  '100%',
-                    height: '100%'
+                    height: '100%',
                 },
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
@@ -72,7 +74,6 @@
 
                         panel.fadeIn();
                         panel.resize(null, caclulate_height(this));
-                        $(this).height('100%');
                         panel.reposition("top center");
                         panel.title(this.contentWindow.document.title);
                     });
@@ -239,4 +240,4 @@
 
     });
 
-}) (django.jQuery);
+}) (jQuery);

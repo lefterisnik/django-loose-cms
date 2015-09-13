@@ -1,0 +1,11 @@
+.sb-toggle-left {
+    position: fixed !important;
+    color: gray;
+    top: 15px !important;
+    left: 0px;
+    z-index: 1031;
+}
+
+#sb-site {
+    transform: none;
+}

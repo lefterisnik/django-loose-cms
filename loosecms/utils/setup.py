@@ -27,13 +27,6 @@ def setup():
         raise ImproperlyConfigured("Django Looces CMS requires 'loosecms.context_processors.global_settings' in "
                                    "'django.template.backends.django.DjangoTemplates' context processors.")
 
-    # Exam installed apps
-    if 'bootstrap_admin' not in settings.INSTALLED_APPS:
-        raise ImproperlyConfigured("Django Loose CMS requires 'bootstrap_admin' in 'INSTALLED_APPS'.")
-    elif settings.INSTALLED_APPS.index('bootstrap_admin') > settings.INSTALLED_APPS.index('django.contrib.admin'):
-        raise ImproperlyConfigured("Django Loose CMS requires 'boostrap_admin' to be before 'django.contrib.admin' in "
-                                   "'INTALLED_APPS'.")
-
     if 'ckeditor' not in settings.INSTALLED_APPS:
         raise ImproperlyConfigured("Django Loose CMS requires 'ckeditor' in 'INSTALLED_APPS'.")
     elif settings.INSTALLED_APPS.index('ckeditor') > settings.INSTALLED_APPS.index('loosecms'):

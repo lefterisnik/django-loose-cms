@@ -1,77 +1,67 @@
 {% extends "admin/change_form.html" %}
-{% load i18n staticfiles cms_tags admin_urls admin_static admin_modify %}
+{% load i18n staticfiles cms_tags admin_urls admin_static admin_modify bootstrapped_goodies_tags %}
 
-{% block breadcrumbs %}{% endblock %}
-
-{% block content %}
-<div id="content-main">
-    <form action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
-        <div class="col-sm-9 form-fields">
-            <div class="panel panel-default form-panel">
-                <a href="#" class="form-expand">
-                    <span class="glyphicon glyphicon-resize-horizontal"></span>
-                </a>
-                <div class="panel-body">
-                    {% if form.errors %}
-                        <p class="errornote">
-                        {% if form.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
-                        </p>
-                        {% for error in form.non_field_errors %}
-                        <p class="help-block error">{{ error }}</p>
-                        {% endfor %}
-                    {% endif %}
-
-                    {% for field in form %}
-                    <div class="form-row form-group{% if field.errors %} has-error{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
-                        {% with field|widget_type as widget_type %}
-                            <div class="widget_type__{{ widget_type }}">
-                                {# only show the label for visible fields #}
-                                {% if not field.is_hidden %}
-                                    {% if not is_tabular %}
-                                        {{ field.label_tag }}
-                                    {% endif %}
-
-                                    {% for error in field.errors %}
-                                        <p class="help-block error">{{ error }}</p>
-                                    {% endfor %}
-
-                                    {% if field.field.help_text %}
-                                        <p class="help-block">
-                                        {{ field.field.help_text|safe }}
-                                        </p>
-                                    {% endif %}
-                                {% endif %}
-                                {% if field.is_readonly %}
-                                    <p>{{ field.contents|linebreaksbr }}</p>
-                                {% else %}
-                                    {% if widget_type == 'adminradioselect' or widget_type == 'checkboxselectmultiple' or widget_type == 'readonlypasswordhashwidget' or widget_type == 'adminfilewidget' %}
-                                        {{ field.field }}
-                                    {% else %}
-                                        {{ field|add_class:"form-control" }}
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        {% endwith %}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3 form-buttons">
-            <div data-spy="affix" data-offset-top="125">
-                <div class="submit-row list-group">
-                    <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
-                        <span class="glyphicon glyphicon-floppy-disk"></span>
-                        <span class="text">{% trans 'Save' %}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/editor/editor.base.css' %}" />
 {% endblock %}
 
-{% block js %}{{ block.super }}
-<script src="{% static 'loosecms/loosecms/js/admin/urls.js' %}"></script>
-<script src="{% static 'loosecms/loosecms/js/admin/move.js' %}"></script>
+
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'loosecms/loosecms/js/admin/move/move.urls.js' %}"></script>
+<script src="{% static 'loosecms/loosecms/js/admin/move/move.base.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" role="form" novalidate>{% csrf_token %}
+    <div class="col-sm-9 form-fields">
+        <div class="panel panel-default form-panel">
+            <div class="panel-body">
+                <div class="alert alert-warning">{% blocktrans %}Fields in <strong>bold</strong> are required.{% endblocktrans %}</div>
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    {% if form.errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div id="content-main">
+                    <div>
+                        {% for field in form %}
+                            <div class="row">
+                                <div class="control-group {% if field.errors %} error{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if field.is_hidden%} hidden{% endif %}">
+                                    <div class="col-md-12 form-group {% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if not field.is_readonly and field.errors %} errors{% endif %}{% if field.is_hidden %} hidden{% endif %}">
+                                        <div class="control-label col-md-3">
+                                            {{ field.label_tag }}
+                                        </div>
+
+                                        <div class="controls col-md-9">
+                                            {% if field.is_readonly %}
+                                                <p>{{ field.contents }}</p>
+                                            {% else %}
+                                                {% dab_field_rendering field %}
+                                            {% endif %}
+                                            {% if not field.is_readonly and field.errors %}<span class="text-danger">{{ field.errors|striptags }}</span>{% endif %}
+                                            {% if field.field.help_text %}
+                                                <span class="help-block">{{ field.field.help_text|safe }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 form-actions">
+        <div data-spy="affix" data-offset-top="125">
+            <div class="list-group">
+                <button type="submit" title="{% trans 'Save' %}" class="list-group-item active" name="_save">
+                    {% trans 'Save' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
 {% endblock %}

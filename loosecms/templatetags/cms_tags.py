@@ -80,36 +80,5 @@ def get_plugin(value):
     return plugin_instance
 
 @register.filter
-def addcss(field, css):
-   return field.as_widget(attrs={"class":css})
-
-@register.filter
-def widget_type(field):
-    if isinstance(field, dict):
-        return 'adminreadonlyfield'
-    try:
-        # For widgets like SelectMultiple, checkboxselectmultiple
-        widget_type = field.field.widget.widget.__class__.__name__.lower()
-    except:
-        widget_type = field.field.widget.__class__.__name__.lower()
-    return widget_type
-
-def css_classes_for_field(field, custom_classes):
-    orig_class = field.field.widget.attrs.get('class', '')
-    required = 'required' if field.field.required else ''
-    classes = field.css_classes(' '.join([orig_class, custom_classes, required]))
-    return classes
-
-@register.filter
-def add_class(field, custom_classes=''):
-    classes = css_classes_for_field(field, custom_classes)
-    try:
-        # For widgets like SelectMultiple, checkboxselectmultiple
-        field.field.widget.widget.attrs.update({'class': classes})
-    except:
-        field.field.widget.attrs.update({'class': classes})
-    return field
-
-@register.filter
 def strip(value):
     return ' '.join(value.splitlines())

@@ -3,32 +3,36 @@
 
 {% block title %}{% trans "Edit page" %}{% endblock %}
 
-{% block bootstrap_admin_css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap.min.css' %}" />
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/jspanel/jspanel/jquery.jspanel.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/slidebars/slidebars.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/metismenu/metisMenu.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/editor/editor.base.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/editor/editor.metismenu.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/editor/editor.slidebar.css' %}"/>
 {% endblock %}
 
-{% block extrastyle %}
-  <link rel="shortcut icon" href="{% static site_favicon %}"  />
-  <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/jspanel/jspanel/jquery.jspanel.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/slidebars/slidebars.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/metismenu/metisMenu.min.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/metismenu-demo.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'loosecms/loosecms/css/admin/style.css' %}" />
+{% block extrahead %}{{ block.super }}
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="{% static 'loosecms/external/jspanel/jspanel/jquery.jspanel.min.js' %}"></script>
+<script src="{% static 'loosecms/external/slidebars/slidebars.min.js' %}"></script>
+<script src="{% static 'loosecms/external/metismenu/metisMenu.min.js' %}"></script>
+<script src="{% static 'loosecms/loosecms/js/admin/editor/editor.base.js' %}"></script>
 {% endblock %}
 
 {% block content %}
     <div id="sb-site">
-        <span class="glyphicon glyphicon-menu-right sb-toggle-left" aria-hidden="true"></span>
 
         <div class="row">
             <div class="col-lg-12">
                 {% if page %}
                 <div class="jumbotron">
-                    <h3>{% if page.is_template %}{% trans 'Template page' %}{% else %}{% trans 'Page' %}{% endif %}: <a href="{{ page.get_absolute_url }}">{{ page.title }}</a></h3>
-                    {% if page.template %}
-                    <h5>{% trans 'Inherits form' %}: <a href="{{ page.template.get_absolute_url }}">{{ page.template.title}}</a></h5>
-                    {% endif %}
+                    <div class="container">
+                        <h3>{% if page.is_template %}{% trans 'Template page' %}{% else %}{% trans 'Page' %}{% endif %}: <a href="{{ page.get_absolute_url }}">{{ page.title }}</a></h3>
+                        {% if page.template %}
+                        <h5>{% trans 'Inherits form' %}: <a href="{{ page.template.get_absolute_url }}">{{ page.template.title}}</a></h5>
+                        {% endif %}
+                    </div>
                 </div>
                 {% else %}
                 <div class="list-group">
@@ -175,17 +179,4 @@
             </ul>
         </nav>
     </div>
-{% endblock %}
-
-{% block js %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-<script src="{% static 'loosecms/external/jspanel/jspanel/jquery.jspanel.min.js' %}"></script>
-<script src="{% static 'loosecms/external/slidebars/slidebars.min.js' %}"></script>
-<script src="{% static 'loosecms/external/metismenu/metisMenu.min.js' %}"></script>
-<script>
-    var django = django || {};
-    django.jQuery = jQuery.noConflict(true);
-</script>
-<script src="{% static 'loosecms/loosecms/js/admin/javascript.js' %}"></script>
 {% endblock %}
