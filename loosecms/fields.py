@@ -64,33 +64,11 @@ class UploadFilePathField(models.FilePathField):
 
 class LoosecmsRichTextField(RichTextField):
 
-    def __init__(self, *args, **kwargs):
-        self.plugins = []
-        plugin_pool.discover_plugins()
-        for plugin, cls in plugin_pool.plugins.items():
-            if cls.plugin_cke:
-                self.plugins.append(cls(cls.model, None))
-
-        self.extra_plugins = kwargs.pop('extra_plugins', list())
-        self.external_plugin_resources = kwargs.pop('external_plugin_resources', list())
-
-        if self.plugins:
-            self.extra_plugins.append('loosecms')
-            self.external_plugin_resources.append(
-                ['loosecms', settings.STATIC_URL + 'loosecms/loosecms/js/admin/ckeditor/loosecms/', 'plugin.js']
-            )
-
-        kwargs['extra_plugins'] = self.extra_plugins
-        kwargs['external_plugin_resources'] = self.external_plugin_resources
-        super(LoosecmsRichTextField, self).__init__(*args, **kwargs)
-
     def formfield(self, **kwargs):
         defaults = {
             'form_class': LoosecmsRichTextFormField,
-            'plugins': self.plugins,
         }
         defaults.update(kwargs)
-
         return super(LoosecmsRichTextField, self).formfield(**defaults)
 
 
@@ -121,11 +99,26 @@ class UploadFilePathFormField(forms.FilePathField):
 
 class LoosecmsRichTextFormField(forms.CharField):
 
-    def __init__(self, config_name='default', extra_plugins=None, external_plugin_resources=None,
-                 plugins=None, *args, **kwargs):
-        kwargs.update({'widget': LoosecmsCKEditorWidget(config_name=config_name, extra_plugins=extra_plugins,
-                                                        external_plugin_resources=external_plugin_resources,
-                                                        plugins=plugins)})
+    def __init__(self, config_name='default', extra_plugins=None, external_plugin_resources=None, *args, **kwargs):
+        self.loosecms_plugins = []
+
+        plugin_pool.discover_plugins()
+        for plugin, cls in plugin_pool.plugins.items():
+            if cls.plugin_cke:
+                self.loosecms_plugins.append(cls(cls.model, None))
+
+        self.extra_plugins = kwargs.pop('extra_plugins', [])
+        self.external_plugin_resources = kwargs.pop('external_plugin_resources', [])
+
+        if self.loosecms_plugins:
+            self.extra_plugins.append('loosecms')
+            self.external_plugin_resources.append(
+                ['loosecms', settings.STATIC_URL + 'loosecms/loosecms/js/admin/ckeditor/loosecms/', 'plugin.js']
+            )
+
+        kwargs.update({'widget': LoosecmsCKEditorWidget(config_name=config_name, extra_plugins=self.extra_plugins,
+                                                        external_plugin_resources=self.external_plugin_resources,
+                                                        loosecms_plugins=self.loosecms_plugins)})
         super(LoosecmsRichTextFormField, self).__init__(*args, **kwargs)
 
 

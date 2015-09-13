@@ -19,7 +19,12 @@ LOOSECMS_DEFAULT_CONFIG = {
 
 class LoosecmsCKEditorWidget(CKEditorWidget):
 
-    def __init__(self, plugins=None, *args, **kwargs):
+    class Media(CKEditorWidget.Media):
+        css = {
+            'all': ('loosecms/loosecms/css/admin/ckeditor/ckeditor.css',),
+        }
+
+    def __init__(self, loosecms_plugins=None, *args, **kwargs):
         config_name = kwargs.pop('config_name', 'default')
         extra_plugins = kwargs.pop('extra_plugins', [])
         external_plugin_resources = kwargs.pop('external_plugin_resources', [])
@@ -57,13 +62,13 @@ class LoosecmsCKEditorWidget(CKEditorWidget):
 
         self.external_plugin_resources = external_plugin_resources or []
         self.extra_plugins = extra_plugins
-        self.plugins = plugins
+        self.loosecms_plugins = loosecms_plugins
 
     def render(self, name, value, attrs=None):
         return self.pre_render(name, value, attrs) + super(LoosecmsCKEditorWidget, self).render(name, value, attrs)
 
     def pre_render(self, name, value, attrs=None):
-        return mark_safe(render_to_string('ckeditor/widget_additional.html', {'plugins': self.plugins}))
+        return mark_safe(render_to_string('ckeditor/widget_additional.html', {'plugins': self.loosecms_plugins}))
 
     def _set_config(self):
         if 'filebrowserUploadUrl' not in self.config:

@@ -4,9 +4,9 @@
 .cke_chrome { float:left; width:100%; }
 
 /* insure dialog has relative positioning for absolute positioned content */
-.cke_dialog_contents_body { position:relative; }
+.cke_dialog_contents_body { position:relative !important; }
 
-/* show cmsplugin label */
+/* show loosecms plugin label */
 .cke_button__loosecms .cke_button_label { padding-left:5px; padding-right:5px; display:inline; }
 
 /* make dropdow larger */
