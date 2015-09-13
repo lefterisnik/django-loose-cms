@@ -49,7 +49,6 @@ class HtmlPageAdmin(admin.ModelAdmin):
             url(r'^(?P<page_pk>\d+)/add_placeholder/$', self.admin_site.admin_view(self.add_placeholder),
                 name='admin_add_placeholder'),
 
-
             # Plugin urls
             url(r'^add_plugin/$', self.admin_site.admin_view(self.add_plugin),
                 name='admin_add_plugin'),

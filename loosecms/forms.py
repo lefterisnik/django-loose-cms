@@ -157,7 +157,7 @@ class MovePluginForm(forms.Form):
 
 class SelectPluginForm(forms.Form):
     required_css_class = 'required'
-    plugin = forms.ModelChoiceField(queryset=Plugin.objects.all(),
+    plugin = forms.ModelChoiceField(queryset=Plugin.objects.filter(placeholder=None),
                                     label=_('Select plugin'),
                                     required=True,
                                     help_text=_('Select the plugin to attach to this placeholder.'))
@@ -168,9 +168,9 @@ class SelectPluginForm(forms.Form):
 
         if self.plugin:
             if self.plugin.type == 'RowPlugin':
-                columns = Column.objects.all()
+                columns = Column.objects.filter(placeholder=None)
                 self.fields['plugin'].queryset = columns
             elif self.plugin.type == 'ColumnPlugin':
-                plugins = Plugin.objects.exclude(type='ColumnPlugin')
+                plugins = Plugin.objects.exclude(type='ColumnPlugin').filter(placeholder=None).exclude(type='RowPlugin')
                 self.fields['plugin'].queryset = plugins
 
