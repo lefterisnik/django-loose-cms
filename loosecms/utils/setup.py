@@ -27,6 +27,12 @@ def setup():
         raise ImproperlyConfigured("Django Looces CMS requires 'loosecms.context_processors.global_settings' in "
                                    "'django.template.backends.django.DjangoTemplates' context processors.")
 
+    if 'django_admin_bootstrapped' not in settings.INSTALLED_APPS:
+        raise ImproperlyConfigured("Django Loose CMS requires 'django_admin_bootstrapped' in 'INSTALLED_APPS'.")
+    elif settings.INSTALLED_APPS.index('django_admin_bootstrapped') > settings.INSTALLED_APPS.index('django.contrib.admin'):
+        raise ImproperlyConfigured("Django Loose CMS requires 'django_admin_bootstrapped' to be before "
+                                   "'django.contrib.admin' in 'INSTALLED_APPS'.")
+
     if 'ckeditor' not in settings.INSTALLED_APPS:
         raise ImproperlyConfigured("Django Loose CMS requires 'ckeditor' in 'INSTALLED_APPS'.")
     elif settings.INSTALLED_APPS.index('ckeditor') > settings.INSTALLED_APPS.index('loosecms'):
@@ -34,6 +40,11 @@ def setup():
 
     if 'django.contrib.humanize' not in settings.INSTALLED_APPS:
         raise ImproperlyConfigured("Django Loose CMS requires 'django.contrib.humanize' in 'INSTALLED_APPS'.")
+
+    # Exam if bad field renderer exists
+    bad_field_renderer = getattr(settings, 'DAB_FIELD_RENDERER', None)
+    if not bad_field_renderer:
+        raise ImproperlyConfigured("Django Loose CMS requires 'DAB_FIELD_RENDERER' setting.")
 
     # Exam if media url/root exists
     media_url = getattr(settings, 'MEDIA_URL', None)

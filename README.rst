@@ -27,7 +27,7 @@ Loose CMS requires:
 * Python 2.6 or 2.7
 * tinycss
 * beautifulsoup4
-* bootstrap-admin
+* django-admin-bootstrapped
 
 Quick Start
 -----------
