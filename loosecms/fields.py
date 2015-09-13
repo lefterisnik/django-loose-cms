@@ -77,7 +77,7 @@ class LoosecmsRichTextField(RichTextField):
         if self.plugins:
             self.extra_plugins.append('loosecms')
             self.external_plugin_resources.append(
-                ['loosecms', settings.STATIC_URL + 'loosecms/loosecms/ckeditor_plugins/loosecms/', 'plugin.js']
+                ['loosecms', settings.STATIC_URL + 'loosecms/loosecms/js/admin/ckeditor/loosecms/', 'plugin.js']
             )
 
         kwargs['extra_plugins'] = self.extra_plugins

@@ -144,7 +144,7 @@
                             $(this).unbind();
                         }
                         $(this).contents()
-                            .find('.submit-row').hide().end();
+                            .find('.form-actions').hide().end();
                     });
             },
 
@@ -166,7 +166,7 @@
                             $(this).unbind();
                         }
                         $(this).contents()
-                            .find('.submit-row').hide().end()
+                            .find('.form-actions').hide().end()
                             .find('#id_title').val(selected_text);
                     });
             },
