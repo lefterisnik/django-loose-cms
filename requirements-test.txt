@@ -9,5 +9,6 @@ tox>=1.7.0
 django-ckeditor
 django-admin-bootstrapped
 django-bootstrap3
+django-taggit
 tinycss
 beautifulsoup4

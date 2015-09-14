@@ -39,8 +39,7 @@ urlpatterns += [
     url(r'^admin/', include(site.urls)),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/', include(extra_urlpatterns)),
-    url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/$', detail, name='category-info'),
-    url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<category_slug>[0-9A-Za-z-_.]+)/(?P<slug>[0-9A-Za-z-_.]+)/$', detail, name='info'),
+    url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/(?P<slug>[0-9A-Za-z-_.]+)/$', detail, name='info'),
     url(r'^(?P<page_slug>[0-9A-Za-z-_.]+)/$', detail, name='pages-info'),
-    url(r'^$', detail, {'page_slug': '', 'category_slug': '', 'slug': ''}, name='pages-home'),
+    url(r'^$', detail, {'page_slug': '', 'slug': ''}, name='pages-home'),
 ]

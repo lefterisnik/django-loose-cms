@@ -1,0 +1,14 @@
+<script>
+(function ($) {
+    'use strict';
+    $(document).ready(function () {
+        $('#id_{{name}}').tokenfield({
+            autocomplete: {
+                source: "{{ tags|join:','|escapejs }}".split(','),
+                delay: 100
+            },
+            showAutocompleteOnFocus: true
+        })
+    })
+}) (jQuery)
+</script>

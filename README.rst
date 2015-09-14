@@ -28,6 +28,8 @@ Loose CMS requires:
 * tinycss
 * beautifulsoup4
 * django-admin-bootstrapped
+* django-taggit
+* django-ckeditor
 
 Quick Start
 -----------

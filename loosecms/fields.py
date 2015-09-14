@@ -10,8 +10,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FieldFile, FileDescriptor
 
 from ckeditor.fields import RichTextField
+from taggit.managers import TaggableManager
+from taggit.forms import TagField
 from .widgets.cketextarea import LoosecmsCKEditorWidget
 from .widgets.filemanager import UploadFilePathWidget
+from .widgets.tag import LoosecmsTagWidget
 
 from .plugin_pool import plugin_pool
 
@@ -72,6 +75,15 @@ class LoosecmsRichTextField(RichTextField):
         return super(LoosecmsRichTextField, self).formfield(**defaults)
 
 
+class LoosecmsTaggableManager(TaggableManager):
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': LoosecmsTagField,
+        }
+        defaults.update(kwargs)
+        return super(LoosecmsTaggableManager, self).formfield(**defaults)
+
 ## Form Fields
 
 class UploadFilePathFormField(forms.FilePathField):
@@ -120,5 +132,9 @@ class LoosecmsRichTextFormField(forms.CharField):
                                                         external_plugin_resources=self.external_plugin_resources,
                                                         loosecms_plugins=self.loosecms_plugins)})
         super(LoosecmsRichTextFormField, self).__init__(*args, **kwargs)
+
+
+class LoosecmsTagField(TagField):
+    widget = LoosecmsTagWidget
 
 

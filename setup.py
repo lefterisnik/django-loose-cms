@@ -32,6 +32,7 @@ setup(
         'django-ckeditor',
         'tinycss',
         'beautifulsoup4',
+        'django-taggit',
         'django-admin-bootstrapped',
         'django-bootstrap3'
     ],
