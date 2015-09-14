@@ -31,6 +31,10 @@ Loose CMS requires:
 * django-taggit
 * django-ckeditor
 
+You should install manually:
+
+* unidecode: if your tags wan in non-latin format.
+
 Quick Start
 -----------
 
