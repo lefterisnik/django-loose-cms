@@ -12,7 +12,6 @@ from django.core.exceptions import ValidationError
 
 from .plugin_pool import plugin_pool
 from .fields import UploadFilePathField
-from .signals import update_context_processor
 
 
 def update_css_file(sender, instance, created, **kwargs):
@@ -27,21 +26,18 @@ def update_css_file(sender, instance, created, **kwargs):
     f.close()
 
 
-class LooseCMSConfiguration(models.Model):
+class Configuration(models.Model):
 
     site = models.OneToOneField(Site)
 
     favicon = UploadFilePathField(_('favicon'), upload_to='images', path='images')
 
-    ckeditor_upload_path = models.CharField(_('ckeditor upload path'), max_length=100, default='images')
-
     def __unicode__(self):
         return self.site.name
 
     class Meta:
-        app_label = 'sites'
-        verbose_name = _('Loose CMS Configuration')
-        verbose_name_plural = _('Loose CMS Configurations')
+        verbose_name = _('Configuration')
+        verbose_name_plural = _('Configurations')
 
 
 class Plugin(models.Model):
@@ -248,4 +244,3 @@ class Column(Plugin):
 
 
 post_save.connect(update_css_file, sender=StyleClassInherit)
-post_save.connect(update_context_processor, sender=LooseCMSConfiguration)

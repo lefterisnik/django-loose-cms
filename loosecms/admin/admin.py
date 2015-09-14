@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from ..models import Style, StyleClass, StyleClassInherit
+from ..models import Style, StyleClass, StyleClassInherit, Configuration
 
 
 class StyleAdmin(admin.ModelAdmin):
@@ -22,6 +22,12 @@ class StyleClassAdmin(admin.ModelAdmin):
         StyleClassInheritInline
     ]
 
+
+class ConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('site', 'favicon')
+
+
+admin.site.register(Configuration, ConfigurationAdmin)
 admin.site.register(Style, StyleAdmin)
 admin.site.register(StyleClassInherit)
 admin.site.register(StyleClass, StyleClassAdmin)

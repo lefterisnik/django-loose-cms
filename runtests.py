@@ -13,20 +13,19 @@ try:
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
                 'NAME': ':memory:',
-                'TEST_NAME': ':memory:',
             }
         },
         ROOT_URLCONF="loosecms.urls",
         INSTALLED_APPS=[
-            "bootstrap_admin",
+            "django_admin_bootstrapped",
             "django.contrib.admin",
             "django.contrib.auth",
             "django.contrib.sessions",
             "django.contrib.contenttypes",
             "django.contrib.staticfiles",
             "django.contrib.humanize",
+            "django.contrib.sites",
             "ckeditor",
-            "loosecms.apps.LooseCMSSiteConfig",
             "loosecms",
         ],
         SITE_ID=1,
@@ -57,6 +56,9 @@ try:
         ],
         MEDIA_URL='/media/',
         MEDIA_ROOT=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media'),
+        DAB_FIELD_RENDERER='django_admin_bootstrapped.renderers.BootstrapFieldRenderer',
+        CKEDITOR_UPLOAD_PATH = 'images/',
+
     )
 
     try:
