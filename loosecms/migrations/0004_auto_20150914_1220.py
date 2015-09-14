@@ -8,7 +8,7 @@ import loosecms.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sites', '0006_auto_20150914_1106'),
+        ('sites', '0001_initial'),
         ('loosecms', '0003_remove_loosecmsconfiguration_ckeditor_upload_path'),
     ]
 
