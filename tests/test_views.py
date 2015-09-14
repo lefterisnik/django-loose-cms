@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from loosecms.models import HtmlPage, Row, LooseCMSConfiguration
+from loosecms.models import HtmlPage, Row, Configuration
 from django.contrib.sites.models import Site
 from loosecms.views import error404
 
@@ -37,7 +37,7 @@ class AnonymousViews(TestCase):
         self.client = Client()
         site = Site.objects.create(domain='example.com', name='example.com')
         site.save()
-        configuration = LooseCMSConfiguration.objects.create(site=site)
+        configuration = Configuration.objects.create(site=site)
         configuration.save()
 
     def test_no_pages(self):
@@ -118,7 +118,7 @@ class StaffViews(TestCase):
                                                   password='admin')
         site = Site.objects.create(domain='example.com', name='example.com')
         site.save()
-        configuration = LooseCMSConfiguration.objects.create(site=site)
+        configuration = Configuration.objects.create(site=site)
         configuration.save()
 
     def test_no_pages(self):
