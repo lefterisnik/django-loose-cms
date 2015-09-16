@@ -16,39 +16,11 @@ body {
 }
 
 /*============================================================================*/
-/*       Customize tab-content to add scroll attribute                        */
-/*============================================================================*/
-
-.tab-pane{
-    max-height: 400px;
-    overflow: auto;
-}
-
-
-/*============================================================================*/
 /*       Customize bg-info to present bigger                                  */
 /*============================================================================*/
 
 .bg-info{
     padding: 15px;
-}
-
-
-/*============================================================================*/
-/*       Customize 404 image to be in center                                  */
-/*============================================================================*/
-
-.img-responsive{
-    margin: 0 auto;
-}
-
-
-/*============================================================================*/
-/*       Customize iframe height                                              */
-/*============================================================================*/
-
-#iframe{
-    max-height: 400px;
 }
 
 /*============================================================================*/
@@ -78,13 +50,13 @@ body {
 /*          Change background image from control of carousels                 */
 /*============================================================================*/
 
-/*.carousel-control.left, .carousel-control.right{
+.carousel-control.left, .carousel-control.right{
     background-image: none;
 }
 
 .carousel-control{
     width: 4%;
-}*/
+}
 
 
 /*============================================================================*/
@@ -101,14 +73,4 @@ body {
 
 #sb-site {
     transform: none;
-}
-
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-  /* Remove the padding we set earlier */
-  .masthead,
-  .marketing,
-  .footer {
-    padding-right: 0;
-    padding-left: 0;
 }
