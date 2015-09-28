@@ -94,7 +94,8 @@ class UploadFilePathFormField(forms.FilePathField):
         self.path = kwargs.pop('path', '')
         self.required = kwargs.pop('required', False)
         self.path = os.path.join(settings.MEDIA_ROOT, self.path)
-        super(UploadFilePathFormField, self).__init__(path=self.path, *args, **kwargs)
+        super(UploadFilePathFormField, self).__init__(path=self.path, required=self.required,
+                                                      *args, **kwargs)
 
         self.widget.path = self.path
         self.widget.upload_to = self.upload_to
