@@ -13,9 +13,11 @@ Django Loose CMS is a simple cms based on django framework.
 Features
 --------
 
+* Hierarchical pages
+* Template pages
+* SEO friendly URLs
 * Build bootstrap grid
 * Edit stylesheet of the plugins (no functional)
-* Template pages
 * File manager with custom model field
 
 Requirements
