@@ -103,18 +103,21 @@ class Style(models.Model):
 
 class HtmlPage(models.Model):
     title = models.CharField(_('title'), max_length=50, unique=True,
-            help_text=_('Give a symbolic name. The actual name of url provided from the field slug.'))
-    slug = models.SlugField(_('slug'), unique=True, null=True, blank=True,
-            help_text=_('The url of this page.'))
+                             help_text=_('Give a symbolic name. The actual name of url provided from the field slug.'))
+    slug = models.CharField(_('slug'), unique=True, null=True, blank=True, max_length=150,
+                            help_text=_('The url of this page.'))
+    parent = models.ForeignKey('self', verbose_name=_('parent'), blank=True, null=True,
+                               limit_choices_to={'is_template': False}, related_name='child',
+                               help_text=_('Select the parent page.'))
     home = models.BooleanField(_('home page'), default=False,
-            help_text=_('Check this box if you want this page to be the home page.'))
+                               help_text=_('Check this box if you want this page to be the home page.'))
     template = models.ForeignKey('self', verbose_name=_('template'), blank=True, null=True,
-            limit_choices_to={'is_template': True},
-            help_text=_('Select the template you want to render this pages.'))
+                                 limit_choices_to={'is_template': True}, related_name='inherit',
+                                 help_text=_('Select the template you want to render this pages.'))
     is_template = models.BooleanField(_('is template'), default=False,
-            help_text=_('Check this box if this is template page.'))
+                                      help_text=_('Check this box if this is template page.'))
     is_error = models.BooleanField(_('is error'), default=False,
-            help_text=_('Check this box if this is error page.'))
+                                   help_text=_('Check this box if this is error page.'))
     ctime = models.DateTimeField(auto_now_add=True)
 
     utime = models.DateTimeField(auto_now=True)
@@ -129,6 +132,24 @@ class HtmlPage(models.Model):
             return reverse('pages-info', kwargs={"page_slug": self.slug})
         else:
             return reverse('pages-home')
+
+    # TODO: check if slug is construct from all parent slugs and itself
+    # TODO: Propably with signals at save and at load
+    '''def save(self, *args, **kwargs):
+        if self.slug:
+            parents_slug = []
+            parent = self.parent
+            if parent:
+                parents_slug.append(parent.slug)
+                while True:
+                    if parent.parent:
+                        parents_slug.append(parent.parent.slug)
+                        parent = parent.parent
+                    else:
+                        break
+            slug = '/'.join(list(reversed(parents_slug))+[self.slug])
+            self.slug = slug
+        super(HtmlPage, self).save(*args, **kwargs)'''
 
     def render(self, request, context):
         if request.user.is_authenticated() and request.user.is_staff:
@@ -179,11 +200,11 @@ class Row(Plugin):
     default_type = "RowPlugin"
 
     title = models.CharField(_('title'), max_length=200,
-            help_text=_('Give the name of the row.'))
+                             help_text=_('Give the name of the row.'))
     slug = models.SlugField(_('slug'), unique=True,
-            help_text=_('Give the slug of the row to be used as id in html.'))
+                            help_text=_('Give the slug of the row to be used as id in html.'))
     page = models.ForeignKey(HtmlPage, verbose_name=_('page'),
-            help_text=_('Select the page or the template to add this row.'))
+                             help_text=_('Select the page or the template to add this row.'))
     order = models.IntegerField(_('order'), default=0)
 
     def __unicode__(self):

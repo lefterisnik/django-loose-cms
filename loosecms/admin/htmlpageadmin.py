@@ -25,11 +25,11 @@ from ..plugin_pool import plugin_pool
 class HtmlPageAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title', )}
     list_filter = ('is_template', 'published', 'is_error', 'home')
-    list_display = ('title', 'is_template', 'home', 'published')
+    list_display = ('title', 'is_template', 'home', 'published', 'parent')
     list_editable = ('published', )
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'template', 'published')
+            'fields': ('title', 'slug', 'parent', 'template', 'published')
         }),
         ('Advanced options',{
             'fields': ('home', 'is_template', 'is_error')
