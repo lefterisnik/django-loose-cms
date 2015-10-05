@@ -30,7 +30,13 @@ class Configuration(models.Model):
 
     site = models.OneToOneField(Site)
 
-    favicon = UploadFilePathField(_('favicon'), upload_to='images', path='images')
+    favicon = UploadFilePathField(_('favicon'), upload_to='images', path='images', blank=True)
+
+    author = models.CharField(_('author'), blank=True, max_length=100)
+
+    description = models.CharField(_('description'), blank=True, max_length=200)
+
+    keywords = models.CharField(_('keywords'), blank=True, max_length=200)
 
     def __unicode__(self):
         return self.site.name

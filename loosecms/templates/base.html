@@ -7,13 +7,18 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+        {% if loosecms.description %}
+        <meta name="description" content="{{ loosecms.description }}" />
+        {% endif %}
+        {% if loosecms.keywords %}
+		<meta name="keywords" content="{{ loosecms.keywords }}" />
+        {% endif %}
+        {% if loosecms.author %}
+		<meta name="author" content="{{ loosecms.author }}" />
+        {% endif %}
 
-        <!--TODO: FILL LATER />		
-        <meta name="description" content="" />
-		<meta name="keywords" content="" /-->
-
-        {% if loosecms.favicon_url %}
-            <link rel="shortcut icon" href="{{ loosecms.favicon.url }}" />
+        {% if loosecms.favicon %}
+        <link rel="shortcut icon" href="{{ loosecms.favicon.url }}" />
         {% endif %}
         <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap.min.css' %}" />
