@@ -30,6 +30,7 @@ setup(
     install_requires=[
         'Django>=1.8,<1.9',
         'django-ckeditor',
+        'Pillow',
         'tinycss',
         'beautifulsoup4',
         'django-taggit',
