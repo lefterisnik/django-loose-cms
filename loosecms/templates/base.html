@@ -12,7 +12,9 @@
         <meta name="description" content="" />
 		<meta name="keywords" content="" /-->
 
-        <link rel="shortcut icon" href="{{ loosecms.favicon.url }}" />
+        {% if loosecms.favicon_url %}
+            <link rel="shortcut icon" href="{{ loosecms.favicon.url }}" />
+        {% endif %}
         <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap.min.css' %}" />
         <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/bootstrap/css/bootstrap-theme.min.css' %}" />

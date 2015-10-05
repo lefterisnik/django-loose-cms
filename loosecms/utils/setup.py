@@ -23,9 +23,9 @@ def setup():
         raise ImproperlyConfigured("Django Loose CMS requires django.template.context_processors.request in "
                                    "'django.template.backends.django.DjangoTemplates' context processors.")
 
-    if 'loosecms.context_processors.global_settings' not in context_processors:
-        raise ImproperlyConfigured("Django Looces CMS requires 'loosecms.context_processors.global_settings' in "
-                                   "'django.template.backends.django.DjangoTemplates' context processors.")
+    if 'loosecms.template.context_processors.global_settings' not in context_processors:
+        raise ImproperlyConfigured("Django Looces CMS requires 'loosecms.template.context_processors.global_settings' "
+                                   "in 'django.template.backends.django.DjangoTemplates' context processors.")
 
     if 'django_admin_bootstrapped' not in settings.INSTALLED_APPS:
         raise ImproperlyConfigured("Django Loose CMS requires 'django_admin_bootstrapped' in 'INSTALLED_APPS'.")

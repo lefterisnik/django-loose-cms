@@ -15,7 +15,7 @@ try:
                 'NAME': ':memory:',
             }
         },
-        ROOT_URLCONF="loosecms.urls",
+        ROOT_URLCONF="urls",
         INSTALLED_APPS=[
             "django_admin_bootstrapped",
             "django.contrib.admin",
@@ -50,7 +50,7 @@ try:
                         'django.template.context_processors.tz',
                         'django.template.context_processors.request',
                         'django.contrib.messages.context_processors.messages',
-                        'loosecms.context_processors.global_settings',
+                        'loosecms.template.context_processors.global_settings',
                     ],
                 },
             },
