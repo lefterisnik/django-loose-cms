@@ -1,32 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
-from django.utils.translation import ugettext_lazy as _
-
 from django.db import models
-from django.conf import settings
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.db.models.signals import post_save
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from .plugin_pool import plugin_pool
 from .fields import UploadFilePathField
 
-from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
-
-
-def update_css_file(sender, instance, created, **kwargs):
-    styleclasses = StyleClass.objects.filter(from_source=False)
-    f = open(os.path.join(settings.BASE_DIR, 'static/loosecms/loosecms/css/cms-style.css'), 'w')
-
-    for styleclass in styleclasses:
-        for styleclassinherit in styleclass.styleclassinherit_set.all():
-            f.write('%s {\n' % styleclassinherit.title)
-            f.write(styleclassinherit.css)
-            f.write('}\n')
-    f.close()
 
 
 class Configuration(models.Model):
@@ -67,47 +50,6 @@ class Plugin(models.Model):
         plugin_modeladmin_cls = plugin_pool.plugins[self.type]
         child_plugin = getattr(self, plugin_modeladmin_cls.model._meta.model_name)
         return "%s (%s)" % (child_plugin.title, self.type)
-
-
-class StyleClass(models.Model):
-    title = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True, null=True)
-    from_source = models.BooleanField(default=False)
-    override = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = _('classes')
-        verbose_name_plural = _('classes')
-
-
-class StyleClassInherit(models.Model):
-    title = models.TextField()
-    css = models.TextField()
-    styleclass = models.ForeignKey(StyleClass)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = _('classes inheritance')
-        verbose_name_plural = _('classes inheritance')
-
-
-class Style(models.Model):
-    title = models.CharField(max_length=50, unique=True)
-    plugin = models.ForeignKey(Plugin)
-    html_tag = models.CharField(max_length=50)
-    html_id = models.CharField(max_length=50, unique=True, blank=True)
-    styleclasses = models.ManyToManyField(StyleClass)
-    css = models.TextField(blank=True)
-    description = models.TextField(blank=True)
-    element_is_grid = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return self.title
 
 
 class HtmlPage(models.Model):
@@ -284,6 +226,3 @@ class Column(Plugin):
         if sum_width + self.width > 12:
             msg = _('Width value is too big. The valid maximum value is %s.') % (12-sum_width)
             raise ValidationError({'width': msg})
-
-
-post_save.connect(update_css_file, sender=StyleClassInherit)

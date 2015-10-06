@@ -46,22 +46,4 @@
         <script src="{% static 'loosecms/external/slidebars/slidebars.min.js' %}"></script>
         <script src="{% static 'loosecms/external/metismenu/metisMenu.min.js' %}"></script>
         <script src="{% static 'loosecms/loosecms/js/admin/editor/editor.base.js' %}"></script>
-        <script>
-            (function($) {
-                $(document).ready(function() {
-                {% for style in styles %}
-                    {% with classes=style.styleclasses.all %}
-                        {% if style.css %}
-                        {% if style.element_is_grid %}
-                        $("#cms_plugin_{{ style.plugin.pk }}").attr("style", "{{ style.css|strip }}");
-                        {% else %}
-                        $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("style", "{{ style.css|strip }}");
-                        {% endif %}
-                        {% endif %}
-                        $("#cms_plugin_{{ style.plugin.pk }} {{style.html_tag}}.{{ classes|join:'.' }}").attr("class", "{{ classes|join:' ' }}");
-                    {% endwith %}
-                {% endfor %}
-                });
-            }) (django.jQuery);
-        </script>
 {% endblock %}

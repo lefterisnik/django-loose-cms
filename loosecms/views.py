@@ -110,7 +110,6 @@ def detail(request, page_slug, *args,  **kwargs):
 
     context['page'] = page
     context = update_context(context, page)
-    context['styles'] = Style.objects.all().prefetch_related('styleclasses')
 
     # Render page for anonymous users
     return page.render(request, context)

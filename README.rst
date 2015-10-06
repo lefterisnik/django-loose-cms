@@ -27,8 +27,6 @@ Loose CMS requires:
 
 * Django version 1.8
 * Python 2.6 or 2.7
-* tinycss
-* beautifulsoup4
 * django-admin-bootstrapped
 * django-taggit
 * django-ckeditor

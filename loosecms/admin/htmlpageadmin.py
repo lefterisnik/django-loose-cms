@@ -18,7 +18,7 @@ from django.http import HttpResponse, JsonResponse, Http404
 from ..models import HtmlPage
 from ..forms import *
 from ..utils.render import update_context
-from ..utils.style import *
+#from ..utils.style import *
 from ..plugin_pool import plugin_pool
 
 
@@ -394,6 +394,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
 
     @never_cache
     def edit_style(self, request, pk):
+        pass
+    '''
         """
         Prompt edit style form for requested plugin
         :param request:
@@ -493,7 +495,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
                     template=rendered_template,
                     form_url=urlresolvers.reverse('admin:admin_edit_style', args=(page_pk, pk))
                 )
-                return render(request, 'admin/edit_style_form.html', context)
+                return render(request, 'admin/edit_style_form.html', context)'''
 
     @never_cache
     def move_plugin_api(self, request, pk):
