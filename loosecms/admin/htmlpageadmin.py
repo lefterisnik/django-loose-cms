@@ -176,7 +176,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
         """
         if request.method == 'GET':
             all_pages = HtmlPage.objects.all()
-            page = all_pages.get(pk=page_pk)
+            page = get_object_or_404(HtmlPage, pk=page_pk)
             template_pages = all_pages.filter(is_template=True)
             pages = all_pages.filter(is_template=False)
 

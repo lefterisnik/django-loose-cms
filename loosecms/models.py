@@ -13,6 +13,9 @@ from django.core.exceptions import ValidationError
 from .plugin_pool import plugin_pool
 from .fields import UploadFilePathField
 
+from taggit.managers import TaggableManager
+from taggit.models import TagBase, GenericTaggedItemBase
+
 
 def update_css_file(sender, instance, created, **kwargs):
     styleclasses = StyleClass.objects.filter(from_source=False)
@@ -200,6 +203,19 @@ class HtmlPage(models.Model):
     class Meta:
         verbose_name = _('html page')
         verbose_name_plural = _('html pages')
+
+
+class LoosecmsTag(TagBase):
+    description = models.TextField(_('description'),
+                                   help_text=_('Give a short description.'))
+
+    class Meta:
+        verbose_name = _('Category')
+        verbose_name_plural = _('Categories')
+
+
+class LoosecmsTagged(GenericTaggedItemBase):
+    tag = models.ForeignKey(LoosecmsTag, related_name='%(app_label)s_%(class)s_items')
 
 
 class Row(Plugin):

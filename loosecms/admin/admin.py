@@ -2,7 +2,9 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import Style, StyleClass, StyleClassInherit, Configuration
+from ..models import Style, StyleClass, StyleClassInherit, Configuration, LoosecmsTag
+
+from taggit.models import Tag
 
 
 class StyleAdmin(admin.ModelAdmin):
@@ -38,4 +40,6 @@ class ConfigurationAdmin(admin.ModelAdmin):
 admin.site.register(Configuration, ConfigurationAdmin)
 admin.site.register(Style, StyleAdmin)
 admin.site.register(StyleClassInherit)
+admin.site.register(LoosecmsTag)
+admin.site.unregister(Tag)
 admin.site.register(StyleClass, StyleClassAdmin)
