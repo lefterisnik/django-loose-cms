@@ -74,6 +74,7 @@ def detail(request, page_slug, *args,  **kwargs):
         if remaining_slug:
             if not examed:
                 # Fetch embed urls
+                # TODO: Fetch only plugin url that appear to specific page
                 embed_urlpatterns = get_app_urls(True)
                 # Try to resolve the remaining slug
                 view, args, kwargs = urlresolvers.resolve(remaining_slug, tuple(embed_urlpatterns))

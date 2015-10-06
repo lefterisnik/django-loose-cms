@@ -10,6 +10,8 @@ class PluginPool(object):
         :return: None
         """
         self.plugins = {}
+        self.extra_urlpatterns = []
+        self.embed_urlpatterns = []
 
     def clear(self):
         """
@@ -17,6 +19,31 @@ class PluginPool(object):
         :return: None
         """
         self.plugins = {}
+
+    def discover_plugin_urls(self):
+        """
+        Discover plugin extra urls and added to extra_urlpatterns or embed_urlpatterns
+        :return: None
+        """
+        modname = 'urls'
+        for app in settings.INSTALLED_APPS:
+            try:
+                if 'loosecms_' in app:
+                    module_name = '%s.%s' %(app, modname)
+                    module = import_module(module_name)
+                    try:
+                        self.extra_urlpatterns += module.urlpatterns
+                    except Exception, e:
+                        # urlpatterns is not defined
+                        pass
+
+                    try:
+                        self.embed_urlpatterns += module.embed_urlpatterns
+                    except Exception,e:
+                        # embed_urlpatterns is not defined
+                        pass
+            except Exception, e:
+                continue
 
     def discover_plugins(self):
         """

@@ -19,6 +19,9 @@ class LooseCMSConfig(AppConfig):
         # Import all plugins
         plugin_pool.discover_plugins()
 
+        # Import all plugin urls
+        plugin_pool.discover_plugin_urls()
+
         # Get values for settings file
         SiteApp = apps.get_app_config('sites')
         Site = SiteApp.get_model('Site')
