@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
-from taggit.models import Tag
 
 from taggit.forms import TagWidget
 
@@ -21,7 +20,8 @@ class LoosecmsTagWidget(TagWidget):
         )
 
     def render(self, name, value, attrs=None):
-        tags = Tag.objects.all()
+        from ..models import LoosecmsTag
+        tags = LoosecmsTag.objects.all()
         return mark_safe(render_to_string('taggit/widget_additional.html', {'name': name, 'tags': tags})) + \
                super(LoosecmsTagWidget, self).render(name, value, attrs)
 
