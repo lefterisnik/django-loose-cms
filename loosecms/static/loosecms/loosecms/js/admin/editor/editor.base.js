@@ -238,6 +238,29 @@
             });
         });
 
+        /***********************************Change dropdown to dropup************************************/
+
+        var dropup = function()  {
+            $(".dropdown-toggle").each(function(){
+                var par=$(this).parents('.btn-group');
+                var dropl=par.find('ul');
+                var otop=$(this).offset().top+$(this).height()-$(window).scrollTop();
+                var ulh=dropl.height();
+                var obot=$(window).height()-$(this).height()-$(this).offset().top+$(window).scrollTop();
+
+                if ((obot < ulh) && (otop > ulh)) {
+                    par.addClass('dropup');
+                } else {
+                    par.removeClass('dropup');
+                }
+
+            });
+        }
+
+        $(window).load(dropup);
+        $(window).bind('resize', dropup);
+        /*$(window).bind('resize scroll touchstart touchmove mousewheel', dropup);*/
+
     });
 
 }) (jQuery);

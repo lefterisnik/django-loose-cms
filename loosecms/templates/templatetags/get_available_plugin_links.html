@@ -1,8 +1,10 @@
 {% load cms_tags i18n %}
 {% if plugins %}
-    <li class="divider"></li>
-    <li class="dropdown-header">{% trans 'Add plugins' %}</li>
-    {% for plugin in plugins %}
-    <li><a href="{% url 'admin:admin_add_plugin' %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="{{ plugins|get_dict_value:plugin }}">{{ plugin }}</a></li>
+    {% for app in plugins %}
+        <li class="divider"></li>
+        <li class="dropdown-header">{{ app }}</li>
+        {% for plugin in plugins|get_dict_value:app %}
+            <li><a href="{% url 'admin:admin_add_plugin' %}" class="add-plugin" data-placeholder="{{ column.pk }}" data-type="{{ plugins|get_dict_value:app|get_dict_value:plugin }}">{{ plugin }}</a></li>
+        {% endfor %}
     {% endfor %}
 {% endif %}

@@ -10,3 +10,9 @@ body {
 .affix {
     top: 10px;
 }
+
+.dropdown-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}

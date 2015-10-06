@@ -3,7 +3,6 @@ from django.http import Http404
 from django.core import urlresolvers
 from django.shortcuts import redirect
 from django.views.defaults import page_not_found
-from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
 
 from .models import *

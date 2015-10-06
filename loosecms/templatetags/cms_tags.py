@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import template
+from django.apps import apps
 from django.core import urlresolvers
+
 from ..plugin_pool import plugin_pool
 
 register = template.Library()
@@ -17,9 +19,14 @@ def render_plugin(context, plugin):
 @register.inclusion_tag('templatetags/get_available_plugin_links.html', takes_context=True)
 def get_available_plugin_links(context, column):
     plugins = {}
-    for plugin in plugin_pool.plugins:
-        if plugin_pool.plugins[plugin].plugin:
-            plugins[plugin_pool.plugins[plugin].name] = plugin_pool.plugins[plugin].__name__
+    for plugin, cls in plugin_pool.plugins.items():
+        if cls.plugin:
+            app = apps.get_app_config(cls.model._meta.app_label).verbose_name
+            if app in plugins:
+                plugins[app][cls.name] = plugin
+            else:
+                plugins[app] = {}
+                plugins[app][cls.name] = plugin
 
     context['plugins'] = plugins
     context['column'] = column
