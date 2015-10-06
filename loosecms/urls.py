@@ -5,6 +5,10 @@ from .views import *
 from .utils.urls import *
 from .admin.sites import site
 
+from .plugin_pool import plugin_pool
+
+# Import all plugin urls
+plugin_pool.discover_plugin_urls()
 # Get the extra urls from plugins. Extra urlpatterns represent the extra root urls and embed urlpatterns represent urls
 # that extend page url.
 extra_urlpatterns, embed_urlpatterns = get_app_urls()
