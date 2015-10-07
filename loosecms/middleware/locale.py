@@ -15,7 +15,7 @@ class SimpleLocaleMiddleware(LocaleMiddleware):
             session_language = get_language_from_request(request, True)
             url_language = get_language_from_path(request.path_info)
 
-            if not url_language:
+            if not url_language and session_language in get_language():
                 language = get_language()
             else:
                 language = session_language
