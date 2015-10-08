@@ -1,5 +1,5 @@
 {% extends "template.html" %}
-{% load i18n cms_tags staticfiles %}
+{% load i18n style_tags cms_tags staticfiles %}
 
 {% block extra_css %}
         <link href="{% static 'loosecms/external/slidebars/slidebars.min.css' %}" rel="stylesheet" />
@@ -46,4 +46,5 @@
         <script src="{% static 'loosecms/external/slidebars/slidebars.min.js' %}"></script>
         <script src="{% static 'loosecms/external/metismenu/metisMenu.min.js' %}"></script>
         <script src="{% static 'loosecms/loosecms/js/admin/editor/editor.base.js' %}"></script>
+        {% add_classes %}
 {% endblock %}

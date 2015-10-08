@@ -17,7 +17,7 @@ Features
 * Template pages
 * SEO friendly URLs
 * Build bootstrap grid
-* Edit stylesheet of the plugins (no functional)
+* Edit stylesheet of the plugins (no fully functional)
 * File manager with custom model field
 
 Requirements
@@ -30,6 +30,7 @@ Loose CMS requires:
 * django-admin-bootstrapped
 * django-taggit
 * django-ckeditor
+* django-loosecms-style
 
 You should install manually:
 
@@ -192,6 +193,7 @@ Some plugins:
 * `django-loosecms-rss`_.
 * `django-loosecms-dynamo`_.
 * `django-loosecms-search`_.
+* `django-loosecms-style`_.
 
 
 .. _django-loosecms-text: https://github.com/lefterisnik/django-loosecms-text
@@ -203,3 +205,4 @@ Some plugins:
 .. _django-loosecms-rss: https://github.com/lefterisnik/django-loosecms-rss
 .. _django-loosecms-search: https://github.com/lefterisnik/django-loosecms-search
 .. _django-loosecms-dynamo: https://github.com/lefterisnik/django-loosecms-dynamo
+.. _django-loosecms-style: https://github.com/lefterisnik/django-loosecms-style

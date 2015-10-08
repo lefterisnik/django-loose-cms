@@ -4,3 +4,10 @@ recursive-include loosecms/static *
 recursive-include loosecms/locale *
 recursive-include loosecms/templates *
 recursive-include loosecms/templatetags *
+recursive-include loosecms/admin *
+recursive-include loosecms/conf *
+recursive-include loosecms/locale *
+recursive-include loosecms/middleware *
+recursive-include loosecms/migrations *
+recursive-include loosecms/utils *
+recursive-include loosecms/widgets *

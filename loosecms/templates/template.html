@@ -1,8 +1,12 @@
 {% extends "base.html" %}
-{% load cms_tags staticfiles %}
+{% load cms_tags style_tags staticfiles %}
 
 {% block plugins %}
             <div class="container" id="content">
                 {% render_template %}
             </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% add_classes %}
 {% endblock %}
