@@ -83,7 +83,7 @@
 
         /**************************************Edit style**********************************************/
 
-        $('body').on('click', '.edit-style', function( e ) {
+        $('body').on('click', '.loosecms-plugin', function( e ) {
             e.preventDefault();
 
             if (slidebar.slidebars.active('left')){

@@ -9,12 +9,11 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def render_plugin(context, plugin):
-    plugin_modeladmin_cls = plugin_pool.plugins[plugin.type]
-    plugin_model = plugin_modeladmin_cls.model
-    plugin_modeladmin = plugin_modeladmin_cls(plugin_model, None)
-    # For Debugging: manager = plugin_modeladmin.model.objects.get(pk=plugin.pk)
-    manager = getattr(plugin, str(plugin_model._meta.model_name).lower())
-    return plugin_modeladmin.render(context, manager)
+    cls = plugin_pool.plugins[plugin.type]
+    cls_modeladmin = cls(cls.model, None)
+    # For Debugging: manager = cls_modeladmin.model.objects.get(pk=plugin.pk)
+    manager = getattr(plugin, str(cls.model._meta.model_name).lower())
+    return cls_modeladmin.render(context, manager)
 
 @register.inclusion_tag('templatetags/get_available_plugin_links.html', takes_context=True)
 def get_available_plugin_links(context, column):
@@ -31,6 +30,13 @@ def get_available_plugin_links(context, column):
     context['plugins'] = plugins
     context['column'] = column
     return context
+
+@register.simple_tag(takes_context=True)
+def render_extra_admin_links(context, plugin):
+    for plugin_name, cls in plugin_pool.plugins.items():
+        if cls.plugin_extra_links:
+            plugin_modeladmin = cls(cls.model, None)
+            return plugin_modeladmin.render_link(context, plugin)
 
 @register.inclusion_tag('templatetags/template_admin.html', takes_context=True)
 def render_template_admin(context, process_column=None):

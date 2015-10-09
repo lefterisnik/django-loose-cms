@@ -62,7 +62,14 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 name='admin_move_plugin_api'),
         ]
 
-        return htmlpage_urls + urls
+        # Fetch extra admin page urls from plugins
+        plugin_urls = []
+        for plugin, cls in plugin_pool.plugins.items():
+            if cls.plugin_extra_links:
+                plugin_modeladmin = cls(cls.model, self.admin_site)
+                plugin_urls += plugin_modeladmin.get_urls()
+
+        return plugin_urls + htmlpage_urls + urls
 
     def response_add(self, request, obj, post_url_continue=None):
         """

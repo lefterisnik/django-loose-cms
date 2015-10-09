@@ -30,7 +30,6 @@ Loose CMS requires:
 * django-admin-bootstrapped
 * django-taggit
 * django-ckeditor
-* django-loosecms-style
 
 You should install manually:
 

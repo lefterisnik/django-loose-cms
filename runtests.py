@@ -28,7 +28,6 @@ try:
             "taggit",
             "ckeditor",
             "loosecms",
-            "loosecms_style",
         ],
         SITE_ID=1,
         MIDDLEWARE_CLASSES=(

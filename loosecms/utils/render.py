@@ -13,7 +13,8 @@ def get_sort_list(list, item):
 def update_context(context, page=None):
     if page:
         # Prefetch onetoone relations between plugin and plugin manager
-        select_related = tuple(plugin_pool.plugins[x].model._meta.object_name.lower() for x in plugin_pool.plugins)
+        select_related = tuple(plugin_pool.plugins[x].model._meta.object_name.lower()
+                               for x in plugin_pool.plugins if plugin_pool.plugins[x].plugin)
         select_related += ('placeholder', )
 
         # Get all row (otherwise placeholder) from the current page and template

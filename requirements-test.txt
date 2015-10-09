@@ -12,4 +12,3 @@ django-bootstrap3
 django-taggit
 tinycss
 beautifulsoup4
--e git+http://github.com/lefterisnik/django-loosecms-style/#egg=django-loosecms-style

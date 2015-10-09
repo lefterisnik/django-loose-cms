@@ -8,6 +8,7 @@ from .forms import PluginForm
 
 
 class PluginModelAdmin(admin.ModelAdmin):
+    model = None
     change_form_template = 'admin/plugin_change_form.html'
     delete_confirmation_template = 'admin/plugin_delete_form.html'
     form = PluginForm
@@ -17,6 +18,7 @@ class PluginModelAdmin(admin.ModelAdmin):
     template_cke = None
     plugin = False
     plugin_cke = False
+    plugin_extra_links = False
     object_successfully_added = False
     object_successfully_changed = False
     object_successfully_deleted = False

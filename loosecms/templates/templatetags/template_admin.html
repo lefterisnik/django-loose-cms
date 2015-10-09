@@ -21,9 +21,7 @@
                             <li><a href="{% url 'admin:admin_remove_plugin' row.pk %}" class="remove-plugin">{% trans 'Remove plugin' %}</a></li>
                             <li><a href="{% url 'admin:admin_move_plugin' row.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
                             <li><a href="{% url 'admin:admin_select_plugin' row.pk %}" class="select-plugin">{% trans 'Select/Change plugin' %}</a></li>
-                            <li role="presentation" class="divider"></li>
-                            <li role="presentation" class="dropdown-header">CSS</li>
-                            <li><a href="{% url 'admin:admin_edit_style' row.pk %}" class="edit-style">{% trans 'Edit style' %}</a></li>
+                            {% render_extra_admin_links row %}
                             <li role="presentation" class="divider"></li>
                             <li role="presentation" class="dropdown-header">{% trans 'Unique actions' %}</li>
                             <li><a href="{% url 'admin:admin_add_plugin' %}" class="add-plugin" data-placeholder="{{ row.pk }}" data-type="ColumnPlugin">{% trans 'Add column' %}</a></li>
@@ -49,6 +47,7 @@
                                             <li><a href="{% url 'admin:admin_remove_plugin' column.pk %}" class="remove-plugin">{% trans 'Remove plugin' %}</a></li>
                                             <li><a href="{% url 'admin:admin_move_plugin' column.pk %}" class="move-plugin">{% trans 'Move plugin' %}</a></li>
                                             <li><a href="{% url 'admin:admin_select_plugin' column.pk %}" class="select-plugin">{% trans 'Select/Change plugin' %}</a></li>
+                                            {% render_extra_admin_links column %}
                                             {% if column not in processing_plugins %}
                                             <li class="divider"></li>
                                             <li role="presentation" class="dropdown-header">Unique actions</li>
@@ -76,9 +75,7 @@
                                                             <li><a href="{% url 'admin:admin_edit_plugin' plugin.pk %}" class="edit-plugin">{% trans 'Edit plugin' %}</a></li>
                                                             <li><a href="{% url 'admin:admin_delete_plugin' plugin.pk %}" class="delete-plugin">{% trans 'Delete plugin' %}</a></li>
                                                             <li><a href="{% url 'admin:admin_remove_plugin' plugin.pk %}" class="remove-plugin">{% trans 'Remove plugin' %}</a></li>
-                                                            <li role="presentation" class="divider"></li>
-                                                            <li role="presentation" class="dropdown-header">CSS</li>
-                                                            <li><a href="{% url 'admin:admin_edit_style' plugin.pk %}" class="edit-style">{% trans 'Edit style '%}</a></li>
+                                                            {% render_extra_admin_links plugin %}
                                                         </ul>
                                                     </div>
                                                 </div>
