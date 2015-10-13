@@ -22,6 +22,16 @@ def _handle_no_page(request, pages, context):
             title=_('Edit page'),
         )
         context = update_context(context)
+
+        split_page_slug = context['page_slug'].split('/')
+        if get_language() in split_page_slug:
+            split_page_slug = split_page_slug[1]
+        else:
+            split_page_slug = split_page_slug[0]
+
+        if split_page_slug in get_patterns():
+            raise Http404
+
         return render(request, 'admin/editor_form.html', context)
     else:
         raise Http404

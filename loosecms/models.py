@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .plugin_pool import plugin_pool
 from .fields import UploadFilePathField
+from .utils.urls import get_patterns
 
 from taggit.models import TagBase, GenericTaggedItemBase
 
@@ -57,9 +58,6 @@ class HtmlPage(models.Model):
                              help_text=_('Give a symbolic name. The actual name of url provided from the field slug.'))
     slug = models.CharField(_('slug'), unique=True, null=True, blank=True, max_length=150,
                             help_text=_('The url of this page.'))
-    parent = models.ForeignKey('self', verbose_name=_('parent'), blank=True, null=True,
-                               limit_choices_to={'is_template': False}, related_name='child',
-                               help_text=_('Select the parent page.'))
     home = models.BooleanField(_('home page'), default=False,
                                help_text=_('Check this box if you want this page to be the home page.'))
     template = models.ForeignKey('self', verbose_name=_('template'), blank=True, null=True,
@@ -84,24 +82,6 @@ class HtmlPage(models.Model):
         else:
             return reverse('pages-home')
 
-    # TODO: check if slug is construct from all parent slugs and itself
-    # TODO: Propably with signals at save and at load
-    '''def save(self, *args, **kwargs):
-        if self.slug:
-            parents_slug = []
-            parent = self.parent
-            if parent:
-                parents_slug.append(parent.slug)
-                while True:
-                    if parent.parent:
-                        parents_slug.append(parent.parent.slug)
-                        parent = parent.parent
-                    else:
-                        break
-            slug = '/'.join(list(reversed(parents_slug))+[self.slug])
-            self.slug = slug
-        super(HtmlPage, self).save(*args, **kwargs)'''
-
     def render(self, request, context):
         if request.user.is_authenticated() and request.user.is_staff:
             template = 'template_staff.html'
@@ -116,6 +96,7 @@ class HtmlPage(models.Model):
         Don't allow two of home, is_template and is_error to be selected
         Don't allow two or more home pages published
         Don't allow two or more error pages published
+        Don't allow slug to starts with or ends with "/"
         :return: cleaned_data and errors
         """
         htmlpages = HtmlPage.objects.all()
@@ -141,6 +122,16 @@ class HtmlPage(models.Model):
                 if htmlpage.is_error and htmlpage.published and self.pk != htmlpage.pk:
                     msg = _('There is already a published error page. Only one page can be the error page and published')
                     raise ValidationError({'is_error': msg})
+
+        if self.slug.startswith('/') or self.slug.endswith('/'):
+            msg = _('Page slug must not starts with "/" or ends with "/".')
+            raise ValidationError({'slug': msg})
+
+        if self.slug:
+            split_slug = self.slug.split('/')
+            if split_slug[0] in get_patterns():
+                msg = _('The slug contains namespaces that already exists in the cms.')
+                raise ValidationError({'slug': msg})
 
     class Meta:
         verbose_name = _('html page')

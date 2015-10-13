@@ -19,11 +19,11 @@ from ..plugin_pool import plugin_pool
 class HtmlPageAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title', )}
     list_filter = ('is_template', 'published', 'is_error', 'home')
-    list_display = ('title', 'is_template', 'home', 'published', 'parent')
+    list_display = ('title', 'is_template', 'home', 'published')
     list_editable = ('published', )
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'parent', 'template', 'published')
+            'fields': ('title', 'slug', 'template', 'published')
         }),
         ('Advanced options',{
             'fields': ('home', 'is_template', 'is_error')
@@ -119,13 +119,11 @@ class HtmlPageAdmin(admin.ModelAdmin):
         is_popup = False
         if request.META.get('HTTP_REFERER'):
             referrer = urlparse(request.META.get('HTTP_REFERER'))
-            #TODO: be more specific. We arleady know all admin urls and all views
-            # so we can exam the full func or hole urls.
-            # In this case we have more referrers to exam
-            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = False
-            else:
+            if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
+                'detail' in str(urlresolvers.resolve(referrer.path).func):
                 is_popup = True
+            else:
+                is_popup = False
 
         extra_context = extra_context or {}
         extra_context.update(
@@ -148,13 +146,11 @@ class HtmlPageAdmin(admin.ModelAdmin):
         is_popup = False
         if request.META.get('HTTP_REFERER'):
             referrer = urlparse(request.META.get('HTTP_REFERER'))
-            #TODO: be more specific. We arleady know all admin urls and all views
-            # so we can exam the full func or hole urls.
-            if 'changelist_view' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = False
-            else:
+            if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
+                'detail' in str(urlresolvers.resolve(referrer.path).func):
                 is_popup = True
-
+            else:
+                is_popup = False
 
         extra_context = extra_context or {}
         extra_context.update(
