@@ -11,14 +11,21 @@ from django.utils.translation import get_language, get_language_from_path, get_l
 class SimpleLocaleMiddleware(LocaleMiddleware):
 
     def process_request(self, request):
+        """
+        First time we want to set as default the LANGUAGE_CODE
+        If user change the language with post then set it and with redirect action get browser session language
+        :param request:
+        :return:
+        """
         if self.is_language_prefix_patterns_used():
-            session_language = get_language_from_request(request, True)
+            browser_session_language = get_language_from_request(request, True)
             url_language = get_language_from_path(request.path_info)
 
-            if not url_language and session_language in get_language():
-                language = get_language()
+            if not url_language and translation.LANGUAGE_SESSION_KEY not in request.session:
+                language = settings.LANGUAGE_CODE
             else:
-                language = session_language
+                language = browser_session_language
+
             translation.activate(language)
             request.LANGUAGE_CODE = translation.get_language()
 

@@ -178,6 +178,35 @@ Using system python
     playing with the cms.
 
 
+Enable translation
+------------------
+You can enable multi language processing adding in your root urlconf (urls.py) the following code::
+
+    ...
+    from loosecms.conf.urls.i18n import simple_i18n_patterns
+
+    urlpatterns = [
+        url(r'^i18n/', include('django.conf.urls.i18n')),
+        url(r'^admin/', include(admin.site.urls)),
+    ]
+
+    urlpatterns += simple_i18n_patterns(
+        url(r'^', include('loosecms.urls')),
+    )
+
+and adding the 'SimpleLocaleMiddleware' middleware::
+
+    MIDDLEWARE_CLASSES = (
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'loosecms.middleware.locale.SimpleLocaleMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        ...
+    )
+
+Restart development server ``python manage.py runserver`` and visit http://127.0.0.1:8000/ to start
+playing with the cms.
+
+
 Plugins
 -------
 
