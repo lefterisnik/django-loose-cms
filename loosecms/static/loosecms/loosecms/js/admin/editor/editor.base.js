@@ -69,9 +69,8 @@
                 },
                 callback: function (panel) {
                     $("iframe", panel).load(function (e) {
-                        $('#overlay').fadeOut();
                         $(e.target).fadeIn(2000);
-
+                        panel.content.css({"width": "auto", "height": "auto"});
                         panel.fadeIn();
                         panel.resize(null, caclulate_height(this));
                         panel.reposition("top center");
@@ -90,8 +89,6 @@
                 slidebar.slidebars.toggle('left');
             }
 
-            $('#overlay').fadeTo("slow", 0.5);
-
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -105,8 +102,6 @@
             if (slidebar.slidebars.active('left')){
                 slidebar.slidebars.toggle('left');
             }
-
-            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
             var type = $(this).data('type');
@@ -137,8 +132,6 @@
                 slidebar.slidebars.toggle('left');
             }
 
-            $('#overlay').fadeTo("slow", 0.5);
-
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -153,8 +146,6 @@
             if (slidebar.slidebars.active('left')){
                 slidebar.slidebars.toggle('left');
             }
-
-            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
             var type = $(this).data('type');
@@ -176,8 +167,6 @@
         $('body').on('click', '.edit-plugin', function(e){
             e.preventDefault();
 
-            $('#overlay').fadeTo("slow", 0.5);
-
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -187,8 +176,6 @@
 
         $('body').on('click', '.delete-plugin', function(e){
             e.preventDefault();
-
-            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
 
@@ -200,8 +187,6 @@
         $('body').on('click', '.move-plugin', function(e){
             e.preventDefault();
 
-            $('#overlay').fadeTo("slow", 0.5);
-
             var url = $(this).attr('href');
 
             make_jspanel(url);
@@ -211,8 +196,6 @@
 
         $('body').on('click', '.select-plugin', function(e){
             e.preventDefault();
-
-            $('#overlay').fadeTo("slow", 0.5);
 
             var url = $(this).attr('href');
 
