@@ -182,8 +182,7 @@ class HtmlPageAdmin(admin.ModelAdmin):
                 page=page,
                 template_pages=template_pages,
                 pages=pages,
-                title=_('Edit page'),
-                is_popup=True,
+                title=_('Edit page')
             )
             context = update_context(context, page)
             return render(request, 'admin/editor_form.html', context)

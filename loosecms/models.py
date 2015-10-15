@@ -151,6 +151,36 @@ class LoosecmsTagged(GenericTaggedItemBase):
     tag = models.ForeignKey(LoosecmsTag, related_name='%(app_label)s_%(class)s_items')
 
 
+class Category(Plugin):
+    default_type = 'CategoryPlugin'
+
+    title = models.CharField(_('title'), max_length=200,
+                             help_text=_('Give the name of the tag cloud.'))
+    slug = models.SlugField(_('slug'), unique=True,
+                            help_text=_('Give the slug of the tag cloud.'))
+    number = models.PositiveIntegerField(_('number'), blank=True, default=5,
+                                         help_text=_('Give the number of results per page'))
+
+    def __unicode__(self):
+        return "%s (%s)" %(self.title, self.type)
+
+
+class PopularCategoryCloud(Plugin):
+    default_type = 'PopularCategoryCloudPlugin'
+
+    title = models.CharField(_('title'), max_length=200,
+                             help_text=_('Give the name of the tag cloud.'))
+    slug = models.SlugField(_('slug'), unique=True,
+                            help_text=_('Give the slug of the tag cloud.'))
+    page = models.ForeignKey(HtmlPage, verbose_name=_('page'),
+                             limit_choices_to={'is_template': False},
+                             help_text=_('Give the page to show the objects that tagged with this tag. Must contain '
+                                         'a Tag plugin.'))
+
+    def __unicode__(self):
+        return "%s (%s)" %(self.title, self.type)
+
+
 class Row(Plugin):
     default_type = "RowPlugin"
 

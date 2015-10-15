@@ -87,8 +87,11 @@ class PluginModelAdmin(admin.ModelAdmin):
         :return:
         """
         fields = super(PluginModelAdmin, self).get_fields(request, obj)
-        fields.pop(fields.index('published'))
-        fields.append('published')
+        try:
+            fields.pop(fields.index('published'))
+            fields.append('published')
+        except ValueError:
+            pass
 
         return fields
 

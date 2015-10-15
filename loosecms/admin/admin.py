@@ -2,9 +2,23 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import Configuration, LoosecmsTag
+from ..models import Configuration, LoosecmsTag, LoosecmsTagged
 
 from taggit.models import Tag
+
+
+class LoosecmsTaggedInline(admin.StackedInline):
+    model = LoosecmsTagged
+
+
+class LoosecmsTagAdmin(admin.ModelAdmin):
+    inlines = [
+        LoosecmsTaggedInline
+    ]
+    list_display = ('name', 'slug')
+    ordering = ('name', 'slug')
+    search_fields = ('name', )
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class ConfigurationAdmin(admin.ModelAdmin):
@@ -18,5 +32,5 @@ class ConfigurationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Configuration, ConfigurationAdmin)
-admin.site.register(LoosecmsTag)
+admin.site.register(LoosecmsTag, LoosecmsTagAdmin)
 admin.site.unregister(Tag)

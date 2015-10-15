@@ -1,0 +1,91 @@
+{% load i18n staticfiles %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <form role="form" method="get" action=".">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="{% trans 'Category' %}" name="category" value="{{ category }}">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% if loosecmstagged %}
+    <div class="row">
+        <div class="col-lg-12">
+            {% if loosecmstagged.paginator.count != 0 %}
+                <p class="bg-info text-center">
+                {% blocktrans count counter=loosecmstagged.paginator.count %}Found {{ counter }} result.{% plural %}Found {{ counter }} results.{% endblocktrans %}
+                </p>
+                <hr/>
+                <div class="panel-group" id="category-results">
+                    {% for item in loosecmstagged.object_list %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#category-results" href="#category-collapse{{ forloop.counter }}">
+                                    {{ forloop.counter }}. {{ item.content_object.title}}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="category-collapse{{ forloop.counter }}" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    {{ item.content_object.body|truncatewords_html:10|safe }}
+                                    <br/>
+                                    <p><a class="btn btn-primary" href="{{ item.content_object.get_absolute_url }}">{% trans 'View more' %} &raquo;</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if loosecmstagged.paginator.num_pages != 1 and loosecmstagged|length != 1 %}
+                    <ul class="pagination">
+                        {% if loosecmstagged.number ==  1 %}
+                            <li class="disabled"><span class="glyphicon glyphicon-step-backward"></span></li>
+                            <li class="disabled"><span class="glyphicon glyphicon-backward"></span></li>
+                        {% else %}
+                            <li><a href="?category={{ category }}&amp;pageset=1"><span class="glyphicon glyphicon-step-backward"></span></a></li>
+                            <li><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.previous_page_number }}"><span class="glyphicon glyphicon-backward"></span></a></li>
+                        {% endif %}
+
+                        {% if loosecmstagged.has_previous %}
+                            <li><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.previous_page_number }}">{{ loosecmstagged.previous_page_number }}</a></li>
+                        {% endif %}
+
+                        <li class="active"><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.number }}">{{ loosecmstagged.number }}</a></li>
+
+                        {% if loosecmstagged.has_next %}
+                            <li><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.next_page_number }}">{{ loosecmstagged.next_page_number }}</a></li>
+                        {% endif %}
+
+                        {% if loosecmstagged.number ==  loosecmstagged.paginator.num_pages %}
+                            <li class="disabled"><span class="glyphicon glyphicon-forward"></span></li>
+                            <li class="disabled"><span class="glyphicon glyphicon-step-forward"></span></li>
+                        {% else %}
+                            <li><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.next_page_number }}"><span class="glyphicon glyphicon-forward"></span></a></li>
+                            <li><a href="?category={{ category }}&amp;pageset={{ loosecmstagged.paginator.num_pages }}"><span class="glyphicon glyphicon-step-forward"></span></a></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            {% else %}
+                <p class="bg-info text-center">{% trans 'No results found.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-lg-12">
+            <p class="bg-info text-center">{% trans 'No results found.' %}</p>
+        </div>
+    </div>
+{% endif %}

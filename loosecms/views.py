@@ -16,7 +16,6 @@ def _handle_no_page(request, pages, context):
         template_pages = pages.filter(is_template=True)
         pages = pages.filter(is_template=False)
         context.update(
-            is_popup=True,
             template_pages=template_pages,
             pages=pages,
             title=_('Edit page'),

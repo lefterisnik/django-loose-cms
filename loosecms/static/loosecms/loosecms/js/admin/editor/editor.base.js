@@ -56,7 +56,7 @@
                     height: 'auto',
                 },
                 controls: { minimize: 'disable', iconfont: "bootstrap" },
-                position: "top center",
+                position: { top: '70px', left: 'center' },
                 bootstrap: 'primary',
                 addClass:{
                     content: "custom-content",
@@ -73,7 +73,7 @@
                         panel.content.css({"width": "auto", "height": "auto"});
                         panel.fadeIn();
                         panel.resize(null, caclulate_height(this));
-                        panel.reposition("top center");
+                        panel.reposition({ top: '70px', left: 'center' });
                         panel.title(this.contentWindow.document.title);
                     });
                 }

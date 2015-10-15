@@ -1,8 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n staticfiles cms_tags %}
 
-{% block title %}{% trans "Edit page" %}{% endblock %}
-
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/jspanel/jspanel/jquery.jspanel.min.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'loosecms/external/slidebars/slidebars.min.css' %}" />
