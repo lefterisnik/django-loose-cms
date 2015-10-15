@@ -41,7 +41,8 @@ class PluginModelAdmin(admin.ModelAdmin):
         self.make_message(request, obj, 'added')
 
         self.object_successfully_added = True
-        if self.plugin_cke:
+
+        if self.plugin_cke and '_popup' in request.POST:
             context = dict(
                 obj=obj,
             )
@@ -59,7 +60,7 @@ class PluginModelAdmin(admin.ModelAdmin):
 
         self.object_successfully_changed = True
 
-        if self.plugin_cke:
+        if self.plugin_cke and '_popup' in request.POST:
             context = dict(
                 obj=obj,
             )
