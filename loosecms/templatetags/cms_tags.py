@@ -95,3 +95,12 @@ def get_plugin(value):
 @register.filter
 def strip(value):
     return ' '.join(value.splitlines())
+
+@register.filter
+def unescape(value):
+    """
+    Escaped text (html entities) converted to unescaped text for indexing to solr
+    """
+    import HTMLParser
+    h = HTMLParser.HTMLParser()
+    return h.unescape(value)
