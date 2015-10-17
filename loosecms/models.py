@@ -36,7 +36,7 @@ class Configuration(models.Model):
 class Plugin(models.Model):
     default_type = None
 
-    type = models.CharField(max_length=50, blank=True)
+    type = models.CharField(max_length=50, blank=True, null=True)
 
     placeholder = models.ForeignKey('self', blank=True, null=True)
 
