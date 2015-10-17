@@ -92,3 +92,68 @@ class TestPopularCategoryModel(TestCase):
         self.assertEqual(unicode(self.popularcategorycloud),
                          '%s (%s)' %(self.popularcategorycloud.title, self.popularcategorycloud.type))
 
+
+class TestHtmlPage(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_no_slug_checked_home(self):
+        msg = 'With null slug must check the home flag.'
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page', home=False)
+            htmlpage.clean()
+
+    def test_checked_home_template_error(self):
+        msg = 'Only one checkbox must be checked.'
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page1', slug='page1', home=True, is_template=True)
+            htmlpage.clean()
+
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page2', slug='page2', home=True, is_error=True)
+            htmlpage.clean()
+
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page3', slug='page3', is_template=True, is_error=True)
+            htmlpage.clean()
+
+    def test_startswith_endswith(self):
+        msg = 'Page slug must not starts with "/" or ends with "/".'
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page1', slug='/page1')
+            htmlpage.clean()
+
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage = HtmlPage.objects.create(title='Page2', slug='page2/')
+            htmlpage.clean()
+
+    def test_home_unique(self):
+        msg = 'There is already a published home page. Only one page can be the home page and published'
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage1 = HtmlPage.objects.create(title='Page1', slug='page1', home=True)
+            htmlpage2 = HtmlPage.objects.create(title='Page2', slug='page2', home=True)
+            htmlpage2.clean()
+
+        try:
+            htmlpage1 = HtmlPage.objects.create(title='Page3', slug='page3', home=True)
+            htmlpage2 = HtmlPage.objects.create(title='Page4', slug='page4', home=True, published=False)
+            htmlpage2.clean()
+        except ValidationError:
+            self.fail('Raised validation error unexpectedly')
+
+    def test_error_unique(self):
+        msg = 'There is already a published error page. Only one page can be the error page and published'
+        with self.assertRaisesMessage(ValidationError, msg):
+            htmlpage1 = HtmlPage.objects.create(title='Page1', slug='page1', is_error=True)
+            htmlpage2 = HtmlPage.objects.create(title='Page2', slug='page2', is_error=True)
+            htmlpage2.clean()
+
+        try:
+            htmlpage1 = HtmlPage.objects.create(title='Page3', slug='page3', is_error=True)
+            htmlpage2 = HtmlPage.objects.create(title='Page4', slug='page4', is_error=True, published=False)
+            htmlpage2.clean()
+        except ValidationError:
+            self.fail('Raised validation error unexpectedly')
+
+
