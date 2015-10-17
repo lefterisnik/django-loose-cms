@@ -232,7 +232,9 @@ class Column(Plugin):
 
     def clean(self):
         """
+        Don't allow same order
         Don't allow width to be greater than 12
+        Don't allow zero width
         :return: cleaned_data and errors
         """
         columns = Column.objects.filter(placeholder=self.placeholder)
@@ -246,4 +248,8 @@ class Column(Plugin):
 
         if sum_width + self.width > 12:
             msg = _('Width value is too big. The valid maximum value is %s.') % (12-sum_width)
+            raise ValidationError({'width': msg})
+
+        if self.width == 0:
+            msg = _('Width value must be larger than 0.')
             raise ValidationError({'width': msg})
