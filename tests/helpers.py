@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 # Helpful: objects.create call save function but Plugin() don't call it.
+# Helpful: with request context processor many GET, POST variable passed to context
+# which can used in templates or other plugins. Each context processor can define new
+# variables which can used in views or middlewares.
 from loosecms.models import HtmlPage, Row, Column
 
 

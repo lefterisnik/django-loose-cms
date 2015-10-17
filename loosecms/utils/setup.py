@@ -18,10 +18,10 @@ def setup():
 
     # Exam context processors
     context_processors = django_backend.get('OPTIONS', {}).get('context_processors', [])
-    if ('django.core.context_processors.request' not in context_processors and
-        'django.template.context_processors.request' not in context_processors):
-        raise ImproperlyConfigured("Django Loose CMS requires django.template.context_processors.request in "
-                                   "'django.template.backends.django.DjangoTemplates' context processors.")
+    #if ('django.core.context_processors.request' not in context_processors and
+    #    'django.template.context_processors.request' not in context_processors):
+    #    raise ImproperlyConfigured("Django Loose CMS requires django.template.context_processors.request in "
+    #                               "'django.template.backends.django.DjangoTemplates' context processors.")
 
     if 'loosecms.template.context_processors.global_settings' not in context_processors:
         raise ImproperlyConfigured("Django Looces CMS requires 'loosecms.template.context_processors.global_settings' "

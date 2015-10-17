@@ -17,17 +17,16 @@ class SimpleLocaleMiddleware(LocaleMiddleware):
         :param request:
         :return:
         """
-        if self.is_language_prefix_patterns_used():
-            browser_session_language = get_language_from_request(request, True)
-            url_language = get_language_from_path(request.path_info)
+        browser_session_language = get_language_from_request(request, True)
+        url_language = get_language_from_path(request.path_info)
 
-            if not url_language and translation.LANGUAGE_SESSION_KEY not in request.session:
-                language = settings.LANGUAGE_CODE
-            else:
-                language = browser_session_language
+        if not url_language and translation.LANGUAGE_SESSION_KEY not in request.session:
+            language = settings.LANGUAGE_CODE
+        else:
+            language = browser_session_language
 
-            translation.activate(language)
-            request.LANGUAGE_CODE = translation.get_language()
+        translation.activate(language)
+        request.LANGUAGE_CODE = translation.get_language()
 
 
 class NoPrefixLocaleRegexURLResolver(LocaleRegexURLResolver):
