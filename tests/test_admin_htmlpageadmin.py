@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.test import Client, TestCase
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from .helpers import *
 
 
@@ -13,7 +13,6 @@ class AdminPageViews(TestCase):
                                                   email='admin@admin.com',
                                                   password='admin')
         self.client.login(username='admin', password='admin')
-
 
     def test_edit_page(self):
         """
@@ -57,7 +56,6 @@ class AdminPageViews(TestCase):
         response = self.client.get(column_url+'?type=ColumnPlugin')
         self.assertEqual(response.status_code, 200)
 
-    # TODO: Add test at edit style of plugin
     def test_edit_template_page_edit_delete_move_plugin(self):
         """
         Test case of a staff user with template pages in database to edit plugin
@@ -83,14 +81,111 @@ class AdminPageViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_htmlpage_add_view_popup_var_true(self):
+        htmlpage = create_page()
 
-'''class AdminPluginViews(TestCase):
+        edit_page_url = reverse('admin:admin_edit_page', args=(htmlpage.pk, ))
+        detail_page_url = '/page1/'
 
-    def setUp(self):
-        self.client = Client()
-        get_user_model().objects.create_superuser(username='admin',
-                                                  email='admin@admin.com',
-                                                  password='admin')'''
+        add_url = reverse('admin:%s_%s_add' %('loosecms', 'htmlpage'))
+
+        response = self.client.get(add_url, HTTP_REFERER=edit_page_url)
+        self.assertEqual(response.context['is_popup'], True)
+
+        response = self.client.get(add_url, HTTP_REFERER=detail_page_url)
+        self.assertEqual(response.context['is_popup'], True)
+
+    def test_htmlpage_add_view_popup_var_false(self):
+        htmlpage = create_page()
+
+        add_url = reverse('admin:%s_%s_add' %('loosecms', 'htmlpage'))
+        changelist_url = reverse('admin:%s_%s_changelist' %('loosecms', 'htmlpage'))
+
+        response = self.client.get(add_url)
+        self.assertEqual(response.context['is_popup'], False)
+
+        response = self.client.get(add_url, HTTP_REFERER=changelist_url)
+        self.assertEqual(response.context['is_popup'], False)
+
+    def test_htmlpage_change_view_popup_var_true(self):
+        htmlpage = create_page()
+
+        edit_page_url = reverse('admin:admin_edit_page', args=(htmlpage.pk, ))
+        detail_page_url = '/page1/'
+
+        change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
+
+        response = self.client.get(change_url, HTTP_REFERER=edit_page_url)
+        self.assertEqual(response.context['is_popup'], True)
+
+        response = self.client.get(change_url, HTTP_REFERER=detail_page_url)
+        self.assertEqual(response.context['is_popup'], True)
+
+    def test_htmlpage_change_view_popup_var_false(self):
+        htmlpage = create_page()
+
+        change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
+        changelist_url = reverse('admin:%s_%s_changelist' %('loosecms', 'htmlpage'))
+
+        response = self.client.get(change_url)
+        self.assertEqual(response.context['is_popup'], False)
+
+        response = self.client.get(change_url, HTTP_REFERER=changelist_url)
+        self.assertEqual(response.context['is_popup'], False)
+
+    def test_response_add_get(self):
+        add_url = reverse('admin:%s_%s_add' %('loosecms', 'htmlpage'))
+        response = self.client.get(add_url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_response_add_post_redirect_admin_urls(self):
+        add_url = reverse('admin:%s_%s_add' %('loosecms', 'htmlpage'))
+        changelist_url = reverse('admin:%s_%s_changelist' %('loosecms', 'htmlpage'))
+
+        response = self.client.post(add_url, {'title': 'Page', 'slug': 'page'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(changelist_url, response.redirect_chain[0][0])
+
+    def test_response_add_post_redirect_edit_page(self):
+        add_url = reverse('admin:%s_%s_add' %('loosecms', 'htmlpage'))
+
+        response = self.client.post(add_url, {'title': 'Page', 'slug': 'page', '_popup': True},
+                                    follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_response_change_get(self):
+        htmlpage = create_page()
+        change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
+        response = self.client.get(change_url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_response_add_post_redirect_admin_urls(self):
+        htmlpage = create_page()
+        change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
+        changelist_url = reverse('admin:%s_%s_changelist' %('loosecms', 'htmlpage'))
+
+        response = self.client.post(change_url, {'title': 'Page', 'slug': 'page'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(changelist_url, response.redirect_chain[0][0])
+
+    def test_response_add_post_redirect_edit_page(self):
+        htmlpage = create_page()
+        change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
+
+        response = self.client.post(change_url, {'title': 'Page', 'slug': 'page', '_popup': True},
+                                    follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+
+
+
+
+
+
 
 
 
