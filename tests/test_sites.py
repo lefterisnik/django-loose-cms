@@ -20,4 +20,4 @@ class TestSiteFilemanager(TestCase):
         self.client.login(username='admin', password='admin')
         response = self.client.get('/admin/filemanager/')
 
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
