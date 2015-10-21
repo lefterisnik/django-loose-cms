@@ -9,6 +9,7 @@ def get_app_urls(embed_only=False):
     else:
         return plugin_pool.extra_urlpatterns, plugin_pool.embed_urlpatterns
 
+
 def get_patterns():
     resolver = get_resolver(None)
     patterns = []

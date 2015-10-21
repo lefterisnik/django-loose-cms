@@ -18,12 +18,13 @@ class LooseCMSAdminSite(admin.AdminSite):
         Add custom urls to loosecms admin site.
         :return: urls
         """
-        urlpatterns = [
+        urlpatterns = super(LooseCMSAdminSite, self).get_urls()
+        filemanager_urlpatterns = [
             url(r'^filemanager/$', self.admin_view(self.filemanager),
                 name='admin_filemanager')
         ]
 
-        return urlpatterns
+        return urlpatterns + filemanager_urlpatterns
 
     @never_cache
     def filemanager(self, request):
