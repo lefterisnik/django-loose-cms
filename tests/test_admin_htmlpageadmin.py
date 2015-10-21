@@ -162,7 +162,7 @@ class AdminPageViews(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_response_add_post_redirect_admin_urls(self):
+    def test_response_change_post_redirect_admin_urls(self):
         htmlpage = create_page()
         change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
         changelist_url = reverse('admin:%s_%s_changelist' %('loosecms', 'htmlpage'))
@@ -171,7 +171,7 @@ class AdminPageViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(changelist_url, response.redirect_chain[0][0])
 
-    def test_response_add_post_redirect_edit_page(self):
+    def test_response_change_post_redirect_edit_page(self):
         htmlpage = create_page()
         change_url = reverse('admin:%s_%s_change' %('loosecms', 'htmlpage'), args=(htmlpage.pk, ))
 
