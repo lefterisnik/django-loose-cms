@@ -3,6 +3,7 @@ from django.test import Client, TestCase
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from loosecms.views import error404
+from loosecms.models import HtmlPage
 from .helpers import *
 
 
@@ -132,7 +133,35 @@ class StaffViews(TestCase):
         self.client.login(username='admin', password='admin')
         self.custom_error_page = create_404_page()
         response = self.client.get('/page1/')
+
         self.assertTemplateUsed(response, 'admin/editor_form.html')
+
+    def test_creation_page(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get('/page1/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['page_slug'], 'page1')
+
+    def test_creation_page_multislug(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get('/page1/page/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['page_slug'], 'page1/page')
+
+    def test_deny_creation_page_under_specific_names(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get('/admin/page1/')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_multislug_page(self):
+        self.client.login(username='admin', password='admin')
+        htmlpage = HtmlPage.objects.create(title='Page', slug='/page1/page')
+        response = self.client.get('/page1/page/')
+
+        self.assertEqual(response.status_code, 200)
 
 
 

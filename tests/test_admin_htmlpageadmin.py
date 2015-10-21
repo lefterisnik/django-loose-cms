@@ -12,6 +12,8 @@ class AdminPageViews(TestCase):
         get_user_model().objects.create_superuser(username='admin',
                                                   email='admin@admin.com',
                                                   password='admin')
+        self.client.login(username='admin', password='admin')
+
 
     def test_edit_page(self):
         """
@@ -20,7 +22,6 @@ class AdminPageViews(TestCase):
         :return: 200
         """
         self.htmlpage = create_page(is_template=False)
-        self.client.login(username='admin', password='admin')
         url = reverse('admin:admin_edit_page', args=(self.htmlpage.pk, ))
         response = self.client.get(url)
 
@@ -33,7 +34,6 @@ class AdminPageViews(TestCase):
         :return: 200
         """
         self.htmlpage = create_page(is_template=True)
-        self.client.login(username='admin', password='admin')
         url = reverse('admin:admin_edit_page', args=(self.htmlpage.pk, ))
         response = self.client.get(url)
 
@@ -46,7 +46,6 @@ class AdminPageViews(TestCase):
         :return: 200
         """
         self.htmlpage = create_page(is_template=True)
-        self.client.login(username='admin', password='admin')
         row_url = reverse('admin:admin_add_placeholder', args=(self.htmlpage.pk, ))
         column_url = reverse('admin:admin_add_plugin')
 
@@ -67,7 +66,6 @@ class AdminPageViews(TestCase):
         """
         self.htmlpage = create_page(is_template=True)
         self.row = create_row_plugin(self.htmlpage)
-        self.client.login(username='admin', password='admin')
 
         # Test edit row plugin
         url = reverse('admin:admin_edit_plugin', args=(self.row.pk, ))
