@@ -14,12 +14,20 @@ def create_page(is_template=False):
 
 
 def create_row_plugin(htmlpage):
-    row = Row.objects.create(type='RowPlugin',
-                             title='row1',
+    row = Row.objects.create(title='row1',
                              slug='row1',
                              page=htmlpage,
                              order=0)
     return row
+
+
+def create_column_plugin(placeholder):
+    column = Column.objects.create(title='column1',
+                                    slug='column1',
+                                    width='12',
+                                    placeholder=placeholder)
+    return column
+
 
 
 def create_404_page():
