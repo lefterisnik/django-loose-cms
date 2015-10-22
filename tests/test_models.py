@@ -159,7 +159,7 @@ class TestHtmlPage(TestCase):
 
     def test_slug_contain_namespaces(self):
         with self.assertRaises(ValidationError):
-            htmlpage = HtmlPage.objects.create(title='Page', slug='/admin/page')
+            htmlpage = HtmlPage.objects.create(title='Page', slug='admin/page')
             htmlpage.clean()
 
     def test_get_absolute_url(self):
