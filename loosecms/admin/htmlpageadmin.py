@@ -117,20 +117,21 @@ class HtmlPageAdmin(admin.ModelAdmin):
         :return:json or the html form
         """
         is_popup = False
-        if request.META.get('HTTP_REFERER'):
-            referrer = urlparse(request.META.get('HTTP_REFERER'))
-            if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
-                'detail' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = True
-            else:
-                is_popup = False
+        if '_popup' not in request.GET and '_to_field' not in request.GET:
+            if request.META.get('HTTP_REFERER'):
+                referrer = urlparse(request.META.get('HTTP_REFERER'))
+                if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
+                    'detail' in str(urlresolvers.resolve(referrer.path).func):
+                    is_popup = True
+                else:
+                    is_popup = False
 
-        extra_context = extra_context or {}
-        extra_context.update(
-            is_popup=is_popup,
-        )
+            extra_context = extra_context or {}
+            extra_context.update(
+                is_popup=is_popup,
+            )
 
-        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_add')
+            form_url = urlresolvers.reverse('admin:loosecms_htmlpage_add')
 
         return super(HtmlPageAdmin, self).add_view(request, form_url, extra_context)
 
@@ -144,20 +145,21 @@ class HtmlPageAdmin(admin.ModelAdmin):
         :return:
         """
         is_popup = False
-        if request.META.get('HTTP_REFERER'):
-            referrer = urlparse(request.META.get('HTTP_REFERER'))
-            if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
-                'detail' in str(urlresolvers.resolve(referrer.path).func):
-                is_popup = True
-            else:
-                is_popup = False
+        if '_popup' not in request.GET and '_to_field' not in request.GET:
+            if request.META.get('HTTP_REFERER'):
+                referrer = urlparse(request.META.get('HTTP_REFERER'))
+                if 'edit_page' in str(urlresolvers.resolve(referrer.path).func) or \
+                    'detail' in str(urlresolvers.resolve(referrer.path).func):
+                    is_popup = True
+                else:
+                    is_popup = False
 
-        extra_context = extra_context or {}
-        extra_context.update(
-            is_popup=is_popup,
-        )
+            extra_context = extra_context or {}
+            extra_context.update(
+                is_popup=is_popup,
+            )
 
-        form_url = urlresolvers.reverse('admin:loosecms_htmlpage_change', args=(object_id, ))
+            form_url = urlresolvers.reverse('admin:loosecms_htmlpage_change', args=(object_id, ))
 
         return super(HtmlPageAdmin, self).change_view(request, object_id, form_url, extra_context)
 

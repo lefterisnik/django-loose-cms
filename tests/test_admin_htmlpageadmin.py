@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from django.contrib.admin.helpers import AdminForm
 from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
 from loosecms.models import *
 from .helpers import *
-
 
 
 class AdminPageViews(TestCase):
@@ -68,6 +68,10 @@ class AdminPageViews(TestCase):
         self.assertEqual(column.placeholder.pk, row.pk)
         self.assertEqual(column.type, 'ColumnPlugin')
 
+        # Testing page autocomplete at get from parent rows
+        response = self.client.get(add_plugin_url, {'type': 'RowPlugin', 'placeholder': column.pk})
+        self.assertEqual(response.context['adminform'].form.initial['page'], htmlpage)
+
     def test_edit_template_page_remove_plugin(self):
         htmlpage = create_page()
         row = create_row_plugin(htmlpage)
@@ -78,24 +82,93 @@ class AdminPageViews(TestCase):
         column = Column.objects.get(title='Column')
         self.assertEqual(column.placeholder, None)
 
-    def test_edit_template_page_edit_delete_move_plugin(self):
+    def test_edit_template_page_edit_plugin(self):
         htmlpage = create_page()
         row = create_row_plugin(htmlpage)
-
-        # Test edit row plugin
         edit_plugin_url = reverse('admin:admin_edit_plugin', args=(row.pk, ))
+
+        # Test edit row plugin get
         response = self.client.get(edit_plugin_url)
         self.assertEqual(response.status_code, 200)
 
-        # Testing delete row plugin
+        # Test edit row post action
+        response = self.client.post(edit_plugin_url, {'title': 'New Row', 'slug': row.slug,
+                                                      'page': row.page.pk, 'order': row.order,
+                                                      '_popup': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '<script>window.parent.location.reload(true);self.close();</script>')
+
+    def test_edit_template_page_move_row_plugin_new_page(self):
+        htmlpage1 = create_page(title='Page1', slug='page1')
+        htmlpage2 = create_page(title='Page2', slug='page2')
+        row = create_row_plugin(htmlpage2, title='Row', slug='row')
+        move_plugin_url = reverse('admin:admin_move_plugin', args=(row.pk, ))
+
+        # Testing move row plugin get
+        response = self.client.get(move_plugin_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Test move row with no placeholder to different page post action
+        response = self.client.post(move_plugin_url, {'new_page': htmlpage1.pk, '_popup': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '<script>window.parent.location.reload(true);self.close();</script>')
+        new_row = Row.objects.get(title='Row')
+        self.assertEqual(new_row.page, htmlpage1)
+
+    def test_edit_template_page_move_row_plugin_new_page_placeholder(self):
+        htmlpage1 = create_page(title='Page1', slug='page1')
+        row1 = create_row_plugin(htmlpage1, title='Row1', slug='row1')
+        column = create_column_plugin(row1, title='Column', slug='column')
+        htmlpage2 = create_page(title='Page2', slug='page2')
+        row2 = create_row_plugin(htmlpage2, title='Row2', slug='row2')
+        move_plugin_url = reverse('admin:admin_move_plugin', args=(row2.pk, ))
+
+        # Testing move row2 plugin get
+        response = self.client.get(move_plugin_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Test move row2 with in placeholder to different page post action
+        response = self.client.post(move_plugin_url, {'new_page': htmlpage1.pk, 'new_placeholder': column.pk,
+                                                      '_popup': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '<script>window.parent.location.reload(true);self.close();</script>')
+        new_row = Row.objects.get(title='Row2')
+        self.assertEqual(new_row.page, htmlpage1)
+        self.assertEqual(new_row.placeholder.pk, column.pk)
+
+    def test_edit_template_page_move_column_plugin_new_page_placeholder(self):
+        htmlpage1 = create_page(title='Page1', slug='page1')
+        row1 = create_row_plugin(htmlpage1, title='Row1', slug='row1')
+        htmlpage2 = create_page(title='Page2', slug='page2')
+        row2 = create_row_plugin(htmlpage2, title='Row2', slug='row2')
+        column = create_column_plugin(row2, title='Column', slug='column')
+
+        move_plugin_url = reverse('admin:admin_move_plugin', args=(column.pk, ))
+
+        # Testing move column plugin get
+        response = self.client.get(move_plugin_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Test move column to different placeholder post action
+        response = self.client.post(move_plugin_url, {'new_placeholder': row1.pk, '_popup': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '<script>window.parent.location.reload(true);self.close();</script>')
+        new_column = Column.objects.get(title='Column')
+        self.assertEqual(new_column.placeholder.pk, row1.pk)
+
+    def test_edit_template_page_delete_plugin(self):
+        htmlpage = create_page()
+        row = create_row_plugin(htmlpage)
         delete_plugin_url = reverse('admin:admin_delete_plugin', args=(row.pk, ))
+
+        # Testing delete row plugin get
         response = self.client.get(delete_plugin_url)
         self.assertEqual(response.status_code, 200)
 
-        # Testing move row plugin
-        move_plugin_url = reverse('admin:admin_move_plugin', args=(row.pk, ))
-        response = self.client.get(move_plugin_url)
+        # Testing delete post action
+        response = self.client.post(delete_plugin_url, {'_popup': True})
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '<script>window.parent.location.reload(true);self.close();</script>')
 
     ##
     ## Test popup variable
