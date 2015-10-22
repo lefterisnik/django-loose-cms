@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.contrib.admin.helpers import AdminForm
 from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
 from loosecms.models import *
