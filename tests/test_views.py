@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.test import Client, TestCase
-from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from loosecms.views import error404
-from loosecms.models import HtmlPage
 from .helpers import *
 
 
@@ -13,154 +10,99 @@ class AnonymousViews(TestCase):
         self.client = Client()
 
     def test_no_pages(self):
-        """
-        Test case of an anonymous user with no pages at database
-        Redirect to the admin login page
-        Simulate first experience after installation, give the chance to login and start playing with cms
-        :return: 302 redirect
-        """
         response = self.client.get('/')
-
         self.assertEqual(response.status_code, 302)
 
     def test_edit_page(self):
-        """
-        Test case of an anonymous user with pages in database to edit page
-        Redirect to admin login page
-        :return: 302 redirect
-        """
-        self.htmlpage = create_page(is_template=False)
-        url = reverse('admin:admin_edit_page', args=(self.htmlpage.pk, ))
-        response = self.client.get(url)
+        htmlpage = create_page()
+        url = reverse('admin:admin_edit_page', args=(htmlpage.pk, ))
 
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
     def test_edit_template_page(self):
-        """
-        Test case of an anonymous user with pages in database to edit page
-        #TODO: Deny access to edit the template with 404, TEMP: Redirect to login page
-        :return: 302 redirect
-        """
-        self.htmlpage = create_page(is_template=True)
-        url = reverse('admin:admin_edit_page', args=(self.htmlpage.pk, ))
-        response = self.client.get(url)
+        htmlpage = create_page(is_template=True)
+        url = reverse('admin:admin_edit_page', args=(htmlpage.pk, ))
 
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
     def test_page(self):
-        """
-        Test case of an anonymous user with pages in database
-        Simulate page access
-        :return: 200
-        """
-        self.htmlpage = create_page(is_template=False)
-        response = self.client.get('/page1/')
+        htmlpage = create_page()
 
+        response = self.client.get('/page/')
         self.assertEqual(response.status_code, 200)
 
     def test_template_page(self):
-        """
-        Test case of an anonymous user with template pages in database
-        Deny access with 404
-        :return: 404
-        """
-        self.htmlpage = create_page(is_template=True)
-        response = self.client.get('/page1/')
+        htmlpage = create_page(is_template=True)
 
+        response = self.client.get('/page/')
         self.assertEqual(response.status_code, 404)
 
     def test_custom_error_page(self):
-        """
-        Test case of an anonymous user with pages in database to get a non existing page
-        Redirect to custom 404 if exists
-        :return:
-        """
-        self.custom_error_page = create_404_page()
-        response = self.client.get('/page1/')
-        self.assertEqual(response.context['page'].title, 'page404')
+        self.custom_error_page = create_page(title='Page 404', is_error=True)
+        response = self.client.get('/page/')
+        self.assertEqual(response.context['page'].title, 'Page 404')
 
 
 class StaffViews(TestCase):
 
     def setUp(self):
         self.client = Client()
-        get_user_model().objects.create_superuser(username='admin',
-                                                  email='admin@admin.com',
-                                                  password='admin')
+        create_admin_user()
 
     def test_no_pages(self):
-        """
-        Test case of a staff user with no pages at database
-        Allow access to home page
-        Simulate first experience after installation, give the chance to create page the first page
-        :return: 200
-        """
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/')
 
+        response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     def test_page(self):
-        """
-        Test case of an staff user with pages in database to view page
-        Allow access
-        :return: 200
-        """
-        self.htmlpage = create_page(is_template=False)
+        htmlpage = create_page()
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/page1/')
 
+        response = self.client.get('/page/')
         self.assertEqual(response.status_code, 200)
 
     def test_template_page(self):
-        """
-        Test case of a staff user with template pages in database
-        Allow access to template page
-        :return: 200
-        """
-        self.htmlpage = create_page(is_template=True)
+        htmlpage = create_page(is_template=True)
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/page1/')
 
+        response = self.client.get('/page/')
         self.assertEqual(response.status_code, 200)
 
     def test_custom_error_page(self):
-        """
-        Test case of an staff user with pages in database to get a non existing page
-        Redirect to custom 404 if exists
-        :return:
-        """
         self.client.login(username='admin', password='admin')
-        self.custom_error_page = create_404_page()
-        response = self.client.get('/page1/')
+        self.custom_error_page = create_page(is_error=True)
 
+        response = self.client.get('/error/')
         self.assertTemplateUsed(response, 'admin/editor_form.html')
 
     def test_creation_page(self):
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/page1/')
 
+        response = self.client.get('/page/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['page_slug'], 'page1')
+        self.assertEqual(response.context['page_slug'], 'page')
 
     def test_creation_page_multislug(self):
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/page1/page/')
 
+        response = self.client.get('/page1/page2/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['page_slug'], 'page1/page')
+        self.assertEqual(response.context['page_slug'], 'page1/page2')
 
     def test_deny_creation_page_under_specific_names(self):
         self.client.login(username='admin', password='admin')
-        response = self.client.get('/admin/page1/')
 
+        response = self.client.get('/admin/page/')
         self.assertEqual(response.status_code, 404)
 
     def test_multislug_page(self):
         self.client.login(username='admin', password='admin')
-        htmlpage = HtmlPage.objects.create(title='Page', slug='/page1/page')
-        response = self.client.get('/page1/page/')
+        htmlpage = create_page(slug='page1/page2')
 
+        response = self.client.get('/page1/page2/')
         self.assertEqual(response.status_code, 200)
 
 

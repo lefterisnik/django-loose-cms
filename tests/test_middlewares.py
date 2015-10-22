@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
 from django.test import Client, TestCase, override_settings, modify_settings
 from django.utils import translation
-from loosecms.models import HtmlPage
 from .helpers import *
 
 
@@ -10,7 +8,7 @@ class TestSimpleLocaleMiddleware(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.htmlpage = HtmlPage.objects.create(title='Page', home=True)
+        self.htmlpage = create_page(home=True)
 
     @override_settings(LANGUAGE_CODE='en')
     def test_process_request_without_urls_en_no_session(self):
@@ -45,7 +43,7 @@ class TestSimplepatternsel(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.htmlpage = HtmlPage.objects.create(title='Page', home=True)
+        self.htmlpage = create_page(home=True)
 
     @modify_settings(MIDDLEWARE_CLASSES={
         'append': 'loosecms.middleware.locale.SimpleLocaleMiddleware',
