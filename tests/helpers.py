@@ -3,7 +3,10 @@
 # Helpful: with request context processor many GET, POST variable passed to context
 # which can used in templates or other plugins. Each context processor can define new
 # variables which can used in views or middlewares.
-from loosecms.models import HtmlPage, Row, Column
+from django.db import models
+from loosecms.plugin_modeladmin import PluginModelAdmin
+from loosecms.plugin_pool import plugin_pool
+from loosecms.models import HtmlPage, Row, Column, Plugin
 
 
 def create_page(is_template=False):

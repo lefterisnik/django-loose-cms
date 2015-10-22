@@ -188,6 +188,8 @@ class HtmlPageAdmin(admin.ModelAdmin):
             return render(request, 'admin/editor_form.html', context)
 
     def _wrapper_add_plugin(self, request, page=None):
+        #TODO: Raise 404 when type is not defined
+        #TODO: Riase 404 when plugin has not placeholder. Exception rowplugin
         if request.method == 'GET':
             if 'type' in request.GET:
                 type = request.GET['type']

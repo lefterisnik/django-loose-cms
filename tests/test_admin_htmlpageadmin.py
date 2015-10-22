@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.test import Client, TestCase
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
+from loosecms.models import *
 from .helpers import *
+
 
 
 class AdminPageViews(TestCase):
@@ -44,17 +46,47 @@ class AdminPageViews(TestCase):
         Allow access to edit template
         :return: 200
         """
-        self.htmlpage = create_page(is_template=True)
-        row_url = reverse('admin:admin_add_placeholder', args=(self.htmlpage.pk, ))
-        column_url = reverse('admin:admin_add_plugin')
+        htmlpage = create_page(is_template=True)
+        add_placeholder_url = reverse('admin:admin_add_placeholder', args=(htmlpage.pk, ))
+        add_plugin_url = reverse('admin:admin_add_plugin')
 
-        # Testing add row plugin
-        response = self.client.get(row_url, {'type': 'RowPlugin'})
+        # Testing add row plugin form
+        response = self.client.get(add_placeholder_url, {'type': 'RowPlugin'})
         self.assertEqual(response.status_code, 200)
 
-        # Testing add column plugin
-        response = self.client.get(column_url+'?type=ColumnPlugin')
+        # Testin add row post action
+        response = self.client.post(add_plugin_url, {'type': 'RowPlugin', 'title': 'Row',
+                                                     'slug': 'row', 'page': htmlpage.pk,
+                                                     'order': 0, '_popup': True})
         self.assertEqual(response.status_code, 200)
+
+        row = Row.objects.get(title='Row')
+        self.assertEqual(row.page, htmlpage)
+        self.assertEqual(row.type, 'RowPlugin')
+
+        # Testing add column plugin form
+        response = self.client.get(add_plugin_url, {'type': 'ColumnPlugin', 'placeholder': row.pk})
+        self.assertEqual(response.status_code, 200)
+
+        # Testing add column post action
+        response = self.client.post(add_plugin_url, {'type': 'ColumnPlugin', 'placeholder': row.pk,
+                                                     'title': 'Column', 'slug': 'column',
+                                                     'width': 12, 'order': 0, '_popup': True})
+        self.assertEqual(response.status_code, 200)
+
+        column = Column.objects.get(title='Column')
+        self.assertEqual(column.placeholder.pk, row.pk)
+        self.assertEqual(column.type, 'ColumnPlugin')
+
+    def test_edit_template_page_remove_plugin(self):
+        htmlpage = create_page(is_template=True)
+        row = create_row_plugin(htmlpage)
+        column = create_column_plugin(row)
+        remove_plugin_url = reverse('admin:admin_remove_plugin', args=(column.pk, ))
+
+        response = self.client.delete(remove_plugin_url)
+        column = Column.objects.get(title='column1')
+        self.assertEqual(column.placeholder, None)
 
     def test_edit_template_page_edit_delete_move_plugin(self):
         """
@@ -179,7 +211,6 @@ class AdminPageViews(TestCase):
                                     follow=True)
 
         self.assertEqual(response.status_code, 200)
-
 
 
 
