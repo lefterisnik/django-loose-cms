@@ -266,13 +266,3 @@ class AdminPageViews(TestCase):
         response = self.client.post(change_page_url, {'title': 'Page', 'slug': 'page', '_popup': True},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-
-
-
-
-
-
-
-
-
-
