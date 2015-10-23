@@ -324,9 +324,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
             # Include common variables for rendering the admin template.
             self.admin_site.each_context(request),
             current_app=self.admin_site.name,
-            form=form,
-            is_popup=True,
             title=_('Select/Change plugin'),
+            form=form,
+            media=self.media + form.media,
+            is_popup=True,
             form_url=urlresolvers.reverse('admin:admin_select_plugin', args=(pk, ))
         )
         return render(request, 'admin/select_form.html', context)
@@ -383,9 +384,10 @@ class HtmlPageAdmin(admin.ModelAdmin):
             # Include common variables for rendering the admin template.
             self.admin_site.each_context(request),
             current_app=self.admin_site.name,
-            form=form,
-            is_popup=True,
             title=_('Move plugin'),
+            form=form,
+            media=self.media + form.media,
+            is_popup=True,
             form_url=urlresolvers.reverse('admin:admin_move_plugin', args=(pk, ))
         )
         return render(request, 'admin/move_form.html', context)

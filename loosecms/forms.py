@@ -41,7 +41,17 @@ class HtmlPageForm(forms.ModelForm):
 
 
 class MovePluginForm(forms.Form):
+    class Media:
+        css = {
+            'all': ('loosecms/loosecms/css/admin/popup/popup.base.css', )
+        }
+        js = (
+            'loosecms/loosecms/js/admin/move/move.urls.js',
+            'loosecms/loosecms/js/admin/move/move.base.js'
+        )
+
     required_css_class = 'required'
+
     new_page = forms.ModelChoiceField(queryset=HtmlPage.objects.all(),
                                       label=_('New page'),
                                       required=False,
@@ -113,7 +123,13 @@ class MovePluginForm(forms.Form):
 
 
 class SelectPluginForm(forms.Form):
+    class Media:
+        css = {
+            'all': ('loosecms/loosecms/css/admin/popup/popup.base.css', )
+        }
+
     required_css_class = 'required'
+
     plugin = forms.ModelChoiceField(queryset=Plugin.objects.filter(placeholder=None),
                                     label=_('Select plugin'),
                                     required=True,

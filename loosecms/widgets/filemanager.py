@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 class UploadFilePathWidget(widgets.Select):
 
     class Media:
-        js = ('loosecms/loosecms/js/admin/site/fields/loosecms.filemanager.js', )
+        js = ('loosecms/loosecms/js/admin/site/fields/filemanager.base.js', )
 
     def render(self, name, value, attrs=None, choices=()):
         filemanager_url = reverse('admin:admin_filemanager', current_app='loosecms')
